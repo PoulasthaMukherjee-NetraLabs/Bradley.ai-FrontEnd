@@ -4,13 +4,18 @@ import HorizontalStepper from './components/HorizontalStepper';
 import { Box, Button, Snackbar } from '@mui/material';
 import StepContent from './pages/StepContent';
 
-const TOTAL_STEPS = 2;
-const TOTAL_SUBSTEPS = 2;
+const TOTAL_STEPS = 5;
+const TOTAL_SUBSTEPS = 5;
 
 const App: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [currentSubStep, setCurrentSubStep] = useState(0);
-  const [visitedSteps, setVisitedSteps] = useState([[true, false], [false, false]]);
+  const [visitedSteps, setVisitedSteps] = useState(
+    Array.from({ length: TOTAL_STEPS }, (_, i) =>
+      Array.from({ length: TOTAL_SUBSTEPS }, (_, j) => i === 0 && j === 0)
+    )
+  );
+  
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleStepChange = (step: number) => {
