@@ -44,12 +44,15 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
                 selected={currentStep === index}
                 onClick={() => visitedSteps[index][0] && onStepChange(index)}
                 sx={{
-                  padding: '3px 0',
+                  padding: '3px 4px',
                   fontFamily: 'Roboto Condensed, sans-serif',
                   '&.Mui-selected': {
                     backgroundColor: 'transparent',
                   },
                   color: visitedSteps[index][0] ? '#036ca1' : 'gray',
+                  '&:hover': {
+                    borderRadius: '8px',
+                  },
                 }}
               >
                 <ListItemText
