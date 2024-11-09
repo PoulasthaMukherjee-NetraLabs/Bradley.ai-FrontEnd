@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stepper, Step, StepLabel, ListItemButton, ListItemText, Paper, Typography } from '@mui/material';
+import { Stepper, Step, StepLabel, ListItemButton, ListItemText, Paper, Typography, StepConnector, styled } from '@mui/material';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import BoltIcon from '@mui/icons-material/Bolt';
 import FlagIcon from '@mui/icons-material/Flag';
@@ -9,13 +9,13 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 
 const steps = [
-  { label: 'Organizational Profile', icon: <CorporateFareIcon fontSize='small' /> },
-  { label: 'Energy Profile', icon: <BoltIcon fontSize='small' /> },
-  { label: 'Goals & Priorities', icon: <FlagIcon fontSize='small' /> },
-  { label: 'Site Assessment', icon: <WarehouseIcon fontSize='small' /> },
-  { label: 'Financial Info', icon: <AccountBalanceWalletIcon fontSize='small' /> },
-  { label: 'Data Verification', icon: <AssignmentTurnedInIcon fontSize='small' /> },
-  { label: 'Onboarding', icon: <DoneOutlineIcon fontSize='small' /> },
+  { label: 'Organizational Profile', icon: <CorporateFareIcon fontSize="small" /> },
+  { label: 'Energy Profile', icon: <BoltIcon fontSize="small" /> },
+  { label: 'Goals & Priorities', icon: <FlagIcon fontSize="small" /> },
+  { label: 'Site Assessment', icon: <WarehouseIcon fontSize="small" /> },
+  { label: 'Financial Info', icon: <AccountBalanceWalletIcon fontSize="small" /> },
+  { label: 'Data Verification', icon: <AssignmentTurnedInIcon fontSize="small" /> },
+  { label: 'Onboarding', icon: <DoneOutlineIcon fontSize="small" /> },
 ];
 
 interface SidebarProps {
@@ -23,6 +23,17 @@ interface SidebarProps {
   visitedSteps: boolean[][];
   onStepChange: (step: number) => void;
 }
+
+const CustomStepConnector = styled(StepConnector)(() => ({
+  [`& .MuiStepConnector-line`]: {
+    borderColor: 'gray',
+    borderWidth: 1.5,
+  },
+  [`&.Mui-completed .MuiStepConnector-line`]: {
+    borderColor: '#036ca1',
+    borderWidth: 1.5,
+  },
+}));
 
 const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChange }) => {
   return (
@@ -34,6 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
         activeStep={currentStep}
         orientation="vertical"
         nonLinear
+        connector={<CustomStepConnector />}
         sx={{
           padding: 0,
           '.MuiStep-root': {
