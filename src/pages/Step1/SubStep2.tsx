@@ -108,7 +108,7 @@ const SubStep2: React.FC = () => {
 <br/>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 0.5 }}>
-                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}>Electricity</Typography>
+                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}>Electricity:</Typography>
                 <TextField 
                   variant="outlined" 
                   size="small" 
@@ -123,7 +123,7 @@ const SubStep2: React.FC = () => {
               </Box>
 
               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 0.5 }}>
-                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}>Natural Gas</Typography>
+                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}>Natural Gas:</Typography>
                 <TextField 
                   variant="outlined" 
                   size="small" 
@@ -138,7 +138,7 @@ const SubStep2: React.FC = () => {
               </Box>
 
               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 0.5 }}>
-                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}>Water</Typography>
+                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}>Water:</Typography>
                 <TextField 
                   variant="outlined" 
                   size="small" 
@@ -153,7 +153,7 @@ const SubStep2: React.FC = () => {
               </Box>
 
               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 0.5 }}>
-                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}>Other (Oil, Propane, PPAs, Steam, etc...)</Typography>
+                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}>Other: (Oil, Propane, PPAs, Steam, etc...)</Typography>
                 <TextField 
                   variant="outlined" 
                   size="small" 
@@ -214,7 +214,7 @@ const SubStep2: React.FC = () => {
             </Typography>
             <br/>
             <Box sx={{ fontFamily: 'Nunito Sans, sans-serif', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              {["Street Address", "City", "State", "Zip Code"].map((label, index) => (
+              {["Street Address:", "City:", "State:", "Zip Code:"].map((label, index) => (
                 <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}>{label}</Typography>
                   <TextField 
