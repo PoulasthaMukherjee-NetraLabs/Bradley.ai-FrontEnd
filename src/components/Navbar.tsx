@@ -43,7 +43,7 @@ const Navbar: React.FC = () => {
         <IconButton
           onClick={handleMenuOpen}
           color="inherit"
-          sx={{ fontFamily: 'Roboto Condensed, sans-serif' }}
+          sx={{ fontFamily: 'Nunito Sans, sans-serif' }}
         >
           <PersonIcon fontSize='large' />
         </IconButton>
@@ -54,8 +54,9 @@ const Navbar: React.FC = () => {
           onClose={handleMenuClose}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          sx={{ '.MuiPaper-root': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.700rem', width: '150px', marginTop: '6.5px', marginLeft: '22.5px', borderRadius: '1', boxShadow: '1'}, }}
         >
-          <MenuItem onClick={handleLogout} sx={{ fontFamily: 'Roboto Condensed, sans-serif' }}>
+          <MenuItem onClick={handleLogout} sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.700rem' }}>
             Logout
           </MenuItem>
         </Menu>

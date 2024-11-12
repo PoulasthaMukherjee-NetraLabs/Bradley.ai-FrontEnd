@@ -47,7 +47,7 @@ const StepContent: React.FC<StepContentProps> = ({ step, subStep }) => {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <div style={{ fontFamily: 'Roboto Condensed, sans-serif' }}>
+      <div style={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.800rem' }}>
         <ComponentToRender />
       </div>
     </Suspense>
