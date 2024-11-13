@@ -11,33 +11,43 @@ const SubStep2: React.FC = () => {
         <h2>Organization Details</h2>
       </Typography> 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
-        {/* Column 1 */}
-        <Box sx={{ flex: 0.48, display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, p: '10px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}>*Organization Name:</Typography>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
+    <b>Organization Name:</b>
+  </Typography>
   <TextField
     fullWidth
     variant="outlined"
     size="small"
     sx={{
-      flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
-      fontSize: '0.7rem',
+      flex: 0.6,
+      fontFamily: 'Nunito Sans, sans-serif',
+      fontSize: '0.7rem', minWidth:'605px',
       '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
-      '& input': { padding: 0 }
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
     }}
     select
     placeholder="Lookup your Organization"
   />
   <Button
     variant="outlined"
-    sx={{ minWidth: '60px', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', padding: '2px 4px', alignSelf: 'flex-end', textTransform: 'none' }}
+    sx={{
+      flex: 0.1,
+      fontFamily: 'Nunito Sans, sans-serif',
+      fontSize: '0.65rem',
+      padding: '2px 4px',
+      alignSelf: 'flex-end',
+      textTransform: 'none'
+    }}
   >
     Look Up
   </Button>
 </Box>
 
+
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}>*Organization Type:</Typography>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Organization Type:</b></Typography>
   <TextField
     fullWidth
     variant="outlined"
@@ -47,13 +57,13 @@ const SubStep2: React.FC = () => {
       flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
       fontSize: '0.7rem',
       '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
-      '& input': { padding: 0 }
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
     }}
   />
 </Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}>Industry Selection:</Typography>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Industry Selection:</b></Typography>
   <TextField
     fullWidth
     variant="outlined"
@@ -63,13 +73,13 @@ const SubStep2: React.FC = () => {
       flex: 0.75,
       fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
       '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
-      '& input': { padding: 0 }
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
     }}
   />
 </Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}>*IRS Category:</Typography>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>IRS Category:</b></Typography>
   <TextField
     fullWidth
     variant="outlined"
@@ -79,29 +89,29 @@ const SubStep2: React.FC = () => {
       flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
       fontSize: '0.7rem',
       '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
-      '& input': { padding: 0 }
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
     }}
   />
 </Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}>Number of Employees at Facility:</Typography>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Number of Employees at Facility:</b></Typography>
   <TextField
     fullWidth
     variant="outlined"
     size="small"
-    type="number"
+    type="text"
     sx={{
       flex: 0.75,
       fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
       '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
-      '& input': { padding: 0 }
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
     }}
   />
 </Box>
 
 
-          <Box sx={{ border: '1px solid lightgrey', p: 0.5, borderRadius: 1, mt: 1 }}>
+          {/* <Box sx={{ border: '1px solid lightgrey', p: 0.5, borderRadius: 1, mt: 1 }}>
             <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', fontWeight: 'bold', mb: 0.5 }}>
               Annual Energy Spend
             </Typography>
@@ -167,9 +177,9 @@ const SubStep2: React.FC = () => {
                 />
               </Box>
             </Box>
-          </Box>
+          </Box> */}
 
-          <Typography sx={{ mt: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }}><b>Facility Operation Description:</b></Typography>
+          {/* <Typography sx={{ mt: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }}><b>Facility Operation Description:</b></Typography>
           <TextField
             fullWidth
             multiline
@@ -192,20 +202,20 @@ const SubStep2: React.FC = () => {
                 fontSize: '0.7rem',
               },
             }}
-          />
+          /> */}
         </Box>
 
         {/* Column 2 */}
         <Box sx={{ flex: 0.48, display: 'flex', flexDirection: 'column', gap: 2}}>
-          <Box sx={{ height: '280px', border: '1px solid lightgrey', mb: 0.5 }}>
+          {/* <Box sx={{ height: '280px', border: '1px solid lightgrey', mb: 0.5 }}>
             <iframe 
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.086238560343!2d-122.41941548468154!3d37.77492977975966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085808c2e5b1bff%3A0xdbf30509b4e22a90!2sGoogle!5e0!3m2!1sen!2sus!4v1666474302084!5m2!1sen!2sus" 
               width="100%" height="100%" style={{ border: 0 }} 
               allowFullScreen={false} loading="lazy"
             ></iframe>
-          </Box>
+          </Box> */}
 
-          <Box sx={{ border: '1px solid lightgrey', p: 1, borderRadius: 1 }}>
+          {/* <Box sx={{ border: '1px solid lightgrey', p: 1, borderRadius: 1 }}>
             <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between' }}>
               <b>Facility Address</b>
               <Button variant='outlined' size="small" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', minWidth: '60px', padding: '2px 4px', textTransform: 'none' }}>
@@ -262,7 +272,7 @@ Do you plan to occupy this site for the next 15-20 years?
     <FormControlLabel value="no" control={<Radio sx={{ padding: '2px' }} />} label={<Typography sx={{  fontFamily: 'Nunito Sans, sans-serif',fontSize: '0.7rem' }}>No</Typography>} />
   </RadioGroup>
 </Typography>
-          </Box></Box>
+          </Box></Box> */}
         </Box>
       </Box>
     </Box> 

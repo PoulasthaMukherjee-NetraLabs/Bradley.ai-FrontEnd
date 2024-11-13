@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Stepper, Step, StepLabel, ListItemButton, ListItemText, Paper, Typography, StepConnector, styled } from '@mui/material';
-import CorporateFareIcon from '@mui/icons-material/CorporateFare';
-import BoltIcon from '@mui/icons-material/Bolt';
-import FlagIcon from '@mui/icons-material/Flag';
-import WarehouseIcon from '@mui/icons-material/Warehouse';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
+import {
+  Stepper,
+  Step,
+  StepLabel,
+  ListItemButton,
+  ListItemText,
+  Paper,
+  Typography,
+  StepConnector,
+  styled,
+} from '@mui/material';
+import { GoOrganization } from "react-icons/go";
+import { MdOutlineEnergySavingsLeaf } from "react-icons/md";
+import { LuGoal } from "react-icons/lu";
+import { MdOutlineWarehouse } from "react-icons/md";
+import { MdOutlineAccountBalanceWallet } from "react-icons/md";
+import { GrDocumentVerified } from "react-icons/gr";
+import { MdDoneOutline } from "react-icons/md";
 
 const steps = [
-  { label: 'Organizational Profile', icon: <CorporateFareIcon fontSize="small" /> },
-  { label: 'Energy Profile', icon: <BoltIcon fontSize="small" /> },
-  { label: 'Goals & Priorities', icon: <FlagIcon fontSize="small" /> },
-  { label: 'Site Assessment', icon: <WarehouseIcon fontSize="small" /> },
-  { label: 'Financial Info', icon: <AccountBalanceWalletIcon fontSize="small" /> },
-  { label: 'Data Verification', icon: <AssignmentTurnedInIcon fontSize="small" /> },
-  { label: 'Onboarding', icon: <DoneOutlineIcon fontSize="small" /> },
+  { label: 'Organizational Profile', icon: GoOrganization },
+  { label: 'Energy Profile', icon: MdOutlineEnergySavingsLeaf },
+  { label: 'Goals & Priorities', icon: LuGoal },
+  { label: 'Site Assessment', icon: MdOutlineWarehouse },
+  { label: 'Financial Info', icon: MdOutlineAccountBalanceWallet },
+  { label: 'Data Verification', icon: GrDocumentVerified },
+  { label: 'Onboarding', icon: MdDoneOutline },
 ];
 
 interface SidebarProps {
@@ -62,6 +72,23 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
     });
   };
 
+  const CustomStepIcon = ({ icon: IconComponent, active, completed }: any) => (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 24,
+        height: 24,
+        borderRadius: '50%',
+        backgroundColor: completed || active ? '#036ca1' : '#808080',
+        color: active ? '#036ca1' : '#fff',
+      }}
+    >
+      <IconComponent fontSize="small" style={{ color: active ? '#fff' : '#fff' }} />
+    </div>
+  );
+
   return (
     <Paper sx={{ width: '173px', position: 'fixed', height: '100vh', top: 0, mt: '50px', padding: '10px', paddingTop: '40px', boxShadow: 1 }}>
       <style>
@@ -82,38 +109,42 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
           },
         }}
       >
-        {steps.map((step, index) => (
-          <Step key={step.label} completed={completedSteps[index]}>
-            <StepLabel>
-              <ListItemButton
-                selected={currentStep === index}
-                onClick={() => handleStepClick(index)}
-                sx={{
-                  padding: '3px 4px',
-                  fontFamily: 'Nunito Sans, sans-serif',
-                  '&.Mui-selected': {
-                    backgroundColor: 'transparent',
-                  },
-                  color: completedSteps[index] ? '#036ca1' : 'gray',
-                  '&:hover': {
-                    borderRadius: '8px',
-                  },
-                }}
+        {steps.map((step, index) => {
+          const IconComponent = step.icon;
+          return (
+            <Step key={step.label} completed={completedSteps[index]}>
+              <StepLabel
+                StepIconComponent={(props) => (
+                  <CustomStepIcon icon={IconComponent} active={props.active} completed={props.completed} />
+                )}
               >
-                {React.cloneElement(step.icon, {
-                  sx: { mr: 1, color: completedSteps[index] ? '#036ca1' : 'gray' },
-                })}
-                <ListItemText
-                  primary={
-                    <Typography sx={{ fontSize: '0.700rem', fontFamily: 'Nunito Sans, sans-serif' }}>
-                      {step.label}
-                    </Typography>
-                  }
-                />
-              </ListItemButton>
-            </StepLabel>
-          </Step>
-        ))}
+                <ListItemButton
+                  selected={currentStep === index}
+                  onClick={() => handleStepClick(index)}
+                  sx={{
+                    padding: '3px 4px',
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    '&.Mui-selected': {
+                      backgroundColor: 'transparent',
+                    },
+                    color: completedSteps[index] ? '#036ca1' : 'gray',
+                    '&:hover': {
+                      borderRadius: '8px',
+                    },
+                  }}
+                >
+                  <ListItemText
+                    primary={
+                      <Typography sx={{ fontSize: '0.700rem', fontFamily: 'Nunito Sans, sans-serif' }}>
+                        {step.label}
+                      </Typography>
+                    }
+                  />
+                </ListItemButton>
+              </StepLabel>
+            </Step>
+          );
+        })}
       </Stepper>
     </Paper>
   );

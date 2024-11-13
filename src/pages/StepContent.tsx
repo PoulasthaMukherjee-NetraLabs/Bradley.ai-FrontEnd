@@ -2,13 +2,13 @@ import React, { Suspense, lazy } from 'react';
 
 const stepSubStepMapping = {
   0: {
-    0: lazy(() => import('../pages/Step1/SubStep1')),
-    1: lazy(() => import('../pages/Step1/SubStep2')),
+    0: lazy(() => import('./Step1/SubStep1/SubStep1.1')),
+    1: lazy(() => import('./Step1/SubStep2/SubStep2.1')),
   },
   1: {
-    0: lazy(() => import('../pages/Step2/SubStep1')),
-    1: lazy(() => import('../pages/Step2/SubStep2')),
-    2: lazy(() => import('../pages/Step2/SubStep3')),
+    0: lazy(() => import('./Step2/SubStep1/SubStep1.1')),
+    1: lazy(() => import('./Step2/SubStep2/SubStep2.1')),
+    2: lazy(() => import('./Step2/SubStep3/SubStep3.1')),
   },
   2: {
     0: lazy(() => import('../pages/Step3/SubStep1')),
