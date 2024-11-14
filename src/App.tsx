@@ -104,9 +104,7 @@ const App: React.FC = () => {
     });
   };
 
-  const calculateProgress = () => {
-    return (currentFurtherSubStep / steps[currentStep].furtherSubSteps[currentSubStep]) * 100;
-  };
+  const calculateProgress = () => { const totalFurtherSubSteps = steps[currentStep].furtherSubSteps[currentSubStep]; return ((currentFurtherSubStep + 1) / totalFurtherSubSteps) * 100; };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'row', height: '100vh', zIndex: 500 }}>
@@ -136,27 +134,27 @@ const App: React.FC = () => {
                 currentStep={currentStep}
               />
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: '100%' }}>
-  <LinearProgress
-    variant="determinate"
-    value={calculateProgress()}
-    sx={{
-      width: 'calc(100% - 32px)',
-      height: '0.6px',
-      margin: '10px 16px',
-      mt: '20px',
-      ml: '7px',
-    }}
-  />
-</Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={calculateProgress()}
+                  sx={{
+                    width: 'calc(100% + 16px)',
+                    height: '0.6px',
+                    margin: '0px -16px',
+                    mt: '20px'
+                  }}
+                />
+              </Box>
 
               <StepContent step={currentStep} subStep={currentSubStep} furtherSubStep={currentFurtherSubStep} />
               <Box
                 sx={{
                   display: 'flex',
                   justifyContent: 'space-between',
-                  mt: 4,
-                  mr: 1,
-                  ml: -1,
+                  mt: 3,
+                  mr: 5.2,
+                  ml: 1,
+                  mb: 1,
                 }}
               >
                 <Button
@@ -174,37 +172,41 @@ const App: React.FC = () => {
                 >
                   Back
                 </Button>
-                <Button
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.75rem',
-                    padding: '2px 10px',
-                    minWidth: '10px',
-                    maxHeight: '25px',
-                    textTransform: 'none',
-                  }}
-                  variant="outlined"
-                  onClick={() => {}}
-                >
-                  Save and Continue Later
-                </Button>
-                <Button
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.75rem',
-                    padding: '2px 10px',
-                    minWidth: '10px',
-                    maxHeight: '25px',
-                    textTransform: 'none',
-                    boxShadow: 'none',
-                  }}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleNext}
-                >
-                  {currentStep === TOTAL_STEPS - 1 && currentSubStep === steps[currentStep].subSteps - 1 && currentFurtherSubStep === steps[currentStep].furtherSubSteps[currentSubStep] - 1 ? 'Finish' : 'Next'}
-                </Button>
+                
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button
+                    sx={{
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.75rem',
+                      padding: '2px 10px',
+                      minWidth: '10px',
+                      maxHeight: '25px',
+                      textTransform: 'none',
+                    }}
+                    variant="outlined"
+                    onClick={() => {}}
+                  >
+                    Save and Continue Later
+                  </Button>
+                  <Button
+                    sx={{
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.75rem',
+                      padding: '2px 10px',
+                      minWidth: '10px',
+                      maxHeight: '25px',
+                      textTransform: 'none',
+                      boxShadow: 'none',
+                    }}
+                    variant="contained"
+                    color="primary"
+                    onClick={handleNext}
+                  >
+                    {currentStep === TOTAL_STEPS - 1 && currentSubStep === steps[currentStep].subSteps - 1 && currentFurtherSubStep === steps[currentStep].furtherSubSteps[currentSubStep] - 1 ? 'Finish' : 'Next'}
+                  </Button>
+                </Box>
               </Box>
+
             </Box>
           </Box>
         </Box>
