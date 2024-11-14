@@ -24,8 +24,8 @@ const SubStep2: React.FC = () => {
         ></iframe>
       </Box>
       
-      <Box sx={{ flex: 1, border: '1px solid lightgrey', p: 1, borderRadius: 1, height: '184.5px' }}>
-        <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'flex-end' }}>
+      <Box sx={{ flex: 1, border: '1px solid lightgrey', p: 1, borderRadius: 1, height: '184.5px', pl: 2, pr: 2 }}>
+        <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
           <Button 
             variant="outlined" 
             size="small" 
@@ -46,7 +46,7 @@ const SubStep2: React.FC = () => {
                   flex: 1,
                   fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', 
                   '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
-                  '& input': { padding: 0 }
+                  '& input': { padding: 0, fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }
                 }} 
               />
             </Box>
