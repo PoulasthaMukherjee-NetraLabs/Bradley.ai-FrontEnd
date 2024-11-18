@@ -1,190 +1,364 @@
 import React, { useState } from 'react';
-import { Box, TextField, Button, Typography, Radio, RadioGroup, FormControlLabel, MenuItem, Switch, Checkbox, IconButton } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { 
+  Box, 
+  TextField, 
+  Button, 
+  Typography, 
+  MenuItem, 
+  IconButton 
+} from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const SubStep2 = () => {
-  const [showSteam, setShowSteam] = useState(false);
-  const [showHotWater, setShowHotWater] = useState(false);
-  const [showChilledWater, setShowChilledWater] = useState(false);
+const SubStep2: React.FC = () => {
   const [showWasteHeat, setShowWasteHeat] = useState(false);
-  const [showBoiler, setShowBoiler] = useState(false);
-  const [wasteHeatSources, setWasteHeatSources] = useState([]);
-  const [boilerSystems, setBoilerSystems] = useState([]);
+  const [wasteHeatSources, setWasteHeatSources] = useState([
+    { type: '', capacity: '', fuelSource: '', efficiency: '', age: '' , operatingPressure: '', history: '', utilization: '', volume: ''},
+  ]);  
 
   const handleAddWasteHeatSource = () => {
-    setWasteHeatSources([...wasteHeatSources, { type: '', temperature: '', flowRate: '', utilization: '' }]);
+    setWasteHeatSources([
+      ...wasteHeatSources,
+      { type: '', capacity: '', fuelSource: '', efficiency: '', age: '' , operatingPressure: '', history: '', utilization: '', volume: ''},
+    ]);
   };
 
-  const handleRemoveWasteHeatSource = (index) => {
+  const handleRemoveWasteHeatSource = (index: number) => {
     setWasteHeatSources(wasteHeatSources.filter((_, i) => i !== index));
   };
 
-  const handleAddBoilerSystem = () => {
-    setBoilerSystems([...boilerSystems, { type: '', capacity: '', fuelSource: '', efficiency: '', age: '', operatingPressure: '', maintenanceHistory: '', wasteHeatUtilization: '', wasteHeatVolume: '' }]);
-  };
-
-  const handleRemoveBoilerSystem = (index) => {
-    setBoilerSystems(boilerSystems.filter((_, i) => i !== index));
-  };
-
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1 }}>
-      <Typography variant="h6" sx={{ mb: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold' }}>
-        Energy Load Profile
+    <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+      </style>
+      <Typography variant="h6" sx={{ mb: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center' }}>
+        <h2>Existing Boiler/Cogeneration</h2>
       </Typography>
-      
-      <Typography sx={{ mb: 1 }}>Data Range (Optional): <br /> *Minimum of 12 months of data/24+ months for optimal results <br /> **Minimum 15-minute intervals</Typography>
-      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-        <TextField size="small" label="Start Date" type="date" fullWidth />
-        <TextField size="small" label="End Date" type="date" fullWidth />
-      </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', border: '1px dashed grey', p: 2, mb: 2 }}>
-        <CloudUploadIcon />
-        <Typography sx={{ ml: 1 }}>Drag and drop files here or click to upload (PDF, Excel, CSV)</Typography>
-      </Box>
-      <Typography sx={{ fontSize: '0.75rem', mb: 1 }}>Accepted File Formats: .xls, .xlsx, .csv</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '160px' }}>
+            {wasteHeatSources.map((source, index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  mb: 1,
+                  flexWrap: 'wrap',
+                }}
+              >
+                <TextField
+                  size="small"
+                  label="Type"
+                  select
+                  fullWidth
+                  value={source.type}
+                  onChange={(e) =>
+                    setWasteHeatSources(
+                      wasteHeatSources.map((s, i) =>
+                        i === index ? { ...s, type: e.target.value } : s
+                      )
+                    )
+                  }
+                  sx={{
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    fontSize: '0.8rem',
+                    '& .MuiInputBase-root': {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                      height: '28px',
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                    },
+                  }}
+                >
+                  <MenuItem value="Boiler" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Boiler</MenuItem>
+                  <MenuItem value="Cogeneration Unit" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Cogeneration Unit</MenuItem>
+                </TextField>
 
-      <Typography sx={{ mb: 1, fontWeight: 'bold' }}>Thermal Energy Needs</Typography>
-      <FormControlLabel
-        control={<Switch checked={showSteam} onChange={() => setShowSteam(!showSteam)} />}
-        label="Does your facility require steam?"
-      />
+                <TextField
+                  size="small"
+                  label="Capacity"
+                  type="number"
+                  fullWidth
+                  placeholder="in Mlbs per hour"
+                  value={source.capacity}
+                  onChange={(e) =>
+                    setWasteHeatSources(
+                      wasteHeatSources.map((s, i) =>
+                        i === index ? { ...s, capacity: e.target.value } : s
+                      )
+                    )
+                  }
+                  sx={{
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    '& .MuiInputBase-root': {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                      height: '28px',
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                    },
+                  }}
+                />
 
-      {showSteam && (
-        <Box sx={{ mb: 2, pl: 2 }}>
-          <TextField size="small" label="Annual Steam Usage" type="number" fullWidth sx={{ mb: 1 }} placeholder="Enter value" />
-          <TextField
-            size="small"
-            label="Steam Pressure (PSIG)"
-            select
-            fullWidth
-            sx={{ mb: 1 }}
-            placeholder="Select pressure level"
-          >
-            <MenuItem value="Low">Low</MenuItem>
-            <MenuItem value="Medium">Medium</MenuItem>
-            <MenuItem value="High">High</MenuItem>
-          </TextField>
-          <RadioGroup row>
-            <FormControlLabel value="Constant" control={<Radio size="small" />} label="Constant" />
-            <FormControlLabel value="Variable" control={<Radio size="small" />} label="Variable" />
-          </RadioGroup>
-          <TextField size="small" label="Condensate Return (Optional)" type="number" fullWidth placeholder="Enter value" />
-        </Box>
-      )}
+                <TextField
+                  size="small"
+                  label="Fuel Source"
+                  select
+                  fullWidth
+                  value={source.fuelSource}
+                  onChange={(e) =>
+                    setWasteHeatSources(
+                      wasteHeatSources.map((s, i) =>
+                        i === index ? { ...s, fuelSource: e.target.value } : s
+                      )
+                    )
+                  }
+                  sx={{
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    fontSize: '0.8rem',
+                    '& .MuiInputBase-root': {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                      height: '28px',
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                    },
+                  }}
+                >
+                  <MenuItem value="Natural Gas" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Natural Gas</MenuItem>
+                  <MenuItem value="Oil" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Oil</MenuItem>
+                  <MenuItem value="Biomass" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Biomass</MenuItem>
+                  <MenuItem value="Coal" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Coal</MenuItem>
+                  <MenuItem value="Electricity" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Electricity</MenuItem>
+                </TextField>
 
-      <FormControlLabel
-        control={<Switch checked={showHotWater} onChange={() => setShowHotWater(!showHotWater)} />}
-        label="Does your facility require hot water for HVAC, or processes, excluding domestic requirements?"
-      />
+                <TextField
+                  size="small"
+                  label="Efficiency"
+                  type="number"
+                  fullWidth
+                  placeholder="In Percentage"
+                  value={source.efficiency}
+                  onChange={(e) =>
+                    setWasteHeatSources(
+                      wasteHeatSources.map((s, i) =>
+                        i === index ? { ...s, efficiency: e.target.value } : s
+                      )
+                    )
+                  }
+                  sx={{
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    '& .MuiInputBase-root': {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                      height: '28px',
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                    },
+                  }}
+                />
 
-      {showHotWater && (
-        <Box sx={{ mb: 2, pl: 2 }}>
-          <TextField size="small" label="Hot Water Usage" type="number" fullWidth sx={{ mb: 1 }} placeholder="Enter value" />
-          <TextField size="small" label="Hot Water Temperature (°F)" type="number" fullWidth sx={{ mb: 1 }} placeholder="Enter temperature" />
-          <Typography>Hot Water Usage Type:</Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', mb: 1 }}>
-            {["Domestic Hot Water", "Preheat for Steam", "Food Preparation/Washdowns", "Other"].map((label) => (
-              <FormControlLabel
-                key={label}
-                control={<Checkbox size="small" />}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography sx={{ mr: 1 }}>{label}:</Typography>
-                    <TextField size="small" placeholder="Annual Usage (Gallons/BTUs)" type="number" />
-                  </Box>
-                }
-              />
+<TextField
+                  size="small"
+                  label="Age"
+                  type="number"
+                  fullWidth
+                  placeholder="In Years"
+                  value={source.age}
+                  onChange={(e) =>
+                    setWasteHeatSources(
+                      wasteHeatSources.map((s, i) =>
+                        i === index ? { ...s, age: e.target.value } : s
+                      )
+                    )
+                  }
+                  sx={{
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    '& .MuiInputBase-root': {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                      height: '28px',
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                    },
+                  }}
+                />
+
+<TextField
+                  size="small"
+                  label="Operating Pressure"
+                  type="number"
+                  fullWidth
+                  placeholder="In Psi"
+                  value={source.operatingPressure}
+                  onChange={(e) =>
+                    setWasteHeatSources(
+                      wasteHeatSources.map((s, i) =>
+                        i === index ? { ...s, operatingPressure: e.target.value } : s
+                      )
+                    )
+                  }
+                  sx={{
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    '& .MuiInputBase-root': {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                      height: '28px',
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                    },
+                  }}
+                />
+
+
+<TextField
+                  size="small"
+                  label="History"
+                  type="text"
+                  fullWidth
+                  placeholder="Maintenance History (Optional)"
+                  value={source.history}
+                  onChange={(e) =>
+                    setWasteHeatSources(
+                      wasteHeatSources.map((s, i) =>
+                        i === index ? { ...s, history: e.target.value } : s
+                      )
+                    )
+                  }
+                  sx={{
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    '& .MuiInputBase-root': {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                      height: '28px',
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                    },
+                  }}
+                />
+
+<TextField
+                  size="small"
+                  label="Utilization"
+                  select
+                  fullWidth
+                  value={source.utilization}
+                  onChange={(e) =>
+                    setWasteHeatSources(
+                      wasteHeatSources.map((s, i) =>
+                        i === index ? { ...s, utilization: e.target.value } : s
+                      )
+                    )
+                  }
+                  sx={{
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    fontSize: '0.8rem',
+                    '& .MuiInputBase-root': {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                      height: '28px',
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                    },
+                  }}
+                >
+                  <MenuItem value="Electricity Generation" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Electricity Generation</MenuItem>
+                  <MenuItem value="Space Heating" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Space Heating</MenuItem>
+                  <MenuItem value="Process Heating" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Process Heating</MenuItem>
+                  <MenuItem value="None" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>None</MenuItem>
+                  <MenuItem value="Other" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Other</MenuItem>
+                </TextField>
+
+                <TextField
+                  size="small"
+                  label="Volume"
+                  type="number"
+                  fullWidth
+                  placeholder="Annual Waste Heat Volume in MMBTu"
+                  value={source.volume}
+                  onChange={(e) =>
+                    setWasteHeatSources(
+                      wasteHeatSources.map((s, i) =>
+                        i === index ? { ...s, volume: e.target.value } : s
+                      )
+                    )
+                  }
+                  sx={{
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    '& .MuiInputBase-root': {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                      height: '28px',
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                    },
+                  }}
+                />
+                
+                <Button
+              startIcon={<AddCircleIcon />}
+              onClick={handleAddWasteHeatSource}
+              size="small"
+              sx={{
+                textTransform: 'none',
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.8rem',
+              }}
+            >
+              Add Another Entry
+            </Button>
+                <IconButton
+                  onClick={() => handleRemoveWasteHeatSource(index)}
+                  size="large"
+                  disabled={wasteHeatSources.length === 1}
+                  sx={{ ml: 'auto' }}
+                >
+                  <DeleteIcon fontSize="medium" />
+                </IconButton>
+              </Box>
             ))}
           </Box>
-        </Box>
-      )}
-
-      <FormControlLabel
-        control={<Switch checked={showChilledWater} onChange={() => setShowChilledWater(!showChilledWater)} />}
-        label="Does your facility require chilled water?"
-      />
-
-      {showChilledWater && (
-        <Box sx={{ mb: 2, pl: 2 }}>
-          <TextField size="small" label="Chilled Water Usage" fullWidth sx={{ mb: 1 }} placeholder="Enter annual usage" />
-          <TextField size="small" label="Chilled Water Temperature (°F)" type="number" fullWidth sx={{ mb: 1 }} placeholder="Enter temperature" />
-          <TextField size="small" label="Additional Chilled Water Demand (Optional, in Tons)" type="number" fullWidth placeholder="Optional, in Tons" />
-        </Box>
-      )}
-
-      <FormControlLabel
-        control={<Switch checked={showWasteHeat} onChange={() => setShowWasteHeat(!showWasteHeat)} />}
-        label="Do any of your processes or equipment generate waste heat?"
-      />
-
-      {showWasteHeat && (
-        <Box sx={{ mb: 2, pl: 2 }}>
-          {wasteHeatSources.map((source, index) => (
-            <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <TextField size="small" label="Type" select fullWidth placeholder="Select type">
-                <MenuItem value="Industrial Processes">Industrial Processes</MenuItem>
-                <MenuItem value="Furnaces">Furnaces</MenuItem>
-                <MenuItem value="Engines">Engines</MenuItem>
-                <MenuItem value="Boilers">Boilers</MenuItem>
-                <MenuItem value="Others">Others</MenuItem>
-              </TextField>
-              <TextField size="small" label="Temperature (°F)" type="number" fullWidth placeholder="Enter temperature" />
-              <TextField size="small" label="Flow Rate (Optional)" placeholder="BTU/hr, lbs/hr" fullWidth />
-              <TextField size="small" label="Utilization (Optional)" select fullWidth>
-                <MenuItem value="Not Utilized">Not Utilized</MenuItem>
-                <MenuItem value="Space Heating">Space Heating</MenuItem>
-                <MenuItem value="Process Heat">Process Heat</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
-              </TextField>
-              <IconButton onClick={() => handleRemoveWasteHeatSource(index)}><DeleteIcon fontSize="small" /></IconButton>
-            </Box>
-          ))}
-          <Button startIcon={<AddCircleIcon />} onClick={handleAddWasteHeatSource} size="small">Add Another Entry</Button>
-        </Box>
-      )}
-
-      <FormControlLabel
-        control={<Switch checked={showBoiler} onChange={() => setShowBoiler(!showBoiler)} />}
-        label="Existing Boiler/Cogeneration"
-      />
-
-      {showBoiler && (
-        <Box sx={{ mb: 2, pl: 2 }}>
-          {boilerSystems.map((system, index) => (
-            <Box key={index} sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-              <TextField
-                size="small"
-                label="System Type"
-                select
-                fullWidth
-                placeholder="Select system type"
-              >
-                <MenuItem value="Boiler">Boiler</MenuItem>
-                <MenuItem value="Cogeneration">Cogeneration</MenuItem>
-              </TextField>
-              <TextField size="small" label="Capacity (BHP)" type="number" fullWidth placeholder="Enter capacity" />
-              <TextField size="small" label="Fuel Source" type="text" fullWidth placeholder="Enter fuel source" />
-              <TextField size="small" label="Efficiency (%)" type="number" fullWidth placeholder="Enter efficiency" />
-              <TextField size="small" label="Age" type="number" fullWidth placeholder="Enter age in years" />
-              <TextField size="small" label="Operating Pressure (PSIG)" type="number" fullWidth placeholder="Enter operating pressure" />
-              <TextField size="small" label="Maintenance History (Last 3 years)" type="text" fullWidth placeholder="Describe maintenance history" />
-              <TextField size="small" label="Waste Heat Utilization" select fullWidth placeholder="Select utilization type">
-                <MenuItem value="Not Utilized">Not Utilized</MenuItem>
-                <MenuItem value="Space Heating">Space Heating</MenuItem>
-                <MenuItem value="Process Heat">Process Heat</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
-              </TextField>
-              <TextField size="small" label="Waste Heat Volume (BTU/hr)" type="number" fullWidth placeholder="Enter waste heat volume" />
-              <IconButton onClick={() => handleRemoveBoilerSystem(index)}><DeleteIcon fontSize="small" /></IconButton>
-            </Box>
-          ))}
-          <Button startIcon={<AddCircleIcon />} onClick={handleAddBoilerSystem} size="small">Add Another Entry</Button>
-        </Box>
-      )}
+      </Box>
     </Box>
   );
 };
