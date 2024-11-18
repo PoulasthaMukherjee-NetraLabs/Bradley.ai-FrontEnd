@@ -12,7 +12,7 @@ const SubStep2: React.FC = () => {
       </Typography> 
       
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, p: '10px' }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '160px' }}>
         <TextField
             fullWidth
             multiline
@@ -21,18 +21,18 @@ const SubStep2: React.FC = () => {
             placeholder="Describe your facility operations..."
             sx={{
               fontFamily: 'Nunito Sans, sans-serif',
-              fontSize: '0.7rem',
+              fontSize: '0.9rem',
               '& .MuiInputBase-root': {
                 fontFamily: 'Nunito Sans, sans-serif',
-                fontSize: '0.7rem',
+                fontSize: '0.9rem',
               },
               '& .MuiInputBase-input': {
                 fontFamily: 'Nunito Sans, sans-serif',
-                fontSize: '0.7rem',
+                fontSize: '0.9rem',
               },
               '& .MuiInputBase-input::placeholder': {
                 fontFamily: 'Nunito Sans, sans-serif',
-                fontSize: '0.7rem',
+                fontSize: '0.9rem',
               },
             }}
           />

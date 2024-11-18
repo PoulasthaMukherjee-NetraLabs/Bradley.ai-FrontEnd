@@ -1,53 +1,145 @@
-import React from 'react';
-import { Box, TextField, Typography } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import React, { useState } from 'react';
+import { Box, TextField, Typography, Radio, RadioGroup, FormControlLabel, MenuItem, Switch, Select } from '@mui/material';
 
 const SubStep2: React.FC = () => { 
+  const [showSteam, setShowSteam] = useState(false);
+  const [showHotWater, setShowHotWater] = useState(false);
+  const [showChilledWater, setShowChilledWater] = useState(false);
+  const [showWasteHeat, setShowWasteHeat] = useState(false);
+  const [showBoiler, setShowBoiler] = useState(false);
+  const [wasteHeatSources, setWasteHeatSources] = useState([]);
+  const [boilerSystems, setBoilerSystems] = useState([]);
+
+  const handleAddWasteHeatSource = () => {
+    setWasteHeatSources([...wasteHeatSources, { type: '', temperature: '', flowRate: '', utilization: '' }]);
+  };
+
+  const handleRemoveWasteHeatSource = (index) => {
+    setWasteHeatSources(wasteHeatSources.filter((_, i) => i !== index));
+  };
+
+  const handleAddBoilerSystem = () => {
+    setBoilerSystems([...boilerSystems, { type: '', capacity: '', fuelSource: '', efficiency: '', age: '', operatingPressure: '', maintenanceHistory: '', wasteHeatUtilization: '', wasteHeatVolume: '' }]);
+  };
+
+  const handleRemoveBoilerSystem = (index) => {
+    setBoilerSystems(boilerSystems.filter((_, i) => i !== index));
+  };
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
       </style>
-      <Typography variant="h6" sx={{ mb: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold' }}>
+      <Typography variant="h6" sx={{ mb: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center' }}>
         <h2>Thermal Energy Needs - III</h2>
       </Typography>
       
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
-      <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, p: '10px' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Data Range (Optional):</b></Typography>
-          <TextField
-            variant="outlined" 
-            size="small" 
-            type="date" 
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '160px' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <FormControlLabel
+            control={<Switch checked={showSteam} onChange={() => setShowSteam(!showSteam)} size="small" />}
+            label="Does your facility require chilled water?"
             sx={{
-              flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
-              fontSize: '0.7rem',
-              '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
-              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+              '& .MuiFormControlLabel-label': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.9rem'
+              }
             }}
           />
-          to 
+
+          </Box>
+
+          {showSteam && (
+            <Box sx={{ mb: 0, pl: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Chilled Water Usage:</b></Typography>
           <TextField
             variant="outlined" 
             size="small" 
-            type="date" 
+            type="number" 
+            placeholder="Enter Annual Usage"
+            sx={{
+              flex: 0.5, fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+              '& .MuiInputBase-input::placeholder': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+              }
+            }}
+          />
+          <Select
+            size="small"
+            variant="outlined"
+            defaultValue="Option 1"
+            sx={{
+              flex: 0.25,
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              height: '24px',
+              '& .MuiInputBase-root': { padding: '0 6px' },
+              '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
+            }}
+          >
+            <MenuItem value="Option 1" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Process Chilled Water</MenuItem>
+            <MenuItem value="Option 2" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Space Cooling</MenuItem>
+            <MenuItem value="Option 3" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Other</MenuItem>
+          </Select>
+        </Box>
+
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Chilled Water Temperature:</b></Typography>
+          <TextField
+            variant="outlined" 
+            size="small" 
+            type="number"
+            placeholder='Enter Temperature' 
             sx={{
               flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.7rem',
               '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
-              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' },
+              '& .MuiInputBase-input::placeholder': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+              }
             }}
           />
         </Box>
-        <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'right' }}><b>*</b>Minimum of 12 months of data/24+ months for optimal results. <br /><b>**</b>Minimum 15-minute intervals.</Typography>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', border: '1px dashed grey', borderRadius: 2, p: 2, mb: 0, mt: 1.5, justifyContent: 'center' }}>
-        <CloudUploadIcon fontSize='medium'/>
-        <Typography sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif', ml: 1 }}>Drag and drop files here or click to upload (PDF, Excel, CSV)</Typography>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Additional Chilled Water Demand:</b></Typography>
+          <TextField
+            variant="outlined" 
+            size="small" 
+            type="number" 
+            placeholder="Optional (Tons)"
+            sx={{
+              flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+              '& .MuiInputBase-input::placeholder': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+              }
+            }}
+          />
+        </Box>
+        </Box>
       </Box>
-      <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'right' }}><b>*</b>Accepted File Formats: .xls, .xlsx, .csv</Typography>
-    </Box></Box></Box>
+              
+            </Box>
+          )}
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

@@ -11,7 +11,7 @@ const SubStep2: React.FC = () => {
         <h2>Other Details</h2>
       </Typography> 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, p: '10px' }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '160px' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', mt: 1 }}>
           <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between' }}>
           <b><h3>Property Ownership</h3></b> </Typography>
