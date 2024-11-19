@@ -202,7 +202,7 @@ const SubStep2: React.FC = () => {
     fullWidth
     variant="outlined"
     size="small"
-    type="text"
+    type="number"
     sx={{
       flex: 0.5,
       fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
