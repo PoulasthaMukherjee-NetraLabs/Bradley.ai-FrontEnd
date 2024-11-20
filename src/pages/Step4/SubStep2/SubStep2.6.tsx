@@ -14,7 +14,7 @@ const SubStep2: React.FC = () => {
       
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
       <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '160px' }}>
-        <Typography sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0 }}><b>If you have existing drawings (MEP; equipment, panel schedules); or documentation (one-line diagrams; short circuit studies) related to your facility's infrastructure, you can optionally upload them here. This information will improve the accuracy of the DER system design, but is not required.</b></Typography>
+        <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'center' }}><b>If you have existing drawings (MEP; equipment, panel schedules); or documentation (one-line diagrams; short circuit studies) related to your facility's infrastructure, you can optionally upload them here. This information will improve the accuracy of the DER system design, but is not required.</b></Typography>
 
       <Box sx={{ display: 'flex', alignItems: 'center', border: '1px dashed grey', borderRadius: 2, p: 5, mb: 0, mt: 1.5, justifyContent: 'center' }}>
         <CloudUploadIcon fontSize='medium'/>

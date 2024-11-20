@@ -64,7 +64,7 @@ const SubStep2: React.FC = () => {
   <TextField
             variant="outlined" 
             size="small" 
-            type="number" 
+            type="text" 
 						placeholder='Provide any additional information regarding your facility.'
             sx={{
               flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
@@ -102,7 +102,7 @@ const SubStep2: React.FC = () => {
               <MenuItem disabled value="Option 0" sx={{ fontFamily: "Nunito Sans, sans-serif", fontSize: "0.7rem" }}>
                 Select the days on which the building is occupied.
               </MenuItem>
-              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day, index) => (
+              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, index) => (
                 <MenuItem key={index} value={day} sx={{ fontFamily: "Nunito Sans, sans-serif", fontSize: "0.7rem" }}>
                   {day}
                 </MenuItem>
