@@ -71,15 +71,19 @@ const stepSubStepMapping = {
       1: lazy(() => import('./Step5/SubStep1/SubStep1.2')),
     },
     1: {
-      0: lazy(() => import('./Step5/SubStep2/SubStep2.1')),
-      1: lazy(() => import('./Step5/SubStep2/SubStep2.2')),
-      2: lazy(() => import('./Step5/SubStep2/SubStep2.3')),
-      3: lazy(() => import('./Step5/SubStep2/SubStep2.4')),
-      4: lazy(() => import('./Step5/SubStep2/SubStep2.5')),
-      5: lazy(() => import('./Step5/SubStep2/SubStep2.6')),
+      0: lazy(() => import('./Step5/SubStep2/Own/SubStep2.1')),
+      1: lazy(() => import('./Step5/SubStep2/Own/SubStep2.2')),
+      2: lazy(() => import('./Step5/SubStep2/Own/SubStep2.3')),
+      3: lazy(() => import('./Step5/SubStep2/Own/SubStep2.4')),
+      4: lazy(() => import('./Step5/SubStep2/Own/SubStep2.5')),
+      5: lazy(() => import('./Step5/SubStep2/Own/SubStep2.6')),
+      6: lazy(() => import('./Step5/SubStep2/Own/SubStep2.7')),
+      7: lazy(() => import('./Step5/SubStep2/Own/SubStep2.8')),
     },
     2: {
-      0: lazy(() => import('./Step5/SubStep3/SubStep3.1')),
+      0: lazy(() => import('./Step5/SubStep2/ThirdParty/SubStep2.1')),
+      1: lazy(() => import('./Step5/SubStep2/ThirdParty/SubStep2.2')),
+      2: lazy(() => import('./Step5/SubStep2/ThirdParty/SubStep2.3')),
     },
   },
   5: {
@@ -97,6 +101,7 @@ const stepSubStepMapping = {
     },
   },
 };
+
 
 interface StepContentProps {
   step: number;
