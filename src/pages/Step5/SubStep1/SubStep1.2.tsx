@@ -1,18 +1,7 @@
-import React, { useState } from 'react';
-import { Box, Typography, FormControlLabel, Radio, RadioGroup } from '@mui/material';
+import React from 'react';
+import { Box, Typography } from '@mui/material';
 
-interface SubStep1Props {
-  onOwnershipSelect: (selection: string) => void;
-}
-
-const SubStep1: React.FC<SubStep1Props> = ({ onOwnershipSelect }) => {
-  const [ownership, setOwnership] = useState<string>('');
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = (event.target as HTMLInputElement).value;
-    setOwnership(value);
-    onOwnershipSelect(value);
-  };
+const SubStep1: React.FC = () => {
 
   return (
     <Box
