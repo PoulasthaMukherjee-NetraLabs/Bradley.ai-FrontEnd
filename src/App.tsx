@@ -54,6 +54,16 @@ const App: React.FC = () => {
     const isLastSubStep = currentSubStep === steps[currentStep].subSteps - 1;
     const isLastStep = currentStep === TOTAL_STEPS - 1;
 
+    
+  
+    if (currentStep === 4 && currentSubStep === 2 && currentFurtherSubStep === 2) {
+      setCurrentStep(5);
+      setCurrentSubStep(0);
+      setCurrentFurtherSubStep(0);
+      markVisited(5, 0);
+      return;
+    }
+  
     if (isLastFurtherSubStep) {
       if (isLastSubStep) {
         if (isLastStep) {
@@ -74,6 +84,7 @@ const App: React.FC = () => {
       setCurrentFurtherSubStep(currentFurtherSubStep + 1);
     }
   };
+  
 
   const handleBack = () => {
     if (currentStep === 4 && currentSubStep === 2 && currentFurtherSubStep === 0) {

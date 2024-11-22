@@ -40,7 +40,7 @@ const SubStep2: React.FC = () => {
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.75rem',
               minWidth: '200px',
-              flex: 0.3,
+              flex: 0.5,
             }}
           >
             <b>Preferred Method Of Depreciation:</b>
@@ -86,7 +86,7 @@ const SubStep2: React.FC = () => {
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.75rem',
               minWidth: '200px',
-              flex: 0.3,
+              flex: 0.5,
             }}
           >
             <b>Tax Rate:</b> (In %)
@@ -112,9 +112,9 @@ const SubStep2: React.FC = () => {
         </Box>
 
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-				<Typography sx={{ mt: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+				<Typography sx={{ mt: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 0.5 }}>
   <b>Tax Appetite In First Year?</b>
-  <RadioGroup row sx={{ fontSize: '0.7rem', m: 0, gap: 5.5 }}>
+  <RadioGroup row sx={{ fontSize: '0.7rem', m: 0, gap: 5.5, flex: 0.58 }}>
     <FormControlLabel value="yes" control={<Radio sx={{ padding: '2px' }} />} label={<Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Yes</Typography>} />
     <FormControlLabel value="no" control={<Radio sx={{ padding: '2px' }} />} label={<Typography sx={{  fontFamily: 'Nunito Sans, sans-serif',fontSize: '0.7rem' }}>No</Typography>} />
   </RadioGroup>
@@ -128,7 +128,7 @@ const SubStep2: React.FC = () => {
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.75rem',
               minWidth: '200px',
-              flex: 0.3,
+              flex: 0.5,
             }}
           >
             <b>If NO, When Does Your Tax Appetite Return?</b>
