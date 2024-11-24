@@ -4,14 +4,14 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const SubStep2: React.FC = () => {
-  const [roofSections, setRoofSections] = useState<number[]>([0, 1, 2]);
+  const [yearBudget, setyearBudget] = useState<number[]>([0, 1, 2]);
 
   const handleAddSection = () => {
-    setRoofSections([...roofSections, roofSections.length]);
+    setyearBudget([...yearBudget, yearBudget.length]);
   };
 
   const handleRemoveSection = (index: number) => {
-    setRoofSections(roofSections.filter((_, i) => i !== index));
+    setyearBudget(yearBudget.filter((_, i) => i !== index));
   };
 
   return (
@@ -120,13 +120,13 @@ const SubStep2: React.FC = () => {
       maxWidth: 'calc(100% - 200px)',
     }}
   >
-    {roofSections.map((_, index) => (
+    {yearBudget.map((_, index) => (
       <Box
         key={index}
         sx={{
           display: 'flex',
           alignItems: 'center',
-          flex: `1 1 ${100 / roofSections.length}%`,
+          flex: `1 1 ${100 / yearBudget.length}%`,
           gap: 1,
         }}
       >
@@ -153,7 +153,7 @@ const SubStep2: React.FC = () => {
         <IconButton
           onClick={() => handleRemoveSection(index)}
           sx={{ p: 0 }}
-          disabled={roofSections.length === 1}
+          disabled={yearBudget.length === 1}
         >
           <DeleteIcon fontSize="small" />
         </IconButton>
