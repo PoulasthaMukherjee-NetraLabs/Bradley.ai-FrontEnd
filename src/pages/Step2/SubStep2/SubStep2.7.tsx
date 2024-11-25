@@ -82,7 +82,16 @@ const SubStep2: React.FC = () => {
             lineHeight: '1.5',
           }}
         >
-          This requires your authorization. Click on <b>Next</b> to review and electronically sign a Letter of Authorization or skip.
+          This requires your authorization.
+        </Typography>
+        <Typography
+          sx={{
+            fontFamily: 'Nunito Sans, sans-serif',
+            fontSize: '0.75rem',
+            lineHeight: '1.5',
+          }}
+        >
+          Click on <b>Next</b> to review and electronically sign a <b>LETTER OF AUTHORIZATION</b> or Skip.
         </Typography>
       </Box>
     </Box>

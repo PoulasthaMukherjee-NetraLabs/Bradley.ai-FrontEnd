@@ -278,8 +278,12 @@ const App: React.FC = () => {
           color="primary"
           onClick={handleNext}
         >
-          {currentStep === TOTAL_STEPS - 1 && currentSubStep === steps[currentStep].subSteps - 1 && currentFurtherSubStep === steps[currentStep].furtherSubSteps[currentSubStep] - 1 ? 'Finish' : 'Next'}
-        </Button>
+          {currentStep === 1 && currentSubStep === 2 && currentFurtherSubStep === 0
+    ? 'Authorize & Send Request'
+    : currentStep === TOTAL_STEPS - 1 && currentSubStep === steps[currentStep].subSteps - 1 && currentFurtherSubStep === steps[currentStep].furtherSubSteps[currentSubStep] - 1
+    ? 'Finish'
+    : 'Next'}
+</Button>
       </>
     )}
   </Box>
