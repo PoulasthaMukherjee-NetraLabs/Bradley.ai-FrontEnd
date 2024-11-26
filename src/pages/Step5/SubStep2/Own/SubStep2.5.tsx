@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, TextField, Typography, FormControlLabel, MenuItem, Switch, Select } from '@mui/material';
+import { Box, TextField, Typography, FormControlLabel, Switch } from '@mui/material';
 
 const SubStep2: React.FC = () => { 
 

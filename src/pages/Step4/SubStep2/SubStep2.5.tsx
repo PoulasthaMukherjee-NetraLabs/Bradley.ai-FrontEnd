@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, TextField, Select, MenuItem, Typography, Switch, FormControlLabel } from "@mui/material";
+import { Box, TextField, Select, MenuItem, Typography } from "@mui/material";
 
 const SubStep2: React.FC = () => {
   const [facilityUsage, setFacilityUsage] = useState<string[]>([]);

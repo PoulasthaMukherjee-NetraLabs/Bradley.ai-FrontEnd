@@ -1,31 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Box, 
-  TextField, 
-  Button, 
   Typography, 
-  MenuItem, 
-  IconButton 
 } from '@mui/material';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 const SubStep2: React.FC = () => {
-  const [showWasteHeat, setShowWasteHeat] = useState(false);
-  const [wasteHeatSources, setWasteHeatSources] = useState([
-    { type: '', capacity: '', fuelSource: '', efficiency: '', age: '' , operatingPressure: '', history: '', utilization: '', volume: ''},
-  ]);  
 
-  const handleAddWasteHeatSource = () => {
-    setWasteHeatSources([
-      ...wasteHeatSources,
-      { type: '', capacity: '', fuelSource: '', efficiency: '', age: '' , operatingPressure: '', history: '', utilization: '', volume: ''},
-    ]);
-  };
-
-  const handleRemoveWasteHeatSource = (index: number) => {
-    setWasteHeatSources(wasteHeatSources.filter((_, i) => i !== index));
-  };
 
   return (
     <Box

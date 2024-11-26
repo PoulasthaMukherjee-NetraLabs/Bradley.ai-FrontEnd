@@ -1,6 +1,14 @@
 import React, { Suspense, lazy } from 'react';
 
-const stepSubStepMapping = {
+type StepSubStepMapping = {
+  [step: number]: {
+    [subStep: number]: {
+      [furtherSubStep: number]: React.LazyExoticComponent<React.FC>;
+    };
+  };
+};
+
+const stepSubStepMapping: StepSubStepMapping = {
   0: {
     0: {
       0: lazy(() => import('./Step1/SubStep1/SubStep1.1')),

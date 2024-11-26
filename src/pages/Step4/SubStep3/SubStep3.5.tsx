@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, TextField, Typography, Select, MenuItem, FormControlLabel, Radio, RadioGroup } from '@mui/material';
+import { Box, TextField, Typography, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 
 const SubStep3: React.FC = () => {
 
