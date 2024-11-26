@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { Box, TextField, Select, MenuItem, Typography } from "@mui/material";
+import { Box, TextField, Select, MenuItem, Typography, SelectChangeEvent } from "@mui/material";
 
 const SubStep2: React.FC = () => {
   const [facilityUsage, setFacilityUsage] = useState<string[]>([]);
   const [daysOfOperation, setDaysOfOperation] = useState<string[]>([]);
 
-  const handleFacilityUsageChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const handleFacilityUsageChange = (event: SelectChangeEvent<string[]>) => {
     setFacilityUsage(event.target.value as string[]);
   };
 
-  const handleDaysOfOperationChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const handleDaysOfOperationChange = (event: SelectChangeEvent<string[]>) => {
     setDaysOfOperation(event.target.value as string[]);
   };
 
@@ -57,21 +57,21 @@ const SubStep2: React.FC = () => {
             </Select>
           </Box>
 
-					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
   <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
-		<b>Facility Details:</b>
+        <b>Facility Details:</b>
   </Typography>
   <TextField
             variant="outlined" 
             size="small" 
             type="text" 
-						placeholder='Provide any additional information regarding your facility.'
+                        placeholder='Provide any additional information regarding your facility.'
             sx={{
               flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.7rem',
               '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
               '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
-							'& .MuiInputBase-input::placeholder': {
+                            '& .MuiInputBase-input::placeholder': {
                 fontFamily: 'Nunito Sans, sans-serif',
                 fontSize: '0.7rem',
               }
