@@ -84,6 +84,10 @@ const SubStep3: React.FC = () => {
           fontSize: '0.7rem',
           '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
           '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+          '& .MuiInputBase-input::placeholder': {
+            fontFamily: 'Nunito Sans, sans-serif',
+            fontSize: '0.7rem',
+          }
         }}
       />
     ))}
