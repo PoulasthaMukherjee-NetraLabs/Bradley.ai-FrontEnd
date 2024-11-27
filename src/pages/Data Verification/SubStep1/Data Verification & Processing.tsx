@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Box, Typography, IconButton, TextField, Checkbox } from '@mui/material';
+import { Box, Typography, IconButton, TextField, Checkbox, Collapse } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const SubStep1: React.FC = () => {
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [rowValues, setRowValues] = useState([
-    `Company Name: ABC Group\nIndustry: Manufacturing\nLocation: New York, NY`,
-    `Annual Energy Usage: 1,200,000 kWh\nPeak Demand: 500kW\nEnergy Source: Solar, Wind`,
-    `Budget: $500,000\nROI Expectation: 5 Years`,
-    `Site Size: 100,000 sq. ft\nRoof Condition: Excellent\nShading: Minimal`,
-    `Down Payment: $50,000`,
+    'Company Name: ABC Group\nIndustry: Manufacturing\nLocation: New York, NY',
+    'Annual Energy Usage: 1,200,000 kWh\nPeak Demand: 500kW\nEnergy Source: Solar, Wind',
+    'Budget: $500,000\nROI Expectation: 5 Years',
+    'Site Size: 100,000 sq. ft\nRoof Condition: Excellent\nShading: Minimal',
+    'Down Payment: $50,000',
   ]);
 
   const headers = [
@@ -34,51 +36,79 @@ const SubStep1: React.FC = () => {
     setEditIndex(null);
   };
 
+  const handleExpandClick = (index: number) => {
+    setExpandedIndex(expandedIndex === index ? null : index);
+  };
+
   const renderEditableCard = (header: string, value: string, index: number) => (
     <Box
       key={index}
       sx={{
         backgroundColor: '#f4f4f4',
         borderRadius: '8px',
-        padding: '16px',
-        marginBottom: '16px',
+        padding: '8px',
+        marginBottom: '0px',
         position: 'relative',
         width: '100%',
       }}
     >
-      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '8px' }}>
-        {header}
-      </Typography>
-      {editIndex === index ? (
-        <TextField
-          multiline
-          value={value}
-          onChange={(e) => handleInputChange(e, index)}
-          onBlur={handleBlur}
-          autoFocus
-          fullWidth
-          variant="standard"
-          InputProps={{ disableUnderline: true }}
-          sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }}
-        />
-      ) : (
-        <Typography
-          sx={{
-            fontFamily: 'Nunito Sans, sans-serif',
-            fontSize: '0.75rem',
-            whiteSpace: 'pre-wrap',
-          }}
-        >
-          {value}
-        </Typography>
-      )}
-      <IconButton
-        size="small"
-        onClick={() => handleEditClick(index)}
-        sx={{ position: 'absolute', top: '8px', right: '8px' }}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          cursor: 'pointer',
+        }}
+        onClick={() => handleExpandClick(index)}
       >
-        <EditIcon sx={{ fontSize: '1rem' }} />
-      </IconButton>
+        <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold' }}>
+          {header}
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <ExpandMoreIcon
+            sx={{
+              transform: expandedIndex === index ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.3s',
+            }}
+          />
+        </Box>
+      </Box>
+      <Collapse in={expandedIndex === index} timeout="auto" unmountOnExit>
+        {editIndex === index ? (
+          <TextField
+            multiline
+            value={value}
+            onChange={(e) => handleInputChange(e, index)}
+            onBlur={handleBlur}
+            autoFocus
+            fullWidth
+            variant="standard"
+            InputProps={{ disableUnderline: true }}
+            sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', marginTop: '8px' }}
+          />
+        ) : (
+          <Typography
+            sx={{
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.75rem',
+              whiteSpace: 'pre-wrap',
+              marginTop: '8px',
+            }}
+          >
+            {value}
+          </Typography>
+        )}
+        <IconButton
+          size="small"
+          onClick={(event) => {
+            event.stopPropagation();
+            handleEditClick(index);
+          }}
+          sx={{ position: 'absolute', top: '8px', right: '36px' }}
+        >
+          <EditIcon sx={{ fontSize: '1rem' }} />
+        </IconButton>
+      </Collapse>
     </Box>
   );
 
@@ -177,7 +207,7 @@ const SubStep1: React.FC = () => {
             }}
           />
           <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }}>
-            I have read and agreed to the terms of this Letter of Authorization.
+            I have reviewed the information and confirm it is accurate.
           </Typography>
         </Box>
       </Box>
