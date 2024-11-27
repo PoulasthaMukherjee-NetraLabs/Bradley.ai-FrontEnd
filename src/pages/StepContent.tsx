@@ -96,8 +96,7 @@ const stepSubStepMapping: StepSubStepMapping = {
   },
   5: {
     0: {
-      0: lazy(() => import('./Data Verification/SubStep1/SubStep1.1')),
-      1: lazy(() => import('./Data Verification/SubStep1/SubStep1.2')),
+      0: lazy(() => import('./Data Verification/SubStep1/Data Verification & Processing')),
     },
   },
   6: {

@@ -12,7 +12,7 @@ const steps = [
   { label: 'Goals & Priorities', subSteps: 3, furtherSubSteps: [1, 2, 2] },
   { label: 'Site Assessment', subSteps: 3, furtherSubSteps: [1, 6, 6] },
   { label: 'Financial Info', subSteps: 2, furtherSubSteps: [2, 8, 3] }, 
-  { label: 'Data Verification', subSteps: 1, furtherSubSteps: [2] },
+  { label: 'Data Verification', subSteps: 1, furtherSubSteps: [1] },
   { label: 'Onboarding', subSteps: 1, furtherSubSteps: [4] },
 ];
 
