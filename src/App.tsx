@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Button, Snackbar, LinearProgress } from '@mui/material';
 import HorizontalStepper from './components/HorizontalStepper';
 import StepContent from './pages/StepContent';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
+import { useAppContext } from './AppContext';
 
-const steps = [
+export const steps = [
   { label: 'Organizational Profile', subSteps: 2, furtherSubSteps: [1, 5] },
   { label: 'Energy Profile', subSteps: 3, furtherSubSteps: [1, 7, 2] },
   { label: 'Goals & Priorities', subSteps: 3, furtherSubSteps: [1, 2, 2] },
@@ -16,23 +17,23 @@ const steps = [
   { label: 'Onboarding', subSteps: 1, furtherSubSteps: [2] },
 ];
 
-const TOTAL_STEPS = steps.length;
+export const TOTAL_STEPS = steps.length;
 
 const App: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [currentSubStep, setCurrentSubStep] = useState(0);
-  const [currentFurtherSubStep, setCurrentFurtherSubStep] = useState(0);
-  const [visitedSteps, setVisitedSteps] = useState(
-    Array.from({ length: TOTAL_STEPS }, (_, i) =>
-      Array.from({ length: steps[i].subSteps }, (_, j) => i === 0 && j === 0)
-    )
-  );
-  const [completedSubSteps, setCompletedSubSteps] = useState(
-    Array.from({ length: TOTAL_STEPS }, (_, i) =>
-      Array.from({ length: steps[i].subSteps }, () => false)
-    )
-  );
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const {
+    currentStep,
+    setCurrentStep,
+    currentSubStep,
+    setCurrentSubStep,
+    currentFurtherSubStep,
+    setCurrentFurtherSubStep,
+    visitedSteps,
+    setVisitedSteps,
+    completedSubSteps,
+    setCompletedSubSteps,
+    openSnackbar,
+    setOpenSnackbar
+} = useAppContext();
 
   const handleStepChange = (step: number) => {
     if (visitedSteps[step][0]) {
