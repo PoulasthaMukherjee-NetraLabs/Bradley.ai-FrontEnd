@@ -228,44 +228,44 @@ const SubStep2: React.FC = () => {
     },
   }}
 >
-            <MenuItem value="Option 1" disabled>
-              Select your IRS Category
-            </MenuItem>
-            <MenuItem value="Option 2">501(c)(1) – Corporations Organized Under Act of Congress</MenuItem>
-            <MenuItem value="Option 3">501(c)(2) – Title Holding Corporations for Exempt Organizations</MenuItem>
-            <MenuItem value="Option 4">501(c)(3) – Religious, Educational, Charitable Organizations</MenuItem>
-            <MenuItem value="Option 5">501(c)(4) – Civic Leagues, Social Welfare Organizations</MenuItem>
-            <MenuItem value="Option 6">501(c)(5) – Labor, Agricultural, Horticultural Organizations</MenuItem>
-            <MenuItem value="Option 7">501(c)(6) – Business Leagues, Chambers of Commerce</MenuItem>
-            <MenuItem value="Option 8">501(c)(7) – Social and Recreational Clubs</MenuItem>
-            <MenuItem value="Option 9">501(c)(8) – Fraternal Beneficiary Societies and Associations</MenuItem>
-            <MenuItem value="Option 10">501(c)(9) – Voluntary Employees' Beneficiary Associations</MenuItem>
-            <MenuItem value="Option 11">501(c)(10) – Domestic Fraternal Societies and Associations</MenuItem>
-            <MenuItem value="Option 12">501(c)(11) – Teachers’ Retirement Fund Associations</MenuItem>
-            <MenuItem value="Option 13">501(c)(12) – Benevolent Life Insurance Associations, Mutual Ditch or Irrigation Companies, <br />Mutual or Cooperative Telephone Companies</MenuItem>
-            <MenuItem value="Option 14">501(c)(13) – Cemetery Companies</MenuItem>
-            <MenuItem value="Option 15">501(c)(14) – State-Chartered Credit Unions, Mutual Reserve Funds</MenuItem>
-            <MenuItem value="Option 16">501(c)(15) – Mutual Insurance Companies or Associations</MenuItem>
-            <MenuItem value="Option 17">501(c)(16) – Cooperative Organizations to Finance Crop Operations</MenuItem>
-            <MenuItem value="Option 18">501(c)(17) – Supplemental Unemployment Benefit Trusts</MenuItem>
-            <MenuItem value="Option 19">501(c)(18) – Employee Funded Pension Trusts</MenuItem>
-            <MenuItem value="Option 20">501(c)(19) – Post or Organization of Past or Present Members of the Armed Forces</MenuItem>
-            <MenuItem value="Option 21">501(c)(20) – Group Legal Services Plan Organizations</MenuItem>
-            <MenuItem value="Option 22">501(c)(21) – Black Lung Benefit Trusts</MenuItem>
-            <MenuItem value="Option 23">501(c)(22) – Withdrawal Liability Payment Funds</MenuItem>
-            <MenuItem value="Option 24">501(c)(23) – Veterans Organization (created before 1880)</MenuItem>
-            <MenuItem value="Option 25">501(c)(24) – Trusts described in section 4049 of ERISA</MenuItem>
-            <MenuItem value="Option 26">501(c)(25) – Title Holding Corporations or Trusts with Multiple Parents</MenuItem>
-            <MenuItem value="Option 27">501(c)(26) – State-Sponsored Organization Providing Health Coverage for High-Risk Individuals</MenuItem>
-            <MenuItem value="Option 28">501(c)(27) – State-Sponsored Workers' Compensation Reinsurance Organization</MenuItem>
-            <MenuItem value="Option 29">501(c)(28) – National Railroad Retirement Investment Trust</MenuItem>
-            <MenuItem value="Option 30">501(d) – Religious and Apostolic Associations</MenuItem>
-            <MenuItem value="Option 31">501(e) – Cooperative Hospital Service Organizations</MenuItem>
-            <MenuItem value="Option 32">501(f) – Cooperative Service Organizations of Operating Educational Organizations</MenuItem>
-            <MenuItem value="Option 33">501(k) – Child Care Organizations</MenuItem>
-            <MenuItem value="Option 34">501(n) – Charitable Risk Pools</MenuItem>
-            <MenuItem value="Option 35">501(q) – Credit Counseling Organizations</MenuItem>
-          </Select>
+          <MenuItem value="Option 1" disabled>
+            Select your IRS Category
+          </MenuItem>
+          <MenuItem value="Option 2">501(c)(1) – Corporations Organized Under Act of Congress</MenuItem>
+          <MenuItem value="Option 3">501(c)(2) – Title Holding Corporations for Exempt Organizations</MenuItem>
+          <MenuItem value="Option 4">501(c)(3) – Religious, Educational, Charitable Organizations</MenuItem>
+          <MenuItem value="Option 5">501(c)(4) – Civic Leagues, Social Welfare Organizations</MenuItem>
+          <MenuItem value="Option 6">501(c)(5) – Labor, Agricultural, Horticultural Organizations</MenuItem>
+          <MenuItem value="Option 7">501(c)(6) – Business Leagues, Chambers of Commerce</MenuItem>
+          <MenuItem value="Option 8">501(c)(7) – Social and Recreational Clubs</MenuItem>
+          <MenuItem value="Option 9">501(c)(8) – Fraternal Beneficiary Societies and Associations</MenuItem>
+          <MenuItem value="Option 10">501(c)(9) – Voluntary Employees' Beneficiary Associations</MenuItem>
+          <MenuItem value="Option 11">501(c)(10) – Domestic Fraternal Societies and Associations</MenuItem>
+          <MenuItem value="Option 12">501(c)(11) – Teachers’ Retirement Fund Associations</MenuItem>
+          <MenuItem value="Option 13">501(c)(12) – Benevolent Life Insurance Associations, Mutual Ditch or Irrigation Companies, <br />Mutual or Cooperative Telephone Companies</MenuItem>
+          <MenuItem value="Option 14">501(c)(13) – Cemetery Companies</MenuItem>
+          <MenuItem value="Option 15">501(c)(14) – State-Chartered Credit Unions, Mutual Reserve Funds</MenuItem>
+          <MenuItem value="Option 16">501(c)(15) – Mutual Insurance Companies or Associations</MenuItem>
+          <MenuItem value="Option 17">501(c)(16) – Cooperative Organizations to Finance Crop Operations</MenuItem>
+          <MenuItem value="Option 18">501(c)(17) – Supplemental Unemployment Benefit Trusts</MenuItem>
+          <MenuItem value="Option 19">501(c)(18) – Employee Funded Pension Trusts</MenuItem>
+          <MenuItem value="Option 20">501(c)(19) – Post or Organization of Past or Present Members of the Armed Forces</MenuItem>
+          <MenuItem value="Option 21">501(c)(20) – Group Legal Services Plan Organizations</MenuItem>
+          <MenuItem value="Option 22">501(c)(21) – Black Lung Benefit Trusts</MenuItem>
+          <MenuItem value="Option 23">501(c)(22) – Withdrawal Liability Payment Funds</MenuItem>
+          <MenuItem value="Option 24">501(c)(23) – Veterans Organization (created before 1880)</MenuItem>
+          <MenuItem value="Option 25">501(c)(24) – Trusts described in section 4049 of ERISA</MenuItem>
+          <MenuItem value="Option 26">501(c)(25) – Title Holding Corporations or Trusts with Multiple Parents</MenuItem>
+          <MenuItem value="Option 27">501(c)(26) – State-Sponsored Organization Providing Health Coverage for High-Risk Individuals</MenuItem>
+          <MenuItem value="Option 28">501(c)(27) – State-Sponsored Workers' Compensation Reinsurance Organization</MenuItem>
+          <MenuItem value="Option 29">501(c)(28) – National Railroad Retirement Investment Trust</MenuItem>
+          <MenuItem value="Option 30">501(d) – Religious and Apostolic Associations</MenuItem>
+          <MenuItem value="Option 31">501(e) – Cooperative Hospital Service Organizations</MenuItem>
+          <MenuItem value="Option 32">501(f) – Cooperative Service Organizations of Operating Educational Organizations</MenuItem>
+          <MenuItem value="Option 33">501(k) – Child Care Organizations</MenuItem>
+          <MenuItem value="Option 34">501(n) – Charitable Risk Pools</MenuItem>
+          <MenuItem value="Option 35">501(q) – Credit Counseling Organizations</MenuItem>
+        </Select>
 </Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
