@@ -32,16 +32,16 @@ const Navbar: React.FC = () => {
         </Typography>
 
         
-        <IconButton color="inherit">
-          <DarkModeIcon fontSize='medium' sx={{'&:focus': {
+        <IconButton color="inherit" sx={{'&:focus': {
                                   outline: 'none',
-                                },}}  />
+                                },}}>
+          <DarkModeIcon fontSize='medium'  />
         </IconButton>
 
-        <IconButton color="inherit">
-          <NotificationsNoneIcon fontSize='medium'   sx={{'&:focus': {
+        <IconButton color="inherit" sx={{'&:focus': {
                                   outline: 'none',
-                                },}}  />
+                                },}}>
+          <NotificationsNoneIcon fontSize='medium'  />
         </IconButton>
         
         <IconButton
