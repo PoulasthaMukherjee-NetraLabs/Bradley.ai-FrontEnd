@@ -23,19 +23,19 @@ const SubStep1: React.FC = () => {
                             <CardContent>
                                 {index === 0 && (
                                     <>
-                                        <Typography sx={{ fontFamily :'Nunito Sans,sans-serif' ,fontWeight :'bold' ,fontSize :'1rem' ,pb : 1 }}><b>Prorjected Annual Savings:</b><br />$45,000</Typography>
+                                        <Typography sx={{ fontFamily :'Nunito Sans,sans-serif' ,fontWeight :'bold' ,fontSize :'1rem' ,pb : 1 }}><b>Prorjected Annual Savings:</b><br /><span style={{ color: '#2bad31' }}>$45,000</span></Typography>
                                         <Typography sx={{ fontFamily :'Nunito Sans,sans-serif' ,fontSize :'0.7rem' ,color :'gray', pt: 1}}>The projected annual savings of $45,000 is a significant financial benefit.</Typography>
                                     </>
                                 )}
                                 {index === 1 && (
                                     <>
-                                        <Typography sx={{ fontFamily :'Nunito Sans,sans-serif' ,fontWeight :'bold' ,fontSize :'1rem' ,pb : 1 }}><b>Estimated CO2 Reduction:</b><br />25%</Typography>
+                                        <Typography sx={{ fontFamily :'Nunito Sans,sans-serif' ,fontWeight :'bold' ,fontSize :'1rem' ,pb : 1 }}><b>Estimated CO2 Reduction:</b><br /><span style={{ color: '#2bad31' }}>25%</span></Typography>
                                         <Typography sx={{ fontFamily :'Nunito Sans,sans-serif' ,fontSize :'0.7rem' ,color :'gray', pt: 1}}>A 25% reduction in CO2 emissions is a substantial environmental impact.</Typography>
                                     </>
                                 )}
                                 {index === 2 && (
                                     <>
-                                        <Typography sx={{ fontFamily :'Nunito Sans,sans-serif' ,fontWeight :'bold' ,fontSize :'1rem' ,pb : 1 }}><b>Backup Power Capacity:</b><br />4 Hours</Typography>
+                                        <Typography sx={{ fontFamily :'Nunito Sans,sans-serif' ,fontWeight :'bold' ,fontSize :'1rem' ,pb : 1 }}><b>Backup Power Capacity:</b><br /><span style={{ color: '#2bad31' }}>4 Hours</span></Typography>
                                         <Typography sx={{ fontFamily :'Nunito Sans,sans-serif' ,fontSize :'0.7rem' ,color :'gray', pt: 1}}>4 hours of backup power capacity provides a reasonable level of protectection against outages.</Typography>
                                     </>
                                 )}
