@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Snackbar, LinearProgress } from '@mui/material';
+import { Box, Button, LinearProgress } from '@mui/material';
 import HorizontalStepper from './components/HorizontalStepper';
 import StepContent from './pages/StepContent';
 import Navbar from './components/Navbar';
@@ -14,8 +14,7 @@ const App: React.FC = () => {
     currentSubStep, setCurrentSubStep,
     currentFurtherSubStep, setCurrentFurtherSubStep,
     visitedSteps, setVisitedSteps,
-    completedSubSteps, setCompletedSubSteps,
-    openSnackbar, setOpenSnackbar
+    completedSubSteps, setCompletedSubSteps
 } = useAppContext();
 
   const handleStepChange = (step: number) => {
@@ -51,7 +50,7 @@ const App: React.FC = () => {
     if (isLastFurtherSubStep) {
       if (isLastSubStep) {
         if (isLastStep) {
-          setOpenSnackbar(true);
+          markCompleted(currentStep, currentSubStep);
         } else {
           setCurrentStep(currentStep + 1);
           setCurrentSubStep(0);
@@ -276,7 +275,17 @@ const App: React.FC = () => {
           }}
           variant="contained"
           color="primary"
-          onClick={handleNext}
+          onClick={() => {
+            if (
+              currentStep === TOTAL_STEPS - 1 &&
+              currentSubStep === steps[currentStep].subSteps - 1 &&
+              currentFurtherSubStep === steps[currentStep].furtherSubSteps[currentSubStep] - 1
+            ) {
+              markCompleted(currentStep, currentSubStep);
+            } else {
+              handleNext();
+            }
+          }}
         >
           {currentStep === TOTAL_STEPS - 1 &&
           currentSubStep === steps[currentStep].subSteps - 1 &&
@@ -303,13 +312,6 @@ const App: React.FC = () => {
         </Box>
       </Box>
       <Footer />
-
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={2000}
-        onClose={() => setOpenSnackbar(false)}
-        message="Done!"
-      />
     </Box>
   );
 };
