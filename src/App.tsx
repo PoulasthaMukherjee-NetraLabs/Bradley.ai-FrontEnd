@@ -156,23 +156,25 @@ const App: React.FC = () => {
 
               <StepContent step={currentStep} subStep={currentSubStep} furtherSubStep={currentFurtherSubStep} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3, mr: 5.2, ml: 1, mb: 1 }}>
-  <Button
-    sx={{
-      fontFamily: 'Nunito Sans, sans-serif',
-      fontSize: '0.75rem',
-      padding: '2px 10px',
-      minWidth: '10px',
-      maxHeight: '25px',
-      textTransform: 'none',
-    }}
-    variant="outlined"
-    onClick={handleBack}
-    disabled={currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 0}
-  >
-    Back
-  </Button>
+  {!(currentStep === TOTAL_STEPS - 1 && currentSubStep === steps[currentStep].subSteps - 1 && currentFurtherSubStep === steps[currentStep].furtherSubSteps[currentSubStep] - 1) && (
+    <Button
+      sx={{
+        fontFamily: 'Nunito Sans, sans-serif',
+        fontSize: '0.75rem',
+        padding: '2px 10px',
+        minWidth: '10px',
+        maxHeight: '25px',
+        textTransform: 'none',
+      }}
+      variant="outlined"
+      onClick={handleBack}
+      disabled={currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 0}
+    >
+      Back
+    </Button>
+  )}
 
-  <Box sx={{ display: 'flex', gap: 1 }}>
+  <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
     {currentStep === 4 && currentSubStep === 0 && currentFurtherSubStep === 1 ? (
       <>
         <Button
@@ -204,7 +206,7 @@ const App: React.FC = () => {
             setCurrentStep(4);
             setCurrentSubStep(1);
             setCurrentFurtherSubStep(0);
-            markCompleted(4,0);
+            markCompleted(4, 0);
           }}
         >
           Own
@@ -225,7 +227,7 @@ const App: React.FC = () => {
             setCurrentStep(4);
             setCurrentSubStep(2);
             setCurrentFurtherSubStep(0);
-            markCompleted(4,0);
+            markCompleted(4, 0);
           }}
         >
           Third Party
@@ -233,20 +235,22 @@ const App: React.FC = () => {
       </>
     ) : (
       <>
-        <Button
-          sx={{
-            fontFamily: 'Nunito Sans, sans-serif',
-            fontSize: '0.75rem',
-            padding: '2px 10px',
-            minWidth: '10px',
-            maxHeight: '25px',
-            textTransform: 'none',
-          }}
-          variant="outlined"
-          onClick={() => {}}
-        >
-          Save and Continue Later
-        </Button>
+        {!(currentStep === TOTAL_STEPS - 1 && currentSubStep === steps[currentStep].subSteps - 1 && currentFurtherSubStep === steps[currentStep].furtherSubSteps[currentSubStep] - 1) && (
+          <Button
+            sx={{
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.75rem',
+              padding: '2px 10px',
+              minWidth: '10px',
+              maxHeight: '25px',
+              textTransform: 'none',
+            }}
+            variant="outlined"
+            onClick={() => {}}
+          >
+            Save and Continue Later
+          </Button>
+        )}
         <Button
           sx={{
             fontFamily: 'Nunito Sans, sans-serif',
@@ -261,18 +265,25 @@ const App: React.FC = () => {
           color="primary"
           onClick={handleNext}
         >
-          {currentStep === 1 && currentSubStep === 2 && currentFurtherSubStep === 0
-    ? 'Authorize & Send Request'
-    : currentStep === 5 && currentSubStep === 0 && currentFurtherSubStep === 0
-    ? 'Submit'
-    : currentStep === TOTAL_STEPS - 1 && currentSubStep === steps[currentStep].subSteps - 1 && currentFurtherSubStep === steps[currentStep].furtherSubSteps[currentSubStep] - 1
-    ? 'Finish'
-    : 'Next'}
-</Button>
+          {currentStep === TOTAL_STEPS - 1 &&
+          currentSubStep === steps[currentStep].subSteps - 1 &&
+          currentFurtherSubStep === steps[currentStep].furtherSubSteps[currentSubStep] - 2
+            ? 'Generate Report'
+            : currentStep === TOTAL_STEPS - 1 &&
+              currentSubStep === steps[currentStep].subSteps - 1 &&
+              currentFurtherSubStep === steps[currentStep].furtherSubSteps[currentSubStep] - 1
+            ? 'Download Report'
+            : currentStep === 1 && currentSubStep === 2 && currentFurtherSubStep === 0
+            ? 'Authorize & Send Request'
+            : currentStep === 5 && currentSubStep === 0 && currentFurtherSubStep === 0
+            ? 'Submit'
+            : 'Next'}
+        </Button>
       </>
     )}
   </Box>
 </Box>
+
 
             </Box>
           </Box>
