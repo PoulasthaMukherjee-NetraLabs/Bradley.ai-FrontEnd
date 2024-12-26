@@ -1,13 +1,65 @@
 import React, { useState } from 'react';
-import { Box, Typography, Card, CardContent, TextField, Table, TableHead, TableBody, TableRow, TableCell, IconButton, ToggleButton, ToggleButtonGroup, Grid, Pagination } from '@mui/material';
-import { Search, TableChart, ViewModule, Edit, Delete } from '@mui/icons-material';
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  TextField,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  IconButton,
+  ToggleButton,
+  ToggleButtonGroup,
+  Grid,
+  Pagination
+} from '@mui/material';
+import {
+  Search,
+  TableChart,
+  ViewModule,
+  Edit,
+  Delete
+} from '@mui/icons-material';
 
 const projectStatuses = [
-  { title: 'Onboarding', projects: [{ name: 'Project A', shortDesc: 'Initial setup for stakeholders.' }, { name: 'Project B', shortDesc: 'User access configurations.' }] },
-  { title: 'Analysis in Progress', projects: [{ name: 'Project C', shortDesc: 'Data collection ongoing.' }, { name: 'Project D', shortDesc: 'Trend analysis in progress.' }] },
-  { title: 'Analyst Review', projects: [{ name: 'Project E', shortDesc: 'Metrics review initiated.' }, { name: 'Project F', shortDesc: 'Evaluation of success criteria.' }] },
-  { title: 'Ready for Recommendation', projects: [{ name: 'Project G', shortDesc: 'Recommendation draft pending.' }, { name: 'Project H', shortDesc: 'Final review before submission.' }] },
-  { title: 'Completed', projects: [{ name: 'Project I', shortDesc: 'Archived for future reference.' }, { name: 'Project J', shortDesc: 'Documentation finalized.' }] },
+  {
+    title: 'Onboarding',
+    projects: [
+      { name: 'Project A', shortDesc: 'Initial setup for stakeholders.' },
+      { name: 'Project B', shortDesc: 'User access configurations.' }
+    ]
+  },
+  {
+    title: 'Analysis in Progress',
+    projects: [
+      { name: 'Project C', shortDesc: 'Data collection ongoing.' },
+      { name: 'Project D', shortDesc: 'Trend analysis in progress.' }
+    ]
+  },
+  {
+    title: 'Analyst Review',
+    projects: [
+      { name: 'Project E', shortDesc: 'Metrics review initiated.' },
+      { name: 'Project F', shortDesc: 'Evaluation of success criteria.' }
+    ]
+  },
+  {
+    title: 'Ready for Recommendation',
+    projects: [
+      { name: 'Project G', shortDesc: 'Recommendation draft pending.' },
+      { name: 'Project H', shortDesc: 'Final review before submission.' }
+    ]
+  },
+  {
+    title: 'Completed',
+    projects: [
+      { name: 'Project I', shortDesc: 'Archived for future reference.' },
+      { name: 'Project J', shortDesc: 'Documentation finalized.' }
+    ]
+  },
 ];
 
 const customers = [
@@ -31,7 +83,8 @@ const Dashboard: React.FC = () => {
   };
 
   const filteredCustomers = customers.filter((customer) =>
-    customer.user.toLowerCase().includes(search.toLowerCase()) || customer.email.toLowerCase().includes(search.toLowerCase())
+    customer.user.toLowerCase().includes(search.toLowerCase()) ||
+    customer.email.toLowerCase().includes(search.toLowerCase())
   );
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
@@ -42,27 +95,81 @@ const Dashboard: React.FC = () => {
   const paginatedCustomers = filteredCustomers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+    <Box sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: 'Nunito Sans, sans-serif',
+      fontSize: '0.75rem',
+      p: 1,
+      maxWidth: '1200px',
+      margin: '0 auto',
+      width: '100%'
+    }}>
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200..1000&display=swap');
       </style>
 
-      {/* Project Status Section */}
-      <Typography variant="h6" sx={{ mb: 1, px: { xs: '20px', md: '20px' }, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'left', }}>
+      <Typography variant="h6" sx={{
+        mb: 1,
+        px: { xs: '20px', md: '20px' },
+        fontFamily: 'Nunito Sans, sans-serif',
+        fontSize: '0.85rem',
+        fontWeight: 'bold',
+        textAlign: 'left',
+      }}>
         <h2>Project Status:</h2>
       </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pb: '10px', px: { xs: '20px', md: '20px' } }}>
+
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+        pb: '10px',
+        px: { xs: '20px', md: '20px' }
+      }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, mt: 1 }}>
           {projectStatuses.map((status, index) => (
-            <Card key={index} sx={{ flex: 1, padding: 1, textAlign: 'center', backgroundColor: '#f5f5f5', boxShadow: 0, borderRadius: '8px', pb: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', }}>
+            <Card key={index} sx={{
+              flex: 1,
+              padding: 1,
+              textAlign: 'center',
+              backgroundColor: '#f5f5f5',
+              boxShadow: 0,
+              borderRadius: '8px',
+              pb: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-start',
+            }}>
               <CardContent>
-                <Box sx={{ minHeight: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Box sx={{
+                  minHeight: '64px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
                   <Typography sx={{ fontWeight: 'bold', fontSize: '1rem', pb: 1 }}>
                     <b>{status.title}</b>
                   </Typography>
                 </Box>
                 {status.projects.map((project, projectIndex) => (
-                  <Box key={projectIndex} sx={{ backgroundColor: '#fff', boxShadow: 1, borderRadius: '8px', mb: 1, textAlign: 'left', padding: 1, fontSize: '0.8rem', }}>
+                  <Box
+                    key={projectIndex}
+                    onClick={() => {}}
+                    sx={{
+                      backgroundColor: '#fff',
+                      boxShadow: 1,
+                      borderRadius: '8px',
+                      mb: 1,
+                      textAlign: 'left',
+                      padding: 1,
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        boxShadow: 2,
+                      },
+                    }}
+                  >
                     <Typography sx={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{project.name}</Typography>
                     <Typography sx={{ fontSize: '0.75rem', color: 'gray' }}>{project.shortDesc}</Typography>
                   </Box>
@@ -73,61 +180,77 @@ const Dashboard: React.FC = () => {
         </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: { xs: '20px', md: '20px' }, mt: 3, mb: 1 }}>
-            <Typography variant="h6" sx={{ flexGrow: 1, mr: 2, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'left' }}>
-                <h2>Customer List:</h2>
-            </Typography>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TextField
-    size="small"
-    placeholder="Search customers..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    InputProps={{
-        startAdornment: <Search fontSize="small" sx={{ fontSize: '1rem' }} />,
-    }}
-    sx={{
-        '& .MuiOutlinedInput-root': {
-            height: '32px',
-            fontSize: '0.875rem',
-            padding: '0 8px',
-            '& .MuiOutlinedInput-input': {
-                padding: '4px 8px',
-            },
-            '&.Mui-focusVisible .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'inherit',
-                border: '1px solid #ced4da',
-            },
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#ced4da',
-            },
-            '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#ced4da',
-            },
-        },
-        '& .MuiInputBase-input': {
-            height: '20px',
-        },
-        '& .MuiSvgIcon-root': {
-            fontSize: '1rem',
-        },
-    }}
-/>
-
-                <ToggleButtonGroup value={view} exclusive onChange={handleViewChange} size="small" sx={{ height: '32px' }}>
-                    <ToggleButton value="table" sx={{ height: '100%', '&.Mui-focusVisible': { outline: 'none' } }}>
-                        <TableChart fontSize="small" sx={{ fontSize: '1rem' }} />
-                    </ToggleButton>
-                    <ToggleButton value="card" sx={{ height: '100%', '&.Mui-focusVisible': { outline: 'none' } }}>
-                        <ViewModule fontSize="small" sx={{ fontSize: '1rem' }} />
-                    </ToggleButton>
-                </ToggleButtonGroup>
-
-            </Box>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        px: { xs: '20px', md: '20px' },
+        mt: 3,
+        mb: 1
+      }}>
+        <Typography variant="h6" sx={{
+          flexGrow: 1,
+          mr: 2,
+          fontFamily: 'Nunito Sans, sans-serif',
+          fontSize: '0.85rem',
+          fontWeight: 'bold',
+          textAlign: 'left'
+        }}>
+          <h2>Customer List:</h2>
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <TextField
+            size="small"
+            placeholder="Search customers..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            InputProps={{
+              startAdornment: <Search fontSize="small" sx={{ fontSize: '1rem' }} />,
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                height: '32px',
+                fontSize: '0.875rem',
+                padding: '0 8px',
+                '& .MuiOutlinedInput-input': {
+                  padding: '4px 8px',
+                },
+                '&.Mui-focusVisible .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'inherit',
+                  border: '1px solid #ced4da',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#ced4da',
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#ced4da',
+                },
+              },
+              '& .MuiInputBase-input': {
+                height: '20px',
+              },
+              '& .MuiSvgIcon-root': {
+                fontSize: '1rem',
+              },
+            }}
+          />
+          <ToggleButtonGroup
+            value={view}
+            exclusive
+            onChange={handleViewChange}
+            size="small"
+            sx={{ height: '32px' }}
+          >
+            <ToggleButton value="table" sx={{ height: '100%', '&.Mui-focusVisible': { outline: 'none' } }}>
+              <TableChart fontSize="small" sx={{ fontSize: '1rem' }} />
+            </ToggleButton>
+            <ToggleButton value="card" sx={{ height: '100%', '&.Mui-focusVisible': { outline: 'none' } }}>
+              <ViewModule fontSize="small" sx={{ fontSize: '1rem' }} />
+            </ToggleButton>
+          </ToggleButtonGroup>
         </Box>
+      </Box>
 
-      {/* Customer List - Table View */}
       {view === 'table' ? (
         <Box sx={{ overflowX: 'auto', px: { xs: '20px', md: '20px' }, mb: 3 }}>
           <Table sx={{ minWidth: 600, borderCollapse: 'collapse', border: '1px solid #ddd' }}>
@@ -157,10 +280,13 @@ const Dashboard: React.FC = () => {
               ))}
             </TableBody>
           </Table>
-
-          {/* Pagination */}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Pagination count={totalPages} page={currentPage} onChange={handlePageChange} size="small" />
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              size="small"
+            />
           </Box>
         </Box>
       ) : (

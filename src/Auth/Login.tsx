@@ -5,7 +5,6 @@ import { IoIosLogIn } from 'react-icons/io';
 import { useAppContext } from '../AppContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import bg from "../../public/bg.webp"
 
 const Login: React.FC = () => {
   const { setUser, credentials } = useAppContext();
@@ -70,23 +69,43 @@ const Login: React.FC = () => {
             justifyContent: 'space-between',
           }}
         >
-          <Typography variant="h4" fontWeight="bold" sx={{
-        fontFamily: '"Nunito Sans", sans-serif',
-        padding: 4,}}>
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            sx={{
+              fontFamily: '"Nunito Sans", sans-serif',
+              padding: 4,
+            }}
+          >
             Bradley.ai
           </Typography>
-          <Typography variant="body1" mt={2} sx={{
-        fontFamily: '"Nunito Sans", sans-serif',
-        padding: 4,}}>
+          <Typography
+            variant="body1"
+            mt={2}
+            sx={{
+              fontFamily: '"Nunito Sans", sans-serif',
+              padding: 4,
+            }}
+          >
             <b>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</b>
           </Typography>
-					<Typography variant="body1" sx={{
-        fontFamily: '"Nunito Sans", sans-serif',
-        padding: 4,}}>
+          <Typography
+            variant="body1"
+            sx={{
+              fontFamily: '"Nunito Sans", sans-serif',
+              padding: 4,
+            }}
+          >
             <b>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</b>
           </Typography>
-          <img src={bg} alt="Welcome" style={{ width: '100%', 
-        fontFamily: '"Nunito Sans", sans-serif', }} />
+          <img
+            src="/bg.webp"
+            alt="Welcome"
+            style={{
+              width: '100%',
+              fontFamily: '"Nunito Sans", sans-serif',
+            }}
+          />
         </Box>
 
         {/* Right Panel */}
@@ -97,24 +116,24 @@ const Login: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-						fontFamily: '"Nunito Sans", sans-serif',
+            fontFamily: '"Nunito Sans", sans-serif',
           }}
         >
           <Typography
-    variant="h5"
-    fontWeight="bold"
-    color="black"
-    gutterBottom
-    textAlign="left"
-    pb={0}
-    pt={5}
-    sx={{
-      fontFamily: '"Nunito Sans", sans-serif',
-      width: '90%',
-    }}
-  >
-    <h3>Sign in to Bradley.ai</h3>
-  </Typography>
+            variant="h5"
+            fontWeight="bold"
+            color="black"
+            gutterBottom
+            textAlign="left"
+            pb={0}
+            pt={5}
+            sx={{
+              fontFamily: '"Nunito Sans", sans-serif',
+              width: '90%',
+            }}
+          >
+            <h3>Sign in to Bradley.ai</h3>
+          </Typography>
 
           {/* Email Input */}
           <Box sx={{ width: '90%', marginBottom: 2 }}>
@@ -136,9 +155,9 @@ const Login: React.FC = () => {
                 borderRadius: '8px',
                 height: '40px',
                 boxSizing: 'border-box',
-								backgroundColor: 'white',
-								color: 'black',
-								fontFamily: '"Nunito Sans", sans-serif',
+                backgroundColor: 'white',
+                color: 'black',
+                fontFamily: '"Nunito Sans", sans-serif',
               }}
             />
           </Box>
@@ -150,7 +169,6 @@ const Login: React.FC = () => {
                 <b>Password</b>
               </label>
               <span
-                // onClick={() => navigate('/forgot-password')}
                 style={{
                   fontSize: '0.85rem',
                   textDecoration: 'underline',
@@ -176,9 +194,9 @@ const Login: React.FC = () => {
                 borderRadius: '8px',
                 height: '40px',
                 boxSizing: 'border-box',
-								backgroundColor: 'white',
-								color: 'black',
-								fontFamily: '"Nunito Sans", sans-serif',
+                backgroundColor: 'white',
+                color: 'black',
+                fontFamily: '"Nunito Sans", sans-serif',
               }}
             />
           </Box>
@@ -189,14 +207,14 @@ const Login: React.FC = () => {
             sx={{
               backgroundColor: '#0e0c22',
               color: 'white',
-							borderRadius: 5,
+              borderRadius: 5,
               marginTop: 3,
               paddingX: 3.5,
               '&:hover': {
                 backgroundColor: '#1c1b2e',
               },
               width: 'auto',
-							fontFamily: '"Nunito Sans", sans-serif',
+              fontFamily: '"Nunito Sans", sans-serif',
             }}
             onClick={handleLogin}
           >
@@ -206,8 +224,15 @@ const Login: React.FC = () => {
 
           {/* Sign Up Link */}
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', width: '100%' }}>
-            <Typography variant="body2" textAlign="center" color='black' sx={{
-        fontFamily: '"Nunito Sans", sans-serif', fontSize: '0.8rem'}}>
+            <Typography
+              variant="body2"
+              textAlign="center"
+              color="black"
+              sx={{
+                fontFamily: '"Nunito Sans", sans-serif',
+                fontSize: '0.8rem',
+              }}
+            >
               Don’t have an account? {' '}
               <span
                 onClick={() => navigate('/signup')}
