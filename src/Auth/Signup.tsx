@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { IoIosLogIn } from 'react-icons/io';
-import { useAppContext } from '../AppContext';
+import { useAppContext } from '../Context/AppContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import bg from "../../public/bg.webp"
 
 const Signup: React.FC = () => {
   const { setUser } = useAppContext();
@@ -85,7 +84,7 @@ const Signup: React.FC = () => {
             <b>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</b>
           </Typography>
           <img
-            src={bg}
+            src="/bg.webp"
             alt="Welcome"
             style={{ width: '100%' }}
           />
@@ -213,24 +212,25 @@ const Signup: React.FC = () => {
                 backgroundColor: '#1c1b2e',
               },
               width: 'auto',
-							fontFamily: '"Nunito Sans", sans-serif',
+              fontFamily: '"Nunito Sans", sans-serif',
             }}
             onClick={handleSignup}
           >
             <IoIosLogIn
-  size={20}
-  style={{
-    marginRight: 8,
-    transform: 'rotate(-90deg)', // Rotates 90 degrees anticlockwise
-  }}
-/>
+              size={20}
+              style={{
+                marginRight: 8,
+                transform: 'rotate(-90deg)',
+              }}
+            />
             Sign Up
           </Button>
 
           {/* Login Link */}
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', width: '100%' }}>
             <Typography variant="body2" textAlign="center" color='black' sx={{
-        fontFamily: '"Nunito Sans", sans-serif', fontSize: '0.8rem'}}>
+              fontFamily: '"Nunito Sans", sans-serif', fontSize: '0.8rem'
+            }}>
               Already have an account?{' '}
               <span
                 onClick={() => navigate('/login')}

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { steps, TOTAL_STEPS } from './components/steps';
+import Cookies from 'js-cookie';
+import { steps, TOTAL_STEPS } from '../components/steps';
 
 interface User {
   role: 'client' | 'analyst';
@@ -40,41 +41,54 @@ export const useAppContext = () => {
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [currentSubStep, setCurrentSubStep] = useState(0);
-  const [currentFurtherSubStep, setCurrentFurtherSubStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(() => Number(Cookies.get('currentStep') || 0));
+  const [currentSubStep, setCurrentSubStep] = useState(() => Number(Cookies.get('currentSubStep') || 0));
+  const [currentFurtherSubStep, setCurrentFurtherSubStep] = useState(() => Number(Cookies.get('currentFurtherSubStep') || 0));
 
-  const [visitedSteps, setVisitedSteps] = useState(
-    Array.from({ length: TOTAL_STEPS }, (_, i) =>
-      Array.from({ length: steps[i].subSteps }, (_, j) => i === 0 && j === 0)
-    )
-  );
+  const [visitedSteps, setVisitedSteps] = useState(() => {
+    const savedVisitedSteps = Cookies.get('visitedSteps');
+    return savedVisitedSteps
+      ? JSON.parse(savedVisitedSteps)
+      : Array.from({ length: TOTAL_STEPS }, (_, i) =>
+          Array.from({ length: steps[i].subSteps }, (_, j) => i === 0 && j === 0)
+        );
+  });
 
-  const [completedSubSteps, setCompletedSubSteps] = useState(
-    Array.from({ length: TOTAL_STEPS }, (_, i) =>
-      Array.from({ length: steps[i].subSteps }, () => false)
-    )
-  );
+  const [completedSubSteps, setCompletedSubSteps] = useState(() => {
+    const savedCompletedSubSteps = Cookies.get('completedSubSteps');
+    return savedCompletedSubSteps
+      ? JSON.parse(savedCompletedSubSteps)
+      : Array.from({ length: TOTAL_STEPS }, (_, i) =>
+          Array.from({ length: steps[i].subSteps }, () => false)
+        );
+  });
 
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = Cookies.get('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    Cookies.set('currentStep', currentStep.toString());
+    Cookies.set('currentSubStep', currentSubStep.toString());
+    Cookies.set('currentFurtherSubStep', currentFurtherSubStep.toString());
+    Cookies.set('visitedSteps', JSON.stringify(visitedSteps));
+    Cookies.set('completedSubSteps', JSON.stringify(completedSubSteps));
+    if (user) {
+      Cookies.set('user', JSON.stringify(user));
+    } else {
+      Cookies.remove('user');
     }
-  }, []);
+  }, [currentStep, currentSubStep, currentFurtherSubStep, visitedSteps, completedSubSteps, user]);
 
   const login = (user: User) => {
     setUser(user);
-    localStorage.setItem('user', JSON.stringify(user));
-    // You can also store a token if needed, e.g., localStorage.setItem('token', 'your-token');
+    Cookies.set('user', JSON.stringify(user));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
-    // You can also handle any token clearing or additional logout logic here
+    Cookies.remove('user');
   };
 
   return (
