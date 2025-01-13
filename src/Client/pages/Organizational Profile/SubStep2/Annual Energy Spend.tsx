@@ -1,5 +1,5 @@
 import React from 'react'; 
-import { Box, TextField, Typography } from '@mui/material'; 
+import { Box, TextField, Typography, Tooltip } from '@mui/material'; 
 
 const SubStep2: React.FC = () => { 
   return ( 
@@ -14,9 +14,11 @@ const SubStep2: React.FC = () => {
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, p: '10px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
           <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Electricity:</b></Typography>
+          <Tooltip title="Enter the total annual spend on electricity." placement='top-end' arrow>
           <TextField
     fullWidth
     variant="outlined"
+    placeholder='Enter the total annual spend on electricity.'
     size="small"
     type="text"
     sx={{
@@ -25,15 +27,17 @@ const SubStep2: React.FC = () => {
       '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
       '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
     }}
-  />
+  /></Tooltip>
         </Box>
 
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
           <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Natural Gas:</b></Typography>
+          <Tooltip title="Enter the total annual spend on natural gas." placement='top-end' arrow>
           <TextField
     fullWidth
     variant="outlined"
+    placeholder='Enter the total annual spend on natural gas.'
     size="small"
     type="text"
     sx={{
@@ -42,14 +46,16 @@ const SubStep2: React.FC = () => {
       '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
       '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
     }}
-  />
+  /></Tooltip>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
           <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Water:</b></Typography>
+          <Tooltip title="Enter the total annual spend on water." placement='top-end' arrow>
           <TextField
     fullWidth
     variant="outlined"
+    placeholder='Enter the total annual spend on water.'
     size="small"
     type="text"
     sx={{
@@ -59,13 +65,16 @@ const SubStep2: React.FC = () => {
       '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
     }}
   />
+  </Tooltip>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Other: </b>(Oil, Propane, PPAs, Steam, etc...)</Typography>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Oil:</b></Typography>
+          <Tooltip title="Enter the total annual spend on oil." placement='top-end' arrow>
           <TextField
     fullWidth
     variant="outlined"
+    placeholder='Enter the total annual spend on oil.'
     size="small"
     type="text"
     sx={{
@@ -74,8 +83,81 @@ const SubStep2: React.FC = () => {
       '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
       '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
     }}
-  />
+  /></Tooltip>
         </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Propane:</b></Typography>
+          <Tooltip title="Enter the total annual spend on propane." placement='top-end' arrow>
+          <TextField
+    fullWidth
+    variant="outlined"
+    placeholder='Enter the total annual spend on propane.'
+    size="small"
+    type="text"
+    sx={{
+      flex: 0.5,
+      fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+    }}
+  /></Tooltip>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Steam:</b></Typography>
+          <Tooltip title="Enter the total annual spend on steam." placement='top-end' arrow>
+          <TextField
+    fullWidth
+    variant="outlined"
+    placeholder='Enter the total annual spend on steam.'
+    size="small"
+    type="text"
+    sx={{
+      flex: 0.5,
+      fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+    }}
+  /></Tooltip>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Chilled Water:</b></Typography>
+          <Tooltip title="Enter the total annual spend on chilled water." placement='top-end' arrow>
+          <TextField
+    fullWidth
+    variant="outlined"
+    placeholder='Enter the total annual spend on chilled water.'
+    size="small"
+    type="text"
+    sx={{
+      flex: 0.5,
+      fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+    }}
+  /></Tooltip>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Other:</b></Typography>
+          <Tooltip title="Enter the total annual spend on other energy sources." placement='top-end' arrow>
+          <TextField
+    fullWidth
+    variant="outlined"
+    placeholder='Enter the total annual spend on other energy sources.'
+    size="small"
+    type="text"
+    sx={{
+      flex: 0.5,
+      fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+    }}
+  /></Tooltip>
+        </Box>
+
         </Box>
       </Box>
     </Box> 
