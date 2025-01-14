@@ -1,5 +1,5 @@
 import React from 'react'; 
-import { Box, Typography, Radio, RadioGroup, FormControlLabel } from '@mui/material'; 
+import { Box, Typography, Radio, RadioGroup, FormControlLabel, TextField } from '@mui/material'; 
 
 const SubStep2: React.FC = () => { 
   return ( 
@@ -29,6 +29,22 @@ const SubStep2: React.FC = () => {
     <FormControlLabel value="yes" control={<Radio sx={{ padding: '2px' }} />} label={<Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Yes</Typography>} />
     <FormControlLabel value="no" control={<Radio sx={{ padding: '2px' }} />} label={<Typography sx={{  fontFamily: 'Nunito Sans, sans-serif',fontSize: '0.7rem' }}>No</Typography>} />
   </RadioGroup>
+</Typography>
+
+<Typography sx={{ mt: 1,mb: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  If yes, when does your lease expire?
+  <TextField
+    variant="outlined"
+    size="small"
+    type="date"
+    sx={{
+      height: '26px',
+      maxWidth: '150px',
+      fontFamily: 'Nunito Sans, sans-serif',
+      fontSize: '0.7rem',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+    }} />
 </Typography>
 
 <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between' }}>
