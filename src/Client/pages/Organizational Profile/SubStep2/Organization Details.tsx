@@ -63,6 +63,64 @@ const SubStep2: React.FC = () => {
 
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Name of the User:</b> 
+  </Typography>
+  <Tooltip title="Enter your name" placement='top-end' arrow>
+  <TextField
+    fullWidth
+    placeholder='Enter your name'
+    variant="outlined"
+    size="small"
+    type="text"
+    sx={{
+      flex: 0.5,
+      fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+    }}
+  /></Tooltip>
+</Box>
+
+<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Email Address of the User:</b> 
+  </Typography>
+  <Tooltip title="Enter your email address" placement='top-end' arrow>
+  <TextField
+    fullWidth
+    placeholder='Enter your email address'
+    variant="outlined"
+    size="small"
+    type="email"
+    sx={{
+      flex: 0.5,
+      fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+    }}
+  /></Tooltip>
+</Box>
+
+<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Title of the User:</b> 
+  </Typography>
+  <Tooltip title="Enter your title" placement='top-end' arrow>
+  <TextField
+    fullWidth
+    placeholder='Enter your title'
+    variant="outlined"
+    size="small"
+    type="text"
+    sx={{
+      flex: 0.5,
+      fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+    }}
+  /></Tooltip>
+</Box>
+
+
+<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
   <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Organization Type:</b> 
   </Typography>
   <Tooltip title="Select the type of your organization" placement='top-end' arrow>
@@ -216,6 +274,7 @@ const SubStep2: React.FC = () => {
           <MenuItem value="Option 1" disabled>
             Select your IRS Category
           </MenuItem>
+          <MenuItem value="Unknown">Unknown</MenuItem>
           <MenuItem value="Option 2">501(c)(1) – Corporations Organized Under Act of Congress</MenuItem>
           <MenuItem value="Option 3">501(c)(2) – Title Holding Corporations for Exempt Organizations</MenuItem>
           <MenuItem value="Option 4">501(c)(3) – Religious, Educational, Charitable Organizations</MenuItem>
@@ -254,8 +313,9 @@ const SubStep2: React.FC = () => {
 </Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+<Tooltip title="It is important to configure the DER solution with the number of employees in mind. Employees and the hours they work impact how much energy is used and when." placement='bottom' arrow>
   <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Number of Employees at Facility:</b> 
-  </Typography>
+  </Typography></Tooltip>
   <Tooltip title="Enter the number of employees at your facility" placement='top-end' arrow>
   <TextField
     fullWidth

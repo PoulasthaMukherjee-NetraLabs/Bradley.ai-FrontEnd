@@ -9,7 +9,7 @@ const SubStep2: React.FC = () => {
         @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
       </style>
       <Typography variant="h6" sx={{ mb: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center' }}>
-        <h2>Electricty Energy Load Profile</h2>
+        <h2>Electric Load Profile</h2>
       </Typography>
       
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
@@ -40,7 +40,7 @@ const SubStep2: React.FC = () => {
             }}
           />
         </Box>
-        <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'right' }}><b>*</b>Minimum of 12 months of data/24+ months for optimal results. <br /><b>**</b>Minimum 15-minute intervals.</Typography>
+        <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'right' }}><b>*</b>Minimum of 12 months of data/24+ months for optimal results.{/*  <br /><b>**</b>Minimum 15-minute intervals. */}</Typography>
 
       <Box sx={{ display: 'flex', alignItems: 'center', border: '1px dashed grey', borderRadius: 2, p: 2, mb: 0, mt: 1.5, justifyContent: 'center' }}>
         <CloudUploadIcon fontSize='medium'/>

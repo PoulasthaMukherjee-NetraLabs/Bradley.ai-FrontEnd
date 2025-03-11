@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Box, Typography, TextField, Button } from '@mui/material';
+import { Box, Typography, TextField, Button, Tooltip } from '@mui/material';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -37,6 +37,7 @@ const SubStep2 = () => {
     city: '',
     state: '',
     zipCode: '',
+    otherAddress: '',
   });
   const mapRef = useRef<L.Map | null>(null);
 
@@ -51,6 +52,7 @@ const SubStep2 = () => {
             city: data.address.city || data.address.town || '',
             state: data.address.state || '',
             zipCode: data.address.postcode || '',
+            otherAddress: '',
           });
         })
         .catch(error => console.error('Error fetching address:', error));
@@ -73,15 +75,18 @@ const SubStep2 = () => {
       </Typography>
 
       <Box sx={{ display: 'flex', gap: 2, p: '10px', pl: '160px', pr: '160px' }}>
-        <Box sx={{ flex: 1, height: '230px', border: '1px solid lightgrey', borderRadius: 1 }}>
+      <Tooltip title="Click on any desired location on the map to place the pin" placement="top" arrow>
+        <Box sx={{ flex: 1, height: '268.5px', border: '1px solid lightgrey', borderRadius: 1 }}>
           <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100%', width: '100%' }} ref={mapRef}>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <MapMarker position={position} setPosition={setPosition} />
           </MapContainer>
         </Box>
+      </Tooltip>
 
-        <Box sx={{ flex: 1, border: '1px solid lightgrey', p: 1, borderRadius: 1, height: '214.5px', pl: 2, pr: 2 }}>
+        <Box sx={{ flex: 1, border: '1px solid lightgrey', p: 1, borderRadius: 1, height: '253px', pl: 2, pr: 2 }}>
           <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
+          <Tooltip title="Click to autofill below based on the pin." placement='left' arrow>
             <Button
               variant="outlined"
               size="small"
@@ -96,15 +101,15 @@ const SubStep2 = () => {
               }}
             >
               Save Pinned Location
-            </Button>
+            </Button></Tooltip>
           </Typography><br />
           <Box sx={{ fontFamily: 'Nunito Sans, sans-serif', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             {[
-              { label: "Street Address:", key: "streetAddress" as keyof typeof address },
-              { label: "City:", key: "city" as keyof typeof address },
-              { label: "State:", key: "state" as keyof typeof address },
-              { label: "Zip Code:", key: "zipCode" as keyof typeof address }
-            ].map(({ label, key }) => (
+              { label: "Street Address:", key: "streetAddress" as keyof typeof address, placeholder: "Enter street address" },
+              { label: "City:", key: "city" as keyof typeof address, placeholder: "Enter city name" },
+              { label: "State:", key: "state" as keyof typeof address, placeholder: "Enter state" },
+              { label: "Zip Code:", key: "zipCode" as keyof typeof address, placeholder: "Enter zip code" }
+            ].map(({ label, key, placeholder }) => (
               <Box key={key} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}><b>{label}</b></Typography>
                 <TextField
@@ -113,6 +118,7 @@ const SubStep2 = () => {
                   type="text"
                   value={address[key]}
                   onChange={(e) => setAddress({ ...address, [key]: e.target.value })}
+                  placeholder={placeholder}
                   sx={{
                     flex: 1,
                     fontSize: '0.7rem',
@@ -123,6 +129,24 @@ const SubStep2 = () => {
                 />
               </Box>
             ))}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}><b>Other Addresses:</b></Typography>
+              <TextField
+                variant="outlined"
+                size="small"
+                type="text"
+                value={address.otherAddress}
+                placeholder='Address 1; Address 2; Address 3, ...'
+                onChange={(e) => setAddress({ ...address, otherAddress: e.target.value })}
+                sx={{
+                  flex: 1,
+                  fontSize: '0.7rem',
+                  fontFamily: 'Nunito Sans, sans-serif',
+                  '& .MuiInputBase-root': { height: '30px', padding: '0 6px' },
+                  '& input': { padding: 0, fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }
+                }}
+              />
+            </Box>
           </Box>
         </Box>
       </Box>
