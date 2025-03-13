@@ -73,6 +73,23 @@ const SubStep2: React.FC = () => {
         >
           Click on <b>Next</b> to review and electronically sign a <b>LETTER OF AUTHORIZATION</b> or Skip.
         </Typography>
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '160px' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                      <Typography
+                                        sx={{
+                                          mt: 1,
+                                          fontFamily: 'Nunito Sans, sans-serif',
+                                          fontSize: '0.75rem',
+                                          minWidth: '200px',
+                                          flex: 1,
+                                        }}
+                                      >
+                                        <i><b>Hint: </b>Bradley has direct access to submit requests and receive responses from the Utility. Once the Utility provides the files Bradley can complete its analysis. However Utility companies historically respond between 1 and 3 business days.</i><br />
+                                      </Typography>
+                                    </Box></Box></Box>
+
       </Box>
     </Box>
   );

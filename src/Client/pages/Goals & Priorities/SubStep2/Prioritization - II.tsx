@@ -18,6 +18,22 @@ const SubStep2: React.FC = () => {
     <p></p>
   </Typography>
 </Box>
+
+<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
+    <b>Resiliency Increase: </b>(in %)
+  </Typography>
+  <Slider
+	sx={{
+		flex: 0.448,
+	}}
+  defaultValue={50}
+  aria-label="Small"
+  valueLabelDisplay="auto"
+  valueLabelFormat={(value) => `${value} %`}
+/>
+</Box>
+
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
   <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
     <b>Reduce your existing SCOPE 2 carbon emissions by: </b>(in %)
@@ -46,6 +62,28 @@ const SubStep2: React.FC = () => {
   valueLabelDisplay="auto"
   valueLabelFormat={(value) => `${value} %`}
 />
+</Box>
+
+<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
+    <b>Desired duration for grid independent operation: </b>(in sequential hours)
+  </Typography>
+  <TextField
+            variant="outlined" 
+            size="small" 
+            type="number" 
+						placeholder='Input'
+            sx={{
+              flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+							'& .MuiInputBase-input::placeholder': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+              }
+            }}
+          />
 </Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
@@ -92,6 +130,55 @@ const SubStep2: React.FC = () => {
           />
 </Box>
 
+<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.305 }}>
+		<b>Decarbonization Target:</b>
+  </Typography>
+  <TextField
+            variant="outlined" 
+            size="small" 
+            type="number" 
+						placeholder='Input'
+            sx={{
+              flex: 0.25, fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+							'& .MuiInputBase-input::placeholder': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+              }
+            }}
+          />
+	<Select
+            size="small"
+            variant="outlined"
+            defaultValue="%"
+            sx={{
+              flex: 0.08,
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              height: '40px',
+              '& .MuiInputBase-root': { padding: '0 6px' },
+              '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
+            }}
+          >
+            <MenuItem value="%" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>%</MenuItem>
+            <MenuItem value="kWh" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>kWh</MenuItem>
+            <MenuItem value="days" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>days</MenuItem>
+          </Select>
+					<TextField
+            variant="outlined" 
+            size="small" 
+            type="date" 
+            sx={{
+              flex: 0.11, fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+            }}
+          />
+</Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
   <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.305 }}>

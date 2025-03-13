@@ -19,7 +19,7 @@ const Footer: React.FC = () => {
       <Toolbar sx={{ justifyContent: 'center' }}>
         <Typography
           variant="body2"
-          sx={{ fontFamily: 'Nunito Sans, sans-serif', pb: '27px' }}
+          sx={{ fontFamily: 'Nunito Sans, sans-serif', pb: '18px', fontSize: '0.800rem' }}
         >
           <p>Powered by <strong>Netra Labs</strong></p>
         </Typography>

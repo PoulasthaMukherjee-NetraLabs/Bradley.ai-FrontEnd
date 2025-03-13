@@ -44,6 +44,7 @@ const SubStep3: React.FC = () => {
       </Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', px: '160px' }}>
+        <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 2.5, textAlign: 'center' }}><b>I am going to ask you for specific details to assist in the proper sizing of roof, ground or carport solar arrays. We start with the roof(s).</b></Typography>
         <Box
   sx={{
     display: 'flex',
@@ -125,7 +126,7 @@ const SubStep3: React.FC = () => {
               flex: 0.3,
             }}
           >
-            <b>Roof Load Rating Capacity:</b> (in Lbs / Sq. Ft.) (Optional)
+            <b>Roof Load Rating Capacity:</b> (in Lbs / Sq. in) (Optional)
           </Typography>
           <TextField
             variant="outlined"

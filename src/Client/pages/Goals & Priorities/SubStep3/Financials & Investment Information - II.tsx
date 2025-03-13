@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; 
-import { Box, TextField, Typography, MenuItem, Select, IconButton } from '@mui/material';
+import { Box, TextField, Typography, MenuItem, Select, IconButton, InputAdornment } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -19,7 +19,7 @@ const SubStep3: React.FC = () => {
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
       </style>
-      <Typography variant="h6" sx={{ mb: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center' }}>
+      <Typography variant="h6" sx={{ mb: 2.5, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center' }}>
         <h2>Financials & Investment Information - II</h2>
       </Typography> 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
@@ -27,6 +27,7 @@ const SubStep3: React.FC = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
   <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', flex: 0.75 }}>
     <b>Investment Details:</b>
+    <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mt: 1 }}><i>If your company has cash to invest, these amounts will be placed in the appropriate year to demonstrate the financial strength of the DER recommendation.<br />Cash is not required.</i></Typography>
     <p></p>
   </Typography>
 </Box>
@@ -92,21 +93,25 @@ const SubStep3: React.FC = () => {
     <b>Desired Cost Reduction Annually: </b>(in USD)
   </Typography>
   <TextField
-            variant="outlined" 
-            size="small" 
-            type="number" 
-						placeholder='Input'
-            sx={{
-              flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
-              fontSize: '0.7rem',
-              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
-							'& .MuiInputBase-input::placeholder': {
-                fontFamily: 'Nunito Sans, sans-serif',
-                fontSize: '0.7rem',
-              }
-            }}
-          />
+    variant="outlined"
+    size="small"
+    type="number"
+    placeholder="Input"
+    InputProps={{
+      startAdornment: <InputAdornment position="start">$</InputAdornment>,
+    }}
+    sx={{
+      flex: 0.448,
+      fontFamily: 'Nunito Sans, sans-serif',
+      fontSize: '0.7rem',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+      '& .MuiInputBase-input::placeholder': {
+        fontFamily: 'Nunito Sans, sans-serif',
+        fontSize: '0.7rem',
+      },
+    }}
+  />
 </Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>

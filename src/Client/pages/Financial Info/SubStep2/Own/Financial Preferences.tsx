@@ -1,7 +1,8 @@
-import React from 'react';
-import { Box, TextField, Typography, Select, MenuItem, FormControlLabel, Radio, RadioGroup } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, TextField, Typography, Select, MenuItem, FormControlLabel, Radio, RadioGroup, Tooltip } from '@mui/material';
 
 const SubStep2: React.FC = () => {
+  const [taxAppetite, setTaxAppetite] = useState<string>('yes');
 
   return (
     <Box
@@ -96,6 +97,7 @@ const SubStep2: React.FC = () => {
             size="small"
             type="number"
 						placeholder='Input'
+            defaultValue='24'
             sx={{
               flex: 0.5,
 							marginLeft: 'auto',
@@ -113,15 +115,16 @@ const SubStep2: React.FC = () => {
 
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
 				<Typography sx={{ mt: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 0.5 }}>
-  <b>Tax Appetite In First Year?</b>
-  <RadioGroup row sx={{ fontSize: '0.7rem', m: 0, gap: 5.5, flex: 0.58 }}>
+        <Tooltip title="Bradley wants to know if your company can take tax deductions or depreciate assets in the current year. If yes, choose yes, if no, enter in a date in the box below as to when your company can begin taking advantage of these tax benefits." placement='top-start' arrow>
+  <b>Tax Appetite In First Year?</b></Tooltip>
+  <RadioGroup row sx={{ fontSize: '0.7rem', m: 0, gap: 5.5, flex: 0.58 }} value={taxAppetite} onChange={(e) => setTaxAppetite(e.target.value)}>
     <FormControlLabel value="yes" control={<Radio sx={{ padding: '2px' }} />} label={<Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Yes</Typography>} />
     <FormControlLabel value="no" control={<Radio sx={{ padding: '2px' }} />} label={<Typography sx={{  fontFamily: 'Nunito Sans, sans-serif',fontSize: '0.7rem' }}>No</Typography>} />
   </RadioGroup>
 </Typography>
 </Box>
 
-<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, opacity: taxAppetite !== 'no' ? 0.5 : 1 }}>
 					
           <Typography
             sx={{
@@ -137,6 +140,7 @@ const SubStep2: React.FC = () => {
             variant="outlined"
             size="small"
             type="date"
+            disabled={taxAppetite !== 'no'}
             sx={{
               flex: 0.5,
 							marginLeft: 'auto',

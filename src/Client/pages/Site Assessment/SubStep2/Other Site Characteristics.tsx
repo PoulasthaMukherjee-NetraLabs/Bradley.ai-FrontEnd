@@ -84,6 +84,28 @@ const SubStep2: React.FC = () => {
 </Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Primary Volt. distributed at the Facility Level:</b></Typography>
+  <Select
+            fullWidth
+            size="small"
+            variant="outlined"
+            defaultValue="Option 1"
+            sx={{
+              flex: 0.498,
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem', minWidth:'414px', pl: '1px', pr: '1px',
+              height: '40px',
+              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+              '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
+            }}
+          >
+            <MenuItem value="Option 1" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>480 V</MenuItem>
+            <MenuItem value="Option 2" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>277 V</MenuItem>
+            <MenuItem value="Option 3" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>120 V</MenuItem>
+          </Select>
+</Box>
+
+<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
   <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Secondary Volt. Service: </b>(If Any)</Typography>
   <Select
             fullWidth

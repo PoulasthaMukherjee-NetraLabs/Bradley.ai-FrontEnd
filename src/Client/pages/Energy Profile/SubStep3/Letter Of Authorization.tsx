@@ -139,7 +139,7 @@ const SubStep3: React.FC = () => {
     variant="outlined"
     size="small"
     placeholder='Full Address with City, State, Zip'
-    type="text"
+    type="email"
     sx={{
       flex: 0.5,
       fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
@@ -176,7 +176,7 @@ const SubStep3: React.FC = () => {
     fullWidth
     variant="outlined"
     size="small"
-    type="text"
+    type="tel"
     placeholder='Enter Contact No. Here'
     sx={{
       flex: 0.5,

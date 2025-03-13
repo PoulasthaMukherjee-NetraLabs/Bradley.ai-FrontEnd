@@ -1,6 +1,6 @@
 export const steps = [
   { label: 'Organizational Profile', subSteps: 2, furtherSubSteps: [1, 5] },
-  { label: 'Energy Profile', subSteps: 3, furtherSubSteps: [1, 7, 2] },
+  { label: 'Energy Profile', subSteps: 3, furtherSubSteps: [1, 8, 2] },
   { label: 'Goals & Priorities', subSteps: 3, furtherSubSteps: [1, 2, 2] },
   { label: 'Site Assessment', subSteps: 3, furtherSubSteps: [1, 6, 6] },
   { label: 'Financial Info', subSteps: 2, furtherSubSteps: [2, 8, 3] }, 

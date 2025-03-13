@@ -1,7 +1,17 @@
-import React from 'react'; 
+import React, { useState } from 'react'; 
 import { Box, Typography, Radio, RadioGroup, FormControlLabel, TextField } from '@mui/material'; 
 
 const SubStep2: React.FC = () => { 
+
+  const [shifts, setShifts] = useState('');
+
+  const handleShiftsChange = (event: { target: { value: any; }; }) => {
+    const value = event.target.value;
+    if (/^[0-3]$|^$/.test(value)) {
+      setShifts(value);
+    }
+  };
+
   return ( 
     <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
       <style>
@@ -41,13 +51,15 @@ const SubStep2: React.FC = () => {
 
 <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
   <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.685 }}>
-    <b>Number of Shifts Per Day:</b>
+    <b>Number of Shifts Per Day:</b> (Max 3)
   </Typography>
   <TextField
             variant="outlined" 
             size="small" 
-            type="number" 
-						placeholder='Input'
+            type="text" 
+						placeholder='Input (Max 3)'
+            value={shifts}
+            onChange={handleShiftsChange}
             sx={{
               flex: 0.5, fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.7rem',

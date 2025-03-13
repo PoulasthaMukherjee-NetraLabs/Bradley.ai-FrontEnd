@@ -41,10 +41,10 @@ const SubStep3: React.FC = () => {
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.75rem',
               minWidth: '200px',
-              flex: 0.3,
+              flex: 0.7,
             }}
           >
-            <b>Available Land Area:</b> (in Sq. Ft.)
+            <b>Available Land Area:</b> (in Sq. Ft.)<br />(<i>43,000 sq. ft. of unobstructed land can produce approx. 250kW of solar plant capacity</i>)
           </Typography>
           <TextField
             variant="outlined"
@@ -52,7 +52,7 @@ const SubStep3: React.FC = () => {
             type="number"
 						placeholder='in Sq. Ft.'
             sx={{
-              flex: 0.7,
+              flex: 0.3,
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.7rem',
               '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
@@ -71,7 +71,7 @@ const SubStep3: React.FC = () => {
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.75rem',
               minWidth: '200px',
-              flex: 0.3,
+              flex: 0.7,
             }}
           >
             <b>Land Topography:</b>
@@ -80,7 +80,7 @@ const SubStep3: React.FC = () => {
             size="small"
             defaultValue="default"
             sx={{
-              flex: 0.7,
+              flex: 0.3,
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.7rem',
               height: '40px',

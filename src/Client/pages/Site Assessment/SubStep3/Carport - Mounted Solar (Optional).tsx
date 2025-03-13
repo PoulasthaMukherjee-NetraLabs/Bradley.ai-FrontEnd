@@ -50,7 +50,7 @@ const SubStep3: React.FC = () => {
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.75rem',
               minWidth: '200px',
-              flex: 0.3,
+              flex: 0.7,
             }}
           >
             <b>No. of Total Parking Spots:</b> (Optional)
@@ -61,7 +61,7 @@ const SubStep3: React.FC = () => {
             type="number"
 						placeholder='Input'
             sx={{
-              flex: 0.5,
+              flex: 0.3,
 							marginLeft: 'auto',
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.7rem',
@@ -81,16 +81,16 @@ const SubStep3: React.FC = () => {
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.75rem',
               minWidth: '200px',
-              flex: 0.3,
+              flex: 0.7,
             }}
           >
-            <b>Parking Garage:</b> (Optional)
+            <b>Parking Garage:</b> (Optional)<br />(<i>Provide the single floor dimensions of the parking garage. I need to know how many feet wide and long the garage is, I will design a system to cover the parking spaces and travel lanes.</i>)
           </Typography>
           <Select
             size="small"
             defaultValue="default"
             sx={{
-              flex: 0.5,
+              flex: 0.3,
 							marginLeft: 'auto',
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.7rem',
@@ -115,6 +115,70 @@ const SubStep3: React.FC = () => {
               Partially Covered
             </MenuItem>
           </Select>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+					
+          <Typography
+            sx={{
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.75rem',
+              minWidth: '200px',
+              flex: 0.7,
+            }}
+          >
+            <b>Incoming Electrical Switchgear Location:</b><br />(<i>Please let me know what floor the incoming electrical switchgear is located, typically this equipment is located on the first floor.</i>)
+          </Typography>
+          <TextField
+            variant="outlined"
+            size="small"
+            type="number"
+						placeholder='Input Floor No.'
+            sx={{
+              flex: 0.3,
+							marginLeft: 'auto',
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+							'& .MuiInputBase-input::placeholder': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+              }
+            }}
+          />
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+					
+          <Typography
+            sx={{
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.75rem',
+              minWidth: '200px',
+              flex: 0.7,
+            }}
+          >
+            <b>Top Floor Height:</b><br />(<i>What is the height of the top floor of the parking garage from ground level?</i> )
+          </Typography>
+          <TextField
+            variant="outlined"
+            size="small"
+            type="text"
+						placeholder='Input Height'
+            sx={{
+              flex: 0.3,
+							marginLeft: 'auto',
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+							'& .MuiInputBase-input::placeholder': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+              }
+            }}
+          />
         </Box>
 
 				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

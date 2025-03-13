@@ -28,7 +28,7 @@ const SubStep2: React.FC = () => {
         <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2, p: "10px" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, justifyContent: "center" }}>
             <Typography sx={{ fontFamily: "Nunito Sans, sans-serif", fontSize: "0.75rem", flex: 0.3 }}>
-              <b>Select Facility Usage:</b>
+              <b>Select Facility Usage:</b> (Select as many descriptors as is appropriate)
             </Typography>
             <Select
               size="small"
@@ -81,7 +81,7 @@ const SubStep2: React.FC = () => {
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, justifyContent: "center" }}>
             <Typography sx={{ fontFamily: "Nunito Sans, sans-serif", fontSize: "0.75rem", flex: 0.3 }}>
-              <b>Days of Operation:</b>
+              <b>Days of Operation:</b>  (Select as many days as is appropriate)
             </Typography>
             <Select
               size="small"

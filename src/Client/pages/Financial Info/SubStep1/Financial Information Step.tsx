@@ -77,7 +77,7 @@ const SubStep1: React.FC = () => {
             fontSize: '0.75rem',
           }}
         >
-          This information informs Bradley about your preferred financial outcomes. Providing these inputs enables accurate financial projections for the DER concept(s).
+          Completing this section enables Bradley to accurately calculate a “balance sheet” estimate of your optimized DER recommended solution; providing IRR, NOI, Simple Payback, NPV and cost reductions if you want to own the system. Correctly completing these inputs enables empirically accurate financial projections for the DER concept(s) over their expected lifetime.
         </Typography>
         <Typography
           sx={{
@@ -85,7 +85,7 @@ const SubStep1: React.FC = () => {
             fontSize: '0.75rem',
           }}
         >
-          This will take about 10 minutes.
+          This will take you less than 10 minutes to complete.
         </Typography>
         <Typography
           sx={{
@@ -104,7 +104,7 @@ const SubStep1: React.FC = () => {
           }}
         >
           <b>Financial Preferences & Method of DER Ownership</b> <br />
-          Provide information about your financial preferences, your preferred method of DER financial arrangement, and context regarding any existing energy supply/PPA or other energy contracts.
+          Provide information about your financial preferences, ownership preferences (your asset or a third party owned asset), and context regarding any existing energy supply/PPA or other energy contracts.
         </Typography>
         <Typography
           component="li"

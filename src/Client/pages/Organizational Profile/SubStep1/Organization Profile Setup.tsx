@@ -80,7 +80,7 @@ const SubStep1: React.FC = () => {
               lineHeight: '1.5',
             }}
           >
-            <b>Tell Us About Your Organization</b>
+            <b>Tell Us About Your Company and how it Operates</b>
           </Typography>
           <Typography
             sx={{
@@ -89,11 +89,7 @@ const SubStep1: React.FC = () => {
               lineHeight: '1.5',
             }}
           >
-            This is the first step in setting up your site-specific and personalized DER analysis with
-            Bradley. I will ask you a series of questions around the use of your facility, gather some
-            key information about your energy use in order to conceptually design the ideal distributed
-            energy resource, identify potential incentives (rebates, grants, tax benefits), and deliver
-            accurate results.
+            This is the first step in establishing a Distributed Energy Resource (DER) concept that is site-specific and personalized to attain your goals. I am an Energy Expert AI Agent, named Bradley. I will ask you a series of questions regarding the use and operation of your facility, gather key data about your energy use in order to conceptually design the ideal DER system, identify potential incentives (rebates, grants, tax benefits), and deliver the technical and financial attributes, in both qualitative and quantitative terms, that provide actionable metrics to decide the next steps in your pursuit of DER. Additionally Bradley offers an option to provide up to the minute emission calculations (Nox, Sox, CO2) that can be used for internal or external reporting requirements.
           </Typography>
           <Typography
             sx={{
@@ -102,7 +98,7 @@ const SubStep1: React.FC = () => {
               lineHeight: '1.5',
             }}
           >
-            This will take about 5 minutes.
+            The Profile Setup will take about 5 minutes.
           </Typography>
           <Typography
             sx={{
@@ -123,8 +119,7 @@ const SubStep1: React.FC = () => {
             }}
           >
             <b>Organizational Details</b> <br />
-            Your input helps us understand your organization's structure and operations, which influence
-            how Bradley will generate DER concepts that best fit your prioritization.
+            Your company name, site address where the DER would be situated, your name and contact information (User), type of industry and other important aspects of your operations, that will be used to tailor the DER recommendation that best fits your demands., Your input helps us understand your organization's structure and operations, which influence I will generate DER concepts that best fit your prioritization.
           </Typography>
         </Box>
       </Box>

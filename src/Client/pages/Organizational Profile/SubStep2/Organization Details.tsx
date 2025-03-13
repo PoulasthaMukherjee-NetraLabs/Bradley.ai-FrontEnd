@@ -1,5 +1,5 @@
 import React from 'react'; 
-import { Box, TextField, Button, Typography, Select, MenuItem } from '@mui/material'; 
+import { Box, TextField, Typography, Select, MenuItem, Tooltip } from '@mui/material';
 
 const SubStep2: React.FC = () => { 
   return ( 
@@ -13,81 +13,117 @@ const SubStep2: React.FC = () => {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, p: '10px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
-    <b>Organization Name:</b>
+        <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}>
+    <b>Organization Name:</b> 
   </Typography>
+  <Tooltip title="Enter the name of your organization" placement='top-end' arrow>
   <Select
-      fullWidth
-      size="small"
-      variant="outlined"
-      defaultValue="Option 1"
-      sx={{
-        flex: 0.3,
-        fontFamily: 'Nunito Sans, sans-serif',
-        fontSize: '0.7rem',
-        minWidth: '414px',
-        pl: '1px',
-        pr: '1px',
-        height: '40px',
-        '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-        '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
-        '& .MuiPaper-root': {
-          maxHeight: '200px',
-          overflowY: 'auto',
-          '&::-webkit-scrollbar': { display: 'none' },
-          '-ms-overflow-style': 'none',
-          'scrollbar-width': 'none',
+  fullWidth
+  size="small"
+  variant="outlined"
+  defaultValue="Option 1"
+  sx={{
+    flex: 0.498,
+    fontFamily: 'Nunito Sans, sans-serif',
+    fontSize: '0.7rem',
+    minWidth: '414px',
+    pl: '1px',
+    pr: '1px',
+    height: '40px',
+    '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+    '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
+  }}
+  MenuProps={{
+    PaperProps: {
+      sx: {
+        maxHeight: '200px',
+        '& .MuiMenuItem-root': {
+          fontFamily: 'Nunito Sans, sans-serif',
+          fontSize: '0.7rem',
         },
-      }}
-      MenuProps={{
-        PaperProps: {
-          sx: {
-            maxHeight: '200px',
-            '& .MuiMenuItem-root': {
-              fontFamily: 'Nunito Sans, sans-serif',
-              fontSize: '0.7rem',
-            },
-            '&::-webkit-scrollbar': { display: 'none' },
-            msOverflowStyle: 'none',
-            scrollbarWidth: 'none',
-          },
-        },
-      }}
-    >
-            <MenuItem value="Option 1" disabled>
-              Look Up your Organization
-            </MenuItem>
-            <MenuItem value="Option 2">Business (For Profit)</MenuItem>
-            <MenuItem value="Option 3">Non Profit</MenuItem>
-            <MenuItem value="Option 4">Government Entity</MenuItem>
-						<MenuItem value="Option 5">Educational Institution</MenuItem>
-            <MenuItem value="Option 6">Healthcare Provider</MenuItem>
-            <MenuItem value="Option 7">Other</MenuItem>
-          </Select>
-  <Button
-    variant="outlined"
-    sx={{
-      flex: 0.14,
-      height: '40px',
-      fontFamily: 'Nunito Sans, sans-serif',
-      fontSize: '0.65rem',
-      padding: '2px 1px',
-      pr: '15px',
-      pl: '15px',
-      alignSelf: 'flex-end',
-      textTransform: 'none',
-      '&:focus': {
-      outline: 'none',
-    }
-    }}
-  >
-    Look Up
-  </Button>
+        '&::-webkit-scrollbar': { display: 'none' },
+        msOverflowStyle: 'none',
+        scrollbarWidth: 'none',
+      },
+    },
+  }}
+>
+  <MenuItem value="Option 1" disabled>
+  Look Up your Organization
+  </MenuItem>
+  <MenuItem value="Option 2">Business (For Profit)</MenuItem>
+  <MenuItem value="Option 3">Non Profit</MenuItem>
+  <MenuItem value="Option 4">Government Entity</MenuItem>
+  <MenuItem value="Option 5">Educational Institution</MenuItem>
+  <MenuItem value="Option 6">Healthcare Provider</MenuItem>
+  <MenuItem value="Option 7">Residential</MenuItem>
+  <MenuItem value="Option 8">Other</MenuItem>
+</Select></Tooltip>
 </Box>
 
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Organization Type:</b></Typography>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Name of the User:</b> 
+  </Typography>
+  <Tooltip title="Enter your name" placement='top-end' arrow>
+  <TextField
+    fullWidth
+    placeholder='Enter your name'
+    variant="outlined"
+    size="small"
+    type="text"
+    sx={{
+      flex: 0.5,
+      fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+    }}
+  /></Tooltip>
+</Box>
+
+<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Email Address of the User:</b> 
+  </Typography>
+  <Tooltip title="Enter your email address" placement='top-end' arrow>
+  <TextField
+    fullWidth
+    placeholder='Enter your email address'
+    variant="outlined"
+    size="small"
+    type="email"
+    sx={{
+      flex: 0.5,
+      fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+    }}
+  /></Tooltip>
+</Box>
+
+<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Title of the User:</b> 
+  </Typography>
+  <Tooltip title="Enter your title" placement='top-end' arrow>
+  <TextField
+    fullWidth
+    placeholder='Enter your title'
+    variant="outlined"
+    size="small"
+    type="text"
+    sx={{
+      flex: 0.5,
+      fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
+      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+    }}
+  /></Tooltip>
+</Box>
+
+
+<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Organization Type:</b> 
+  </Typography>
+  <Tooltip title="Select the type of your organization" placement='top-end' arrow>
   <Select
   fullWidth
   size="small"
@@ -129,12 +165,14 @@ const SubStep2: React.FC = () => {
   <MenuItem value="Option 6">Healthcare Provider</MenuItem>
   <MenuItem value="Option 7">Residential</MenuItem>
   <MenuItem value="Option 8">Other</MenuItem>
-</Select>
+</Select></Tooltip>
 
 </Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Industry Selection:</b></Typography>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Industry Selection:</b>
+  </Typography>
+  <Tooltip title="Select the industry your organization belongs to" placement='top-end' arrow>
   <Select
   fullWidth
   size="small"
@@ -194,12 +232,14 @@ const SubStep2: React.FC = () => {
   <MenuItem value="Option 24">Transportation</MenuItem>
   <MenuItem value="Option 25">Utilities</MenuItem>
   <MenuItem value="Option 26">Other</MenuItem>
-</Select>
+</Select></Tooltip>
 
 </Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>IRS Category:</b></Typography>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>IRS Category:</b>
+  </Typography>
+   <Tooltip title="IRS (Internal Revenue Service) Category of your organization" placement='top-end' arrow>
   <Select
   fullWidth
   size="small"
@@ -234,6 +274,7 @@ const SubStep2: React.FC = () => {
           <MenuItem value="Option 1" disabled>
             Select your IRS Category
           </MenuItem>
+          <MenuItem value="Unknown">Unknown</MenuItem>
           <MenuItem value="Option 2">501(c)(1) – Corporations Organized Under Act of Congress</MenuItem>
           <MenuItem value="Option 3">501(c)(2) – Title Holding Corporations for Exempt Organizations</MenuItem>
           <MenuItem value="Option 4">501(c)(3) – Religious, Educational, Charitable Organizations</MenuItem>
@@ -268,13 +309,17 @@ const SubStep2: React.FC = () => {
           <MenuItem value="Option 33">501(k) – Child Care Organizations</MenuItem>
           <MenuItem value="Option 34">501(n) – Charitable Risk Pools</MenuItem>
           <MenuItem value="Option 35">501(q) – Credit Counseling Organizations</MenuItem>
-        </Select>
+        </Select></Tooltip>
 </Box>
 
 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Number of Employees at Facility:</b></Typography>
+<Tooltip title="It is important to configure the DER solution with the number of employees in mind. Employees and the hours they work impact how much energy is used and when." placement='bottom' arrow>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Number of Employees at Facility:</b> 
+  </Typography></Tooltip>
+  <Tooltip title="Enter the number of employees at your facility" placement='top-end' arrow>
   <TextField
     fullWidth
+    placeholder='Enter the number of employees at your facility'
     variant="outlined"
     size="small"
     type="number"
@@ -284,7 +329,7 @@ const SubStep2: React.FC = () => {
       '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
       '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
     }}
-  />
+  /></Tooltip>
 </Box>
         </Box>
       </Box>

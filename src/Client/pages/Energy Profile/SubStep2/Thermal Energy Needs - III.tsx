@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, TextField, Typography, FormControlLabel, MenuItem, Switch, Select } from '@mui/material';
+import { Box, TextField, Typography, FormControlLabel, /* MenuItem, */ Switch/* , Select */ } from '@mui/material';
 
 const SubStep2: React.FC = () => { 
   const [showSteam, setShowSteam] = useState(false);
@@ -33,46 +33,50 @@ const SubStep2: React.FC = () => {
             <Box sx={{ mb: 0, pl: 0 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px' }}>
+
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Chilled Water Usage:</b></Typography>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>How many tons of chilled water capacity do you have at the facility?</b>{/*  (in Tons) */}</Typography>
           <TextField
             variant="outlined" 
             size="small" 
-            type="number" 
-            placeholder="Enter Annual Usage"
+            type="number"
+            placeholder='Chilled water capacity at facility (in Tons)' 
             sx={{
-              flex: 0.5, fontFamily: 'Nunito Sans, sans-serif',
+              flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.7rem',
               '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' },
               '& .MuiInputBase-input::placeholder': {
                 fontFamily: 'Nunito Sans, sans-serif',
                 fontSize: '0.7rem',
               }
             }}
           />
-          <Select
-            size="small"
-            variant="outlined"
-            defaultValue="Option 1"
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>How many cooling ton hours used annually?</b></Typography>
+          <TextField
+            variant="outlined" 
+            size="small" 
+            type="number"
+            placeholder='Chilled water ton hours annually' 
             sx={{
-              flex: 0.25,
-              fontFamily: 'Nunito Sans, sans-serif',
+              flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.7rem',
-              height: '40px',
-              '& .MuiInputBase-root': { padding: '0 6px' },
-              '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
+              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' },
+              '& .MuiInputBase-input::placeholder': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+              }
             }}
-          >
-            <MenuItem value="Option 1" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Process Chilled Water</MenuItem>
-            <MenuItem value="Option 2" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Space Cooling</MenuItem>
-            <MenuItem value="Option 3" sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem',}}>Other</MenuItem>
-          </Select>
+          />
         </Box>
 
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Chilled Water Temperature:</b></Typography>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Chilled Water Temperature leaving the plant:</b></Typography>
           <TextField
             variant="outlined" 
             size="small" 
@@ -111,11 +115,67 @@ const SubStep2: React.FC = () => {
             }}
           />
         </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Chilled water temperature returning to the plant:</b></Typography>
+          <TextField
+            variant="outlined" 
+            size="small" 
+            type="number" 
+            placeholder="Enter chilled water temperature returning to the plant"
+            sx={{
+              flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+              '& .MuiInputBase-input::placeholder': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+              }
+            }}
+          />
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>CW pumps HP size and number of pumps:</b></Typography>
+          <TextField
+            variant="outlined" 
+            size="small" 
+            type="number" 
+            placeholder="Enter chilled water temperature pump size in HP"
+            sx={{
+              flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+              '& .MuiInputBase-input::placeholder': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+              }
+            }}
+          />
+        </Box>
+
         </Box>
       </Box>
               
             </Box>
           )}
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Typography
+                                sx={{
+                                  mt: 1,
+                                  fontFamily: 'Nunito Sans, sans-serif',
+                                  fontSize: '0.75rem',
+                                  minWidth: '200px',
+                                  flex: 1,
+                                }}
+                              >
+                                <i><b>Hint: </b>All values need to be near estimates, not exact. Please be as accurate as possible as the answers may alter my recommendation.</i><br />
+                              </Typography>
+                            </Box>
+
         </Box>
       </Box>
     </Box>

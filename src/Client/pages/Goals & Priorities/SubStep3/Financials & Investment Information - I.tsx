@@ -12,6 +12,65 @@ const SubStep3: React.FC = () => {
       </Typography> 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, p: '10px' }}>
+        <Box
+                sx={{
+                  width: 'calc(100% - 300px)',
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                  textAlign: 'justify',
+                  lineHeight: 1.5,
+                }}
+              >
+                <Typography
+                          sx={{
+                            fontFamily: 'Nunito Sans, sans-serif',
+                            fontSize: '0.8rem',
+                          }}
+                        >
+                          Completing this section enables Bradley to accurately calculate a “balance sheet” estimate of your optimized DER recommended solution; providing IRR, NOI, Simple Payback, NPV and cost reductions if you want to own the system. Correctly completing these inputs enables empirically accurate financial projections for the DER concept(s) over their expected lifetime.
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontFamily: 'Nunito Sans, sans-serif',
+                            fontSize: '0.8rem',
+                          }}
+                        >
+                          This will take you less than 10 minutes to complete.
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontFamily: 'Nunito Sans, sans-serif',
+                            fontSize: '0.8rem',
+                          }}
+                        >
+                          <b>Here's what we'll cover:</b>
+                        </Typography>
+                        <Typography
+                          component="li"
+                          sx={{
+                            fontFamily: 'Nunito Sans, sans-serif',
+                            fontSize: '0.8rem',
+                            mb: 2,
+                          }}
+                        >
+                          <b>Financial Preferences & Method of DER Ownership</b> <br />
+                          Provide information about your financial preferences, ownership preferences (your asset or a third party owned asset), and context regarding any existing energy supply/PPA or other energy contracts.
+                        </Typography>
+                        <Typography
+                          component="li"
+                          sx={{
+                            fontFamily: 'Nunito Sans, sans-serif',
+                            fontSize: '0.8rem',
+                            mb: 2,
+                          }}
+                        >
+                          <b>Budgetary Goals</b> <br />
+                          Tell us about your budget and investment goals for this project.
+                        </Typography>
+              </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
   <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', flex: 0.75 }}>
     <b>Financial Goals:</b>
@@ -28,6 +87,7 @@ const SubStep3: React.FC = () => {
             size="small" 
             type="number" 
 						placeholder='Input'
+            value={10}
             sx={{
               flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.7rem',

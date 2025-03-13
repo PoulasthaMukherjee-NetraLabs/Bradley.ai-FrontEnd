@@ -102,18 +102,62 @@ const SubStep1: React.FC = () => {
         >
           <b>Here's what we'll cover:</b>
         </Typography>
-        <Typography
-          component="li"
+
+        <Box
           sx={{
-            fontFamily: 'Nunito Sans, sans-serif',
-            fontSize: '0.75rem',
-            lineHeight: '1.5',
-            mb: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1,
+            pl: '10px',
           }}
         >
-          <b>Energy Load Profile</b> <br />
-          Analyze your energy consumption patterns over time.
-        </Typography>
+          <Typography
+            sx={{
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.75rem',
+              lineHeight: '1.5',
+            }}
+          >
+            1. Energy Load Profile
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.75rem',
+              lineHeight: '1.5',
+            }}
+          >
+            2. Natural Gas Energy Load Profile
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.75rem',
+              lineHeight: '1.5',
+            }}
+          >
+            3. Thermal Energy Needs
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.75rem',
+              lineHeight: '1.5',
+            }}
+          >
+            4. Existing Boiler Cogeneration
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.75rem',
+              lineHeight: '1.5',
+            }}
+          >
+            5. Request Interval Electric Load Data
+          </Typography>
+        </Box>
+
       </Box>
     </Box>
   );

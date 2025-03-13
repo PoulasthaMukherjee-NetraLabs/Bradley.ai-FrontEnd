@@ -18,7 +18,7 @@ const SubStep2: React.FC = () => {
             multiline
             rows={5}
             variant="outlined"
-            placeholder="If Other, Please Specify..."
+            placeholder="Possible additional preferences would be to hold the PPA rate firm for a limited time at the beginning of the PPA and then allowing escalation."
             sx={{
               fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.9rem',
