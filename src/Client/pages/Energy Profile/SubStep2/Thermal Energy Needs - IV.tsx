@@ -7,7 +7,8 @@ import {
   FormControlLabel, 
   MenuItem, 
   Switch, 
-  IconButton 
+  IconButton,
+  Select
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -43,7 +44,7 @@ const SubStep2: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <FormControlLabel
           control={<Switch checked={showWasteHeat} onChange={() => setShowWasteHeat(!showWasteHeat)} size="small" />}
-          label="Does your facility generate waste heat?"
+          label="Does your facility generate waste heat? If so from what type of source, pick from the options below."
           sx={{
             '& .MuiFormControlLabel-label': {
               fontFamily: 'Nunito Sans, sans-serif',
@@ -52,8 +53,48 @@ const SubStep2: React.FC = () => {
           }}
         /></ Box>
 
-        {showWasteHeat && (
-          <Box>
+{showWasteHeat && (
+        <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 4, mt: 1 }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.5 }}>
+            <b>Can your facility benefit from utilization of waste heat?</b><br />(If so, pick where the waste heat could be used)
+          </Typography>
+          <Select
+            fullWidth
+            size="small"
+            variant="outlined"
+            defaultValue="Option 1"
+            sx={{
+              flex: 0.5,
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              minWidth: '414px',
+              pl: '1px',
+              pr: '1px',
+              height: '40px',
+              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+              '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
+            }}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  maxHeight: '200px',
+                  '& .MuiMenuItem-root': {
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    fontSize: '0.7rem',
+                  },
+                  '&::-webkit-scrollbar': { display: 'none' },
+                  msOverflowStyle: 'none',
+                  scrollbarWidth: 'none',
+                },
+              },
+            }}
+          >
+            <MenuItem value="Option 1" disabled>Select a source</MenuItem>
+            <MenuItem value="Option 2">Hot Water Preheat</MenuItem>
+            <MenuItem value="Option 3">Steam Make up Water Preheat</MenuItem>
+            <MenuItem value="Option 4">Incoming Fresh Air Make up Preheat</MenuItem>
+          </Select><Box sx={{flex: 0.035}}></Box></Box>
             {wasteHeatSources.map((source, index) => (
               <Box
                 key={index}
