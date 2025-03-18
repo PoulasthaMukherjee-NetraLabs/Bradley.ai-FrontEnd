@@ -139,7 +139,7 @@ const SubStep2: React.FC = () => {
             <TextField
               variant="outlined"
               size="small"
-              type="number"
+              type="text"
               placeholder="Provide the HVAC operating hours of the building."
               sx={{
                 flex: 0.448,
