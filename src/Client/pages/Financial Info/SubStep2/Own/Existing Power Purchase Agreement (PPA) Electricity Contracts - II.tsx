@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box, TextField, Typography, FormControlLabel, Switch, Tooltip, InputAdornment } from '@mui/material';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const SubStep2: React.FC = () => { 
   const [showSteam, setShowSteam] = useState(false);
@@ -94,6 +95,12 @@ const SubStep2: React.FC = () => {
                       }}
                     />
                   </Box>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', border: '1px dashed grey', borderRadius: 2, p: 2, mb: 0, mt: 1.5, justifyContent: 'center' }}>
+        <CloudUploadIcon fontSize='medium'/>
+        <Typography sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif', ml: 1 }}>Upload a PDF of your PPA and I will review the document and extract the data and auto populate the fields above.</Typography>
+      </Box>
+      <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mt: -1, mb: 0, textAlign: 'right' }}><b>*</b>Accepted File Formats: .pdf</Typography>
 
                 </Box>
               </Box>

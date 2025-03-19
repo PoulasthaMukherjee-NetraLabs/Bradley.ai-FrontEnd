@@ -48,6 +48,18 @@ const SubStep2: React.FC = () => {
             InputProps={{
               startAdornment: <InputAdornment position="start">$</InputAdornment>,
             }}
+            inputProps={{
+              min: 0,
+              max: 99
+            }}
+            onChange={(e) => {
+              let value = e.target.value;
+              if (value === "" || /^\d{1,2}$/.test(value)) {
+                e.target.value = value;
+              } else {
+                e.target.value = value.slice(0, 2);
+              }
+            }}
             sx={{
               flex: 0.5, fontFamily: 'Nunito Sans, sans-serif',
               fontSize: '0.7rem',
