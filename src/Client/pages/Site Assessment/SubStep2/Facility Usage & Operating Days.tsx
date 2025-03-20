@@ -135,7 +135,7 @@ const SubStep2: React.FC = () => {
           {daysOfOperation.length > 0 && (
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, justifyContent: "center"}}>
               <Typography sx={{ fontFamily: "Nunito Sans, sans-serif", fontSize: "0.75rem", flex: 0.3 }}>
-                <b>Hours of Operation:</b> {getContinuousDaysRange(daysOfOperation)}
+                <b>Hours of Operation:</b> {getContinuousDaysRange(daysOfOperation) || `(${daysOfOperation.map(day => dayAbbreviations[day]).join(", ")})`}
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'nowrap', justifyContent: 'center', flex: 0.448}}>
                 {daysOfOperation.sort((a, b) => {
