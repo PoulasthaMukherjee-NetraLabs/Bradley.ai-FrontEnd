@@ -27,17 +27,23 @@ const MapMarker = ({ position, setPosition }: { position: L.LatLng | null, setPo
     },
   });
 
+  if (!position) {
+      const defaultPosition = new L.LatLng(51.505, -0.09);
+      setPosition(defaultPosition);
+  }
+
   return position ? <Marker position={position} icon={customIcon} /> : null;
 };
 
 const SubStep2 = () => {
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [address, setAddress] = useState({
-    streetAddress: '',
-    city: '',
-    state: '',
-    zipCode: '',
-  });
+      streetAddress: 'Southwark Bridge Road',
+      city: 'London',
+      state: 'England',
+      zipCode: 'SE1 1UN',
+      otherAddress: '',
+    });
   const mapRef = useRef<L.Map | null>(null);
 
   const handleSavePinnedLocation = () => {
@@ -51,6 +57,7 @@ const SubStep2 = () => {
             city: data.address.city || data.address.town || '',
             state: data.address.state || '',
             zipCode: data.address.postcode || '',
+            otherAddress: '',
           });
         })
         .catch(error => console.error('Error fetching address:', error));
@@ -73,14 +80,14 @@ const SubStep2 = () => {
       </Typography>
 
       <Box sx={{ display: 'flex', gap: 2, p: '10px', pl: '160px', pr: '160px' }}>
-        <Box sx={{ flex: 1, height: '230px', border: '1px solid lightgrey', borderRadius: 1 }}>
+        <Box sx={{ flex: 1, height: '268.5px', border: '1px solid lightgrey', borderRadius: 1 }}>
           <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100%', width: '100%' }} ref={mapRef}>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <MapMarker position={position} setPosition={setPosition} />
           </MapContainer>
         </Box>
 
-        <Box sx={{ flex: 1, border: '1px solid lightgrey', p: 1, borderRadius: 1, height: '214.5px', pl: 2, pr: 2 }}>
+        <Box sx={{ flex: 1, border: '1px solid lightgrey', p: 1, borderRadius: 1, height: '253px', pl: 2, pr: 2 }}>
           <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
             <Button
               variant="outlined"
@@ -123,6 +130,24 @@ const SubStep2 = () => {
                 />
               </Box>
             ))}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}><b>Other Addresses:</b></Typography>
+                          <TextField
+                            variant="outlined"
+                            size="small"
+                            type="text"
+                            value={address.otherAddress}
+                            placeholder='Address 1; Address 2; Address 3, ...'
+                            onChange={(e) => setAddress({ ...address, otherAddress: e.target.value })}
+                            sx={{
+                              flex: 1,
+                              fontSize: '0.7rem',
+                              fontFamily: 'Nunito Sans, sans-serif',
+                              '& .MuiInputBase-root': { height: '30px', padding: '0 6px' },
+                              '& input': { padding: 0, fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }
+                            }}
+                          />
+                        </Box>
           </Box>
         </Box>
       </Box>
