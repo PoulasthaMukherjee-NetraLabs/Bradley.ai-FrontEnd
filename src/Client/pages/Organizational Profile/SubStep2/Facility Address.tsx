@@ -27,16 +27,21 @@ const MapMarker = ({ position, setPosition }: { position: L.LatLng | null, setPo
     },
   });
 
+  if (!position) {
+    const defaultPosition = new L.LatLng(51.505, -0.09);
+    setPosition(defaultPosition);
+  }
+
   return position ? <Marker position={position} icon={customIcon} /> : null;
 };
 
 const SubStep2 = () => {
   const [position, setPosition] = useState<L.LatLng | null>(null);
   const [address, setAddress] = useState({
-    streetAddress: '',
-    city: '',
-    state: '',
-    zipCode: '',
+    streetAddress: 'Southwark Bridge Road',
+    city: 'London',
+    state: 'England',
+    zipCode: 'SE1 1UN',
     otherAddress: '',
   });
   const mapRef = useRef<L.Map | null>(null);
