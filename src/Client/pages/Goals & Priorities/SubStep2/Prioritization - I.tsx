@@ -56,9 +56,10 @@ const SubStep2: React.FC = () => {
               <b>Rank Your Priorities:</b> (1 being the most important)
               <p></p>
             </Typography>
+            <Tooltip title="Click to clear current form" placement='right' arrow>
             <Button variant="outlined" size="small" onClick={handleClearAll} sx={{ fontSize: '0.7rem', textTransform: 'none', flex: 0.06 }}>
               Clear All
-            </Button><p></p><br />
+            </Button></Tooltip><p></p><br />
           </Box>
           {[1, 2, 3, 4].map((rank) => (
             <Box key={rank} sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
@@ -90,7 +91,7 @@ const SubStep2: React.FC = () => {
                   </MenuItem>
                 ))}
               </Select>
-              <Tooltip title="Set a priority to add explanation" placement='right' arrow>
+              <Tooltip title="Set rank to add explanation" placement='right' arrow>
               <TextField
                 fullWidth
                 variant="outlined"
