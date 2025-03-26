@@ -65,7 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
   }, [currentStep, completedSteps]);
 
   const handleStepClick = (index: number) => {
-    if (visitedSteps[index]) {
+    if (visitedSteps[index].some(visited => visited)) {
       onStepChange(index);
     }
   };
@@ -78,7 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
     });
   };
 
-  const CustomStepIcon = ({ icon: IconComponent, active, completed }: any) => (
+  const CustomStepIcon = ({ icon: IconComponent, active, completed, visited }: any) => (
     <div
       style={{
         display: 'flex',
@@ -87,11 +87,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
         width: 24,
         height: 24,
         borderRadius: '50%',
-        backgroundColor: completed || active ? '#036ca1' : '#808080',
-        color: active ? '#036ca1' : '#fff',
+        backgroundColor: completed || active || visited ? '#036ca1' : '#808080',
+        color: '#fff',
       }}
     >
-      <IconComponent fontSize="small" style={{ color: active ? '#fff' : '#fff' }} />
+      <IconComponent fontSize="small" style={{ color: '#fff' }} />
     </div>
   );
 
@@ -117,16 +117,18 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
       >
         {steps.map((step, index) => {
           const IconComponent = step.icon;
+          const isVisited = visitedSteps[index].some(visited => visited);
           return (
             <Step key={step.label} completed={completedSteps[index]}>
               <StepLabel
                 StepIconComponent={(props) => (
-                  <CustomStepIcon icon={IconComponent} active={props.active} completed={props.completed} />
+                  <CustomStepIcon icon={IconComponent} active={props.active} completed={props.completed} visited={isVisited} />
                 )}
               >
-                {index === currentStep ? (
-                  <Tooltip title="You are here" placement="right" arrow>
+                {isVisited ? (
+                  <Tooltip title={index === currentStep ? "You are here" : "Navigate to step"} placement="right" arrow>
                     <ListItemButton
+                      onClick={() => handleStepClick(index)}
                       selected={currentStep === index}
                       sx={{
                         padding: '3px 4px',
@@ -134,7 +136,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
                         '&.Mui-selected': {
                           backgroundColor: 'transparent',
                         },
-                        color: completedSteps[index] ? '#036ca1' : 'gray',
+                        color: '#036ca1',
                         '&:hover': {
                           borderRadius: '8px',
                         },
@@ -142,29 +144,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
                     >
                       <ListItemText
                         primary={
-                          <Typography sx={{ fontSize: '0.700rem', fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>
-                            {step.label}
-                          </Typography>
-                        }
-                      />
-                    </ListItemButton>
-                  </Tooltip>
-                ) : visitedSteps[index] ? (
-                  <Tooltip title="Navigate to step" placement="right" arrow>
-                    <ListItemButton
-                      onClick={() => handleStepClick(index)}
-                      sx={{
-                        padding: '3px 4px',
-                        fontFamily: 'Nunito Sans, sans-serif',
-                        color: completedSteps[index] ? '#036ca1' : 'gray',
-                        '&:hover': {
-                          borderRadius: '8px',
-                        },
-                      }}
-                    >
-                      <ListItemText
-                        primary={
-                          <Typography sx={{ fontSize: '0.700rem', fontFamily: 'Nunito Sans, sans-serif' }}>
+                          <Typography sx={{ fontSize: '0.700rem', fontFamily: 'Nunito Sans, sans-serif', fontWeight: index === currentStep ? 'bold' : 'normal' }}>
                             {step.label}
                           </Typography>
                         }
@@ -176,7 +156,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
                     sx={{
                       padding: '3px 4px',
                       fontFamily: 'Nunito Sans, sans-serif',
-                      color: completedSteps[index] ? '#036ca1' : 'gray',
+                      color: 'gray',
                       '&:hover': {
                         borderRadius: '8px',
                       },
