@@ -56,7 +56,7 @@ const HorizontalStepper: React.FC<HorizontalStepperProps> = ({
             },
           }}
               >
-          <span className="nunito-sans">{label}</span>
+          <span className="nunito-sans">{label}*</span>
               </StepLabel>
             </Tooltip>
           ) : visitedSteps[index] ? (
