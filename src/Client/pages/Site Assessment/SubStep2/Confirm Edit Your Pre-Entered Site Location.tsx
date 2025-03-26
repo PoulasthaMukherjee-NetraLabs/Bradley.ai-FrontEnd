@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Box, Typography, TextField, Button } from '@mui/material';
+import { Box, Typography, TextField, Button, Tooltip } from '@mui/material';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -80,30 +80,33 @@ const SubStep2 = () => {
       </Typography>
 
       <Box sx={{ display: 'flex', gap: 2, p: '10px', pl: '160px', pr: '160px' }}>
-        <Box sx={{ flex: 1, height: '268.5px', border: '1px solid lightgrey', borderRadius: 1 }}>
-          <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100%', width: '100%' }} ref={mapRef}>
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <MapMarker position={position} setPosition={setPosition} />
-          </MapContainer>
-        </Box>
+        <Tooltip title="Click on any desired location on the map to place the pin" placement="top" arrow>
+          <Box sx={{ flex: 1, height: '268.5px', border: '1px solid lightgrey', borderRadius: 1 }}>
+            <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100%', width: '100%' }} ref={mapRef}>
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <MapMarker position={position} setPosition={setPosition} />
+            </MapContainer>
+          </Box>
+        </Tooltip>
 
         <Box sx={{ flex: 1, border: '1px solid lightgrey', p: 1, borderRadius: 1, height: '253px', pl: 2, pr: 2 }}>
           <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={handleSavePinnedLocation}
-              sx={{
-                fontFamily: 'Nunito Sans, sans-serif',
-                fontSize: '0.7rem',
-                minWidth: '60px',
-                padding: '2px 4px',
-                textTransform: 'none',
-                '&:focus': { outline: 'none' }
-              }}
-            >
-              Confirm Location
-            </Button>
+            <Tooltip title="Click to autofill below based on the pin." placement='left' arrow>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleSavePinnedLocation}
+                sx={{
+                  fontFamily: 'Nunito Sans, sans-serif',
+                  fontSize: '0.7rem',
+                  minWidth: '60px',
+                  padding: '2px 4px',
+                  textTransform: 'none',
+                  '&:focus': { outline: 'none' }
+                }}
+              >
+                Confirm Location
+              </Button></Tooltip>
           </Typography><br />
           <Box sx={{ fontFamily: 'Nunito Sans, sans-serif', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             {[
