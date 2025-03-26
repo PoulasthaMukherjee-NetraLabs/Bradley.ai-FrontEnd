@@ -145,7 +145,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentStep, visitedSteps, onStepChan
                       <ListItemText
                         primary={
                           <Typography sx={{ fontSize: '0.700rem', fontFamily: 'Nunito Sans, sans-serif', fontWeight: index === currentStep ? 'bold' : 'normal' }}>
-                            {step.label}
+                            {index === currentStep ? `${step.label}*` : step.label}
                           </Typography>
                         }
                       />
