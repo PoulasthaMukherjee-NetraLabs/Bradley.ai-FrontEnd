@@ -59,7 +59,7 @@ const SubStep2: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <FormControlLabel
             control={<Switch checked={showSteam} onChange={() => setShowSteam(!showSteam)} size="small" />}
-            label="Do you have any existing Power Purchase Agreements (PPAs) for thermal energy or Combined Heat and Power (CHP)?"
+            label="Do you have any existing PPAs for thermal energy or Combined Heat and Power (CHP)?"
             sx={{
               '& .MuiFormControlLabel-label': {
                 fontFamily: 'Nunito Sans, sans-serif',

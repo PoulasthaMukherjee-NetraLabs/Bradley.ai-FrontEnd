@@ -44,7 +44,7 @@ const SubStep3: React.FC = () => {
       alignItems: 'center',
       gap: 1,
       flex: 0.5,
-      maxWidth: 'calc(100% - 665px)',
+      maxWidth: 'calc(100% - 600px)',
     }}
   >
     {investmentAmounts.map((_, index) => (

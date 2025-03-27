@@ -158,7 +158,7 @@ const SubStep3: React.FC = () => {
             }}
           >
             <MenuItem value="" disabled sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
-              Input No. of Parking Spots at Top Level
+              Select Type
             </MenuItem>
             <MenuItem value="flat" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
               Flat

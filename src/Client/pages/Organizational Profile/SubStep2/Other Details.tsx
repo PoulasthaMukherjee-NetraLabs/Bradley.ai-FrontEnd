@@ -12,7 +12,7 @@ const SubStep2: React.FC = () => {
         <h2>Other Details</h2>
       </Typography> 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '160px' }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '123px', pr: '123px' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', mt: 1 }}>
         <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
   <Box sx={{ flex: 1 }}>
@@ -20,7 +20,7 @@ const SubStep2: React.FC = () => {
   </Box>
   <Box sx={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <RadioGroup 
-                  sx={{ fontSize: '0.7rem', gap: '162px' }} 
+                  sx={{ fontSize: '0.7rem', gap: '123px' }} 
                   row 
                   onChange={(e) => setLeaseSelected(e.target.value === 'lease')}
                 >
@@ -72,6 +72,7 @@ const SubStep2: React.FC = () => {
       name="setBackTime"
       size="small"
       sx={{
+        paddingRight: '17px',
         flex: 0.4,
         fontSize: '0.7rem',
         fontFamily: 'Nunito Sans, sans-serif',
@@ -95,7 +96,7 @@ const SubStep2: React.FC = () => {
   <Box sx={{ flex: 1 }}>
 <b><h3>Long - Term Site Occupancy</h3></b></Box>
 <Box sx={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
-    <RadioGroup sx={{ fontSize: '0.7rem', gap: '158.5px' }} row>
+    <RadioGroup sx={{ fontSize: '0.7rem', gap: '119px' }} row>
       <FormControlLabel 
         value="own" 
         control={<Radio sx={{ padding: '2px' }} />} 

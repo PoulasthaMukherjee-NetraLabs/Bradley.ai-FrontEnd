@@ -92,7 +92,7 @@ const SubStep2: React.FC = () => {
             pt: '10px',
             pb: '10px',
             pl: '160px',
-            pr: '160px',
+            pr: '123px',
           }}
         >
           {wasteHeatSources.map((source, index) => (
