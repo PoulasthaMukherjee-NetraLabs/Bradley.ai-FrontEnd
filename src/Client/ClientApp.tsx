@@ -8,6 +8,7 @@ import Footer from '../components/Footer';
 import { useAppContext } from '../Context/AppContext';
 import { steps, TOTAL_STEPS } from '../components/steps';
 import { useNavigate } from 'react-router-dom';
+import ChatBot from '../components/ChatBot';
 
 const ClientApp: React.FC = () => {
   const {
@@ -333,6 +334,7 @@ const ClientApp: React.FC = () => {
 
             </Box>
           </Box>
+          <ChatBot />
         </Box>
       </Box>
       <Footer />
