@@ -14,10 +14,11 @@ const ChatbotPanel: React.FC = () => {
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (chatboxRef.current) {
-      chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
+    const chatbox = document.querySelector('.chatbox-container');
+    if (chatbox) {
+      chatbox.scrollTop = chatbox.scrollHeight;
     }
-  }, [messages]);
+  }, [messages]);    
 
   const handleSendMessage = () => {
     if (inputValue.trim()) {
@@ -137,40 +138,40 @@ const ChatbotPanel: React.FC = () => {
                 Bradley.ai Chat
               </h3>
             </Box>
-            <Box sx={{
-              flexGrow: 1,
-              padding: '10px',
-              overflowY: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              scrollbarWidth: 'none',
-              '&::-webkit-scrollbar': { display: 'none' }
-            }}>
-              {messages.map((msg, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                    marginBottom: '10px',
-                    maxWidth: '80%',
-                    padding: '6px 10px',
-                    borderRadius: '10px',
-                    borderTopRightRadius: msg.sender === 'user' ? '0px' : '10px',
-                    borderTopLeftRadius: msg.sender === 'bot' ? '0px' : '10px',
-                    background: msg.sender === 'user'
-                      ? '#1976d2'
-                      : '#f0f0f0',
-                    color: msg.sender === 'user'
-                      ? 'white'
-                      : '#333',
-                    position: 'relative',
-                    fontSize: '14px',
-                  }}
-                >
-                  {msg.text}
-                </Box>
-              ))}
-            </Box>
+            <Box
+  className="chatbox-container"
+  sx={{
+    flexGrow: 1,
+    padding: '10px',
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': { display: 'none' }
+  }}
+>
+  {messages.map((msg, index) => (
+    <Box
+      key={index}
+      sx={{
+        alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+        marginBottom: '10px',
+        maxWidth: '80%',
+        padding: '6px 10px',
+        borderRadius: '10px',
+        borderTopRightRadius: msg.sender === 'user' ? '0px' : '10px',
+        borderTopLeftRadius: msg.sender === 'bot' ? '0px' : '10px',
+        background: msg.sender === 'user' ? '#1976d2' : '#f0f0f0',
+        color: msg.sender === 'user' ? 'white' : '#333',
+        position: 'relative',
+        fontSize: '14px',
+      }}
+    >
+      {msg.text}
+    </Box>
+  ))}
+</Box>
+
             <Box sx={{ display: 'flex', padding: '10px' }}>
               <TextField
                 variant="outlined"
