@@ -6,7 +6,8 @@ export const SystemDiagram: React.FC<{ size: 'small' | 'large' }> = ({ size }) =
     return (
 				<div
 						style={{
-					width: isLarge ? '82.5%' : '100%',
+					width: isLarge ? '80%' : '100%',
+					height: '100%',
 					display: 'flex',
 					justifyContent: 'center',
 						}}
