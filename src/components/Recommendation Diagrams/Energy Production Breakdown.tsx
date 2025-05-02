@@ -38,7 +38,7 @@ export const energyProductionData = [
     type: 'generation'
   },
   { 
-    title: 'DER Combustion Turbine generation Capacity', 
+    title: 'DER Combustion Turbine gen. Capacity', 
     value: '1,550kW', 
     bgColorTop: '#2745ad',
     bgColorBottom: '#00b0f0', 
@@ -107,7 +107,7 @@ export const EnergyProductionBreakdown: React.FC<{ size: 'small' | 'large' }> = 
               bgcolor: item.bgColorTop,
               color: item.textColor,
               width: '100%',
-              p: isLarge ? 1 : 0.5,
+              p: isLarge ? 1 : 1.5,
             }}>
               <Typography 
           sx={{ 
