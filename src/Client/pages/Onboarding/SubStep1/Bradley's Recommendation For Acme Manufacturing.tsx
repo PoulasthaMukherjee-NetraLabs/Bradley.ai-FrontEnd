@@ -177,6 +177,17 @@ const SubStep1: React.FC = () => {
                     <InvestmentSummary size="small" />
                   </Box>
                 </StyledTabPanelBox>
+                <StyledTabPanelBox>
+                    <StyledTabPanelTitle variant="h6">
+                      Annual Energy Cost "as is" compared to DER overtime
+                    </StyledTabPanelTitle>
+                    <StyledExpandButton onClick={() => handleExpandClick('energy-cost', 'Annual Energy Cost "as is" compared to DER overtime')}>
+                      <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>⛶</Typography>
+                    </StyledExpandButton>
+                    <Box sx={{ pt: 1.5, pb: 0, px: 1, height: 'calc(100% - 30px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <AnnualEnergyCostAsIsComparedToDEROvertime size="small" />
+                    </Box>
+                  </StyledTabPanelBox>
                 <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                     <StyledTabPanelBox>
                     <StyledTabPanelTitle variant="h6">
@@ -201,17 +212,6 @@ const SubStep1: React.FC = () => {
                   </Box>
                 </StyledTabPanelBox>
                 </Box>
-                <StyledTabPanelBox>
-                    <StyledTabPanelTitle variant="h6">
-                      Annual Energy Cost "as is" compared to DER overtime
-                    </StyledTabPanelTitle>
-                    <StyledExpandButton onClick={() => handleExpandClick('energy-cost', 'Annual Energy Cost "as is" compared to DER overtime')}>
-                      <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>⛶</Typography>
-                    </StyledExpandButton>
-                    <Box sx={{ pt: 1.5, pb: 0, px: 1, height: 'calc(100% - 30px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <AnnualEnergyCostAsIsComparedToDEROvertime size="small" />
-                    </Box>
-                  </StyledTabPanelBox>
                 <StyledTabPanelBox>
                   <StyledTabPanelTitle variant="h6">
                     Finance Options

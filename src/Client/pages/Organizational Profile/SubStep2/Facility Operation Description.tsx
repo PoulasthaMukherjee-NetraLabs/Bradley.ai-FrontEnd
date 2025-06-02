@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Box, TextField, Typography, FormControlLabel, Checkbox, Tooltip } from '@mui/material';
+import { Box, TextField, Typography, FormControlLabel, Checkbox, Tooltip, Select, MenuItem, /* OutlinedInput, */ FormControl, SelectChangeEvent } from '@mui/material';
+
+interface DescriptionState {
+  twoPipeSystem: string;
+  fourPipeSystem: string;
+  steamDistribution: string;
+  steamToBuilding: string;
+  autoLightSensors: string;
+  waterTreatment: string[];
+  freeCooling: string;
+}
 
 const SubStep2: React.FC = () => {
   const [checked, setChecked] = useState({
@@ -13,13 +23,13 @@ const SubStep2: React.FC = () => {
     freeCooling: false,
   });
 
-  const [description, setDescription] = useState({
+  const [description, setDescription] = useState<DescriptionState>({
     twoPipeSystem: '',
     fourPipeSystem: '',
     steamDistribution: '',
     steamToBuilding: '',
     autoLightSensors: '',
-    waterTreatment: '',
+    waterTreatment: [],
     freeCooling: '',
   });
 
@@ -48,11 +58,29 @@ const SubStep2: React.FC = () => {
         ...(name === 'twoPipeSystem' && isChecked ? { fourPipeSystem: false } : {}),
         ...(name === 'fourPipeSystem' && isChecked ? { twoPipeSystem: false } : {}),
       }));
+      if (name === 'waterTreatment' && !isChecked) {
+        setDescription(prev => ({ ...prev, waterTreatment: [] }));
+      }
     };
 
-  const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDescription({ ...description, [event.target.name]: event.target.value });
+  const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setDescription((prevDescription) => ({
+      ...prevDescription,
+      [name]: value,
+    }));
   };
+
+  const handleWaterTreatmentChange = (event: SelectChangeEvent<string[]>) => {
+    const {
+      target: { value },
+    } = event;
+    setDescription({
+      ...description,
+      waterTreatment: typeof value === 'string' ? value.split(',') : value,
+    });
+  };
+
 
   const handleOperationalHoursChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setOperationalHours({ ...operationalHours, [event.target.name]: event.target.value });
@@ -65,6 +93,19 @@ const SubStep2: React.FC = () => {
   const handleSetbackTemperatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSetbackTemperature({ ...setbackTemperature, [event.target.name]: event.target.value });
   };
+
+  const waterTreatmentOptionsFlat = [
+    "Closed-Loop: Inhibitors & Biocides",
+    "Closed-Loop: Regular Testing (pH, Cond, Glycol)",
+    "Closed-Loop: Scale, Corrosion, Microbio Prevention",
+    "Open-Loop: Chemical Feed System",
+    "Open-Loop: Conductivity & Auto Blowdown",
+    "Open-Loop: Biocides, Algaecides, Anti-scalants",
+    "Boiler: Water Softening, Scale/O2 Corrosion Prevention",
+    "Boiler: Feedwater Dosing (O2 Scavengers, pH, Antiscalants)",
+    "Boiler: Daily Chemistry Testing",
+  ];
+
 
   const labelStyle = {
     fontFamily: 'Nunito Sans, sans-serif',
@@ -85,7 +126,6 @@ const SubStep2: React.FC = () => {
   const labelStyle2 = {
     fontFamily: 'Nunito Sans, sans-serif',
     fontSize: '0.75rem',
-    // minWidth: '100px',
     flex: 0.391,
     textAlign: 'left'
   };
@@ -211,70 +251,6 @@ const SubStep2: React.FC = () => {
             disabled={!checked.fourPipeSystem}
           /></Tooltip>
         </Box>
-
-        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-          <Typography sx={labelStyle}>
-            <b>Steam distribution to Hot Water conversion:</b>
-          </Typography>
-          <Tooltip title="Check if your facility uses steam distribution." placement='left' arrow>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={checked.steamDistribution}
-                  onChange={handleCheck}
-                  name="steamDistribution"
-                  size="small"
-                />
-              }
-              label=""
-              sx={{ flex: 0.0 }}
-            />
-          </Tooltip>
-          <Tooltip title="Add description here." placement='right' arrow>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder={checked.steamDistribution ? "Add Description" : "Check the Box to Add Description"}
-            name="steamDistribution"
-            value={description.steamDistribution}
-            onChange={handleDescriptionChange}
-            size="small"
-            sx={inputStyle}
-            disabled={!checked.steamDistribution}
-          /></Tooltip>
-        </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-          <Typography sx={labelStyle}>
-            <b>Steam to entire building:</b>
-          </Typography>
-          <Tooltip title="Check if your facility uses steam to heat the entire building." placement='left' arrow>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={checked.steamToBuilding}
-                  onChange={handleCheck}
-                  name="steamToBuilding"
-                  size="small"
-                />
-              }
-              label=""
-              sx={{ flex: 0.0 }}
-            />
-          </Tooltip>
-          <Tooltip title="Add description here." placement='right' arrow>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder={checked.steamToBuilding ? "Add Description" : "Check the Box to Add Description"}
-            name="steamToBuilding"
-            value={description.steamToBuilding}
-            onChange={handleDescriptionChange}
-            size="small"
-            sx={inputStyle}
-            disabled={!checked.steamToBuilding}
-          /></Tooltip>
-        </Box> */}
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
             <Typography sx={labelStyle2}>
@@ -408,18 +384,69 @@ const SubStep2: React.FC = () => {
               sx={{ flex: 0.0 }}
             />
           </Tooltip>
-          <Tooltip title="Add description here." placement='right' arrow>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder={checked.waterTreatment ? "Add Description" : "Check the Box to Add Description"}
-            name="waterTreatment"
-            value={description.waterTreatment}
-            onChange={handleDescriptionChange}
-            size="small"
-            sx={inputStyle}
-            disabled={!checked.waterTreatment}
-          /></Tooltip>
+          <Tooltip title="Select all applicable water treatment methods." placement='right' arrow>
+            <FormControl
+              sx={{ flex: inputStyle.flex }}
+              fullWidth
+              size="small"
+              disabled={!checked.waterTreatment}
+              variant="outlined"
+            >
+              <Select
+                multiple
+                value={description.waterTreatment}
+                onChange={handleWaterTreatmentChange}
+                variant="outlined"
+                size="small"
+                renderValue={(selected) => {
+                  const s = selected as string[];
+                  if (s.length === 0) {
+                    return "";
+                  }
+                  return `${s.length} Selected`;
+                }}
+                displayEmpty
+                sx={{
+                  fontFamily: 'Nunito Sans, sans-serif',
+                  fontSize: '0.7rem',
+                  height: '40px',
+                  '& .MuiSelect-select': {
+                    padding: '4px 6px',
+                    fontSize: '0.7rem',
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    lineHeight: '30px',
+                  },
+                  '& .MuiSelect-select.MuiInputBase-input.MuiOutlinedInput-input:not([aria-expanded="true"])': {
+                    '&:empty::before': {
+                        content: `"${checked.waterTreatment ? "Select Options" : "Check Box to Select"}"`,
+                        fontFamily: 'Nunito Sans, sans-serif',
+                        fontSize: '0.7rem',
+                        opacity: 0.6,
+                    },
+                  },
+                }}
+              >
+                <MenuItem
+                  disabled
+                  value="WATER_TREATMENT_PLACEHOLDER_TOP" 
+                  style={{ display: 'none' }}
+                >
+                </MenuItem>
+                {waterTreatmentOptionsFlat.map((option) => (
+                  <MenuItem
+                    key={option}
+                    value={option}
+                    sx={{
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.7rem',
+                    }}
+                  >
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Tooltip>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
@@ -474,7 +501,7 @@ const SubStep2: React.FC = () => {
             fullWidth
             variant="outlined"
             placeholder={checked.setbackTemperature ? "Enter temp. in °F (Summer)" : "Summer Setback Temp."}
-            name="setbackTemperature"
+            name="summer"
             value={setbackTemperature.summer}
             onChange={handleSetbackTemperatureChange}
             size="small"
@@ -487,7 +514,7 @@ const SubStep2: React.FC = () => {
             fullWidth
             variant="outlined"
             placeholder={checked.setbackTemperature ? "Enter temp. in °F (Winter)" : "Winter Setback Temp."}
-            name="setbackTemperature"
+            name="winter"
             value={setbackTemperature.winter}
             onChange={handleSetbackTemperatureChange}
             size="small"

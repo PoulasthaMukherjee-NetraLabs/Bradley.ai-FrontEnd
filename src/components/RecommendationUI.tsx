@@ -70,20 +70,20 @@ const WatermarkIcon = styled('div')<{ type: 'financial' | 'environmental' | 'uti
   top: '50%',
   transform: 'translateY(-50%) rotate(-15deg)',
   fontSize: '4rem',
-  opacity: 0.15,
+  opacity: 0.08,
   fontWeight: 'bold',
   color: '#333',
   zIndex: 1,
   ...(type === 'financial' && {
-    fontSize: '6.5rem',
+    fontSize: '7.5rem',
     left: '-150px',
   }),
   ...(type === 'environmental' && {
-    fontSize: '6.5rem',
+    fontSize: '7.5rem',
     left: '-100px',
   }),
   ...(type === 'utility' && {
-    fontSize: '6.5rem',
+    fontSize: '7.5rem',
     left: '-135px',
   }),
 }));
@@ -135,7 +135,7 @@ export const EnhancedBenefitCard: React.FC<{ benefit: BenefitData }> = ({ benefi
       {benefit.percentage && (
         <PercentageValue>
           {benefit.percentage}
-          {(benefit.value.includes('Gain') || benefit.value.includes('Investment')) ? (
+          {(benefit.value.includes('Gain') || benefit.value.includes('Investment') || benefit.value.includes('Return') || benefit.value.includes('Gen')) ? (
             <AiOutlineRise style={{ fontSize: '1.8rem', color: '#2bad31', verticalAlign: 'middle' }} />
           ) : (
             <AiOutlineFall style={{ fontSize: '1.8rem', color: '#2bad31', verticalAlign: 'middle' }} />
@@ -281,62 +281,62 @@ export interface ExpandablePanelInfo {
 }
 
 export const benefitDataTop: BenefitData[] = [
-  { 
+  {
     percentage: '--%',
-    value: '$1.583M Reduction', 
-    description: 'in annual utility costs',
+    value: '$1.58M OpEx Reduction',
+    description: 'Annual savings on utility costs (electricity, demand, fuel, etc.) as a direct result of the hybrid solution.',
     type: 'financial',
     watermark: '$'
   },
-  { 
-    percentage: '--%',
-    value: '$1.178M Gain', 
-    description: 'from utility rebates',
+  {
+    percentage: '14.1%',
+    value: 'Internal Rate of Return',
+    description: 'Shows the real project IRR based on all incentives, depreciation, and energy savings.',
     type: 'financial',
     watermark: '$'
   },
-  { 
+  {
     percentage: '--%',
-    value: '$100K Gain', 
-    description: 'from XYZ Energy Administration grant',
+    value: '$875K Incentive Gain',
+    description: 'Sum of grants, rebates, or direct state/federal awards involved in the transaction.',
     type: 'financial',
     watermark: '$'
   },
-  { 
+  {
     percentage: '--%',
-    value: '$13.287M Investment', 
-    description: 'in addressing deferred mechanical and electrical infrastructure',
+    value: '$3.29M Gross System Investment',
+    description: 'Total up-front capital cost (gross EPC, design, commissioning, etc.).',
     type: 'financial',
     watermark: '$'
   },
 ];
 
 export const benefitDataBottom: BenefitData[] = [
-  { 
-    percentage: '80%', 
-    value: '11,809 MT Reduction', 
-    description: 'in greenhouse gas emissions',
+  {
+    percentage: '80%',
+    value: '10,820 MT GHG Reduction / Yr',
+    description: 'Annualized reduction in greenhouse gas emissions (CO₂ equivalent), typically 70–85% for these projects.',
     type: 'environmental',
-    watermark: '🌱'
+    watermark: '🍃'
   },
-  { 
-    percentage: '35%', 
-    value: '248K Therms Reduction', 
-    description: 'in steam usage',
-    type: 'utility',
-    watermark: '♨️'
-  },
-  { 
-    percentage: '22%', 
-    value: '8.1M Gal Reduction', 
-    description: 'in water usage',
+  {
+    percentage: '22%',
+    value: '7.9M Gal Annual Water Use Reduction',
+    description: 'Reduced cooling tower or process water use by replacing legacy fuel/process systems.',
     type: 'utility',
     watermark: '💧'
   },
-  { 
-    percentage: '32%', 
-    value: '4M kWh Reduction', 
-    description: 'in electricity usage',
+  {
+    percentage: '35%',
+    value: '224K Therms Gas Use Reduction',
+    description: 'Displaced natural gas or steam use from efficiency, electrification, or CHP.',
+    type: 'utility',
+    watermark: '♨️'
+  },
+  {
+    percentage: '32%',
+    value: '3.7M kWh Onsite Renewable Gen',
+    description: 'Annual onsite renewable (solar, etc.) produced, often 20–40% of the site’s annual load.',
     type: 'utility',
     watermark: '⚡'
   },

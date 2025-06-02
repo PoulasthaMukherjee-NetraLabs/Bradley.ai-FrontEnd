@@ -114,7 +114,6 @@ const Watermark = styled(Typography)<{ isLarge: boolean }>(({ theme, isLarge }) 
   lineHeight: 1,
 }));
 
-// Styled Accordion Summary (Clickable Header)
 const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
   position: 'relative',
   padding: theme.spacing(0, 2.5),

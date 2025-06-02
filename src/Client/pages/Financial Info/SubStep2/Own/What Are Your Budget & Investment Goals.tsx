@@ -1,18 +1,47 @@
 import React, { useState } from 'react';
-import { Box, TextField, Typography, IconButton, Select, MenuItem, Tooltip } from '@mui/material';
+import {
+  Box,
+  TextField,
+  Typography,
+  IconButton,
+  Select,
+  MenuItem,
+  Tooltip,
+} from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const SubStep2: React.FC = () => {
-  const [yearBudget, setyearBudget] = useState<number[]>([0, 1, 2]);
+  const [yearBudget, setYearBudget] = useState<string[]>(['', '', '']);
   const [availableFunds, setAvailableFunds] = useState<string>('no');
 
+  const currencyFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  });
+
   const handleAddSection = () => {
-    setyearBudget([...yearBudget, yearBudget.length]);
+    setYearBudget([...yearBudget, '']);
   };
 
   const handleRemoveSection = (index: number) => {
-    setyearBudget(yearBudget.filter((_, i) => i !== index));
+    setYearBudget(yearBudget.filter((_, i) => i !== index));
+  };
+
+  const handleChange = (value: string, index: number) => {
+    const updated = [...yearBudget];
+    updated[index] = value.replace(/[^\d.]/g, '');
+    setYearBudget(updated);
+  };
+
+  const handleBlur = (index: number) => {
+    const updated = [...yearBudget];
+    const num = parseFloat(updated[index]);
+    if (!isNaN(num)) {
+      updated[index] = currencyFormatter.format(num);
+    }
+    setYearBudget(updated);
   };
 
   return (
@@ -29,8 +58,9 @@ const SubStep2: React.FC = () => {
       }}
     >
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200..1000&display=swap');
+        {`@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200..1000&display=swap');`}
       </style>
+
       <Typography
         variant="h6"
         sx={{
@@ -45,7 +75,6 @@ const SubStep2: React.FC = () => {
       </Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', px: '160px' }}>
-        
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Typography
             sx={{
@@ -55,13 +84,16 @@ const SubStep2: React.FC = () => {
               flex: 0.5,
             }}
           >
-            <b>Do you have a current budget (this year) to invest in carbon reduction,<br />energy resiliency or cost reductions that could be applied to this project?</b>
+            <b>
+              Do you have a current budget (this year) to invest in carbon reduction,<br />
+              energy resiliency or cost reductions that could be applied to this project?
+            </b>
           </Typography>
-            <Select
-              id="availableFunds-select"
-              value={availableFunds}
-              onChange={(e) => setAvailableFunds(e.target.value)}
-              sx={{
+          <Select
+            id="availableFunds-select"
+            value={availableFunds}
+            onChange={(e) => setAvailableFunds(e.target.value)}
+            sx={{
                 flex: 0.5,
                 fontFamily: 'Nunito Sans, sans-serif',
                 marginLeft: 'auto',
@@ -71,13 +103,9 @@ const SubStep2: React.FC = () => {
                 '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
               }}
             >
-              <MenuItem value="yes" sx={{ fontSize: '0.7rem' }}>
-                Yes
-              </MenuItem>
-              <MenuItem value="no" sx={{ fontSize: '0.7rem' }}>
-                No
-              </MenuItem>
-            </Select>
+            <MenuItem value="yes" sx={{ fontSize: '0.7rem' }}>Yes</MenuItem>
+            <MenuItem value="no" sx={{ fontSize: '0.7rem' }}>No</MenuItem>
+          </Select>
         </Box>
 
         <Box
@@ -108,14 +136,16 @@ const SubStep2: React.FC = () => {
               maxWidth: 'calc(100% - 200px)',
             }}
           >
-            {yearBudget.map((_, index) => (
+            {yearBudget.map((value, index) => (
               <TextField
                 key={index}
                 variant="outlined"
                 size="small"
-                type="number"
                 placeholder={`Year ${index + 1}`}
                 disabled={availableFunds !== 'yes'}
+                value={value}
+                onChange={(e) => handleChange(e.target.value, index)}
+                onBlur={() => handleBlur(index)}
                 sx={{
                   flex: 1,
                   fontFamily: 'Nunito Sans, sans-serif',
@@ -129,6 +159,7 @@ const SubStep2: React.FC = () => {
                 }}
               />
             ))}
+
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1 }}>
               <IconButton
                 onClick={handleAddSection}

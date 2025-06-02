@@ -9,12 +9,12 @@ const SubStep2: React.FC = () => {
         @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
       </style>
       <Typography variant="h6" sx={{ mb: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center' }}>
-        <h2>Electric Load Profile</h2>
+        <h2>Electric Bill Upload</h2>
       </Typography>
       
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
       <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '160px' }}>
-        <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'center' }}><b>Bradley will review your uploaded PDFs of your existing electric utility bills and extract the information needed to financially project the proforma related to the CAPEX and operational costs of the recommended DER solutions.</b></Typography>
+        <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'center' }}><b>Bradley will extract the expense, usage (kW demand and kWh usage), tax, tariff and other data from your uploaded utility bills for the technical and financial modeling algorithms.</b></Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1.5 }}>
           <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Data Range (Optional):</b></Typography>
           <Tooltip title="Start date" placement='top-start' arrow>
