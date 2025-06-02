@@ -138,7 +138,7 @@ const SubStep2: React.FC = () => {
 
             <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
               <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.685 }}>
-                <b>Number of Shifts Per Day:</b> (Max 3)
+                <b>Number of 8-hour Shifts Per Day:</b> (Max 3)
               </Typography>
               <TextField
                 variant="outlined"
@@ -163,34 +163,41 @@ const SubStep2: React.FC = () => {
 
             <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
               <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.685 }}>
-                <b>HVAC System Operation:</b> <span style={{ fontWeight: 'normal' }}>(Pick One)</span>
+              <b>HVAC System Operation:</b> <span style={{ fontWeight: 'normal' }}>(Pick One)</span>
               </Typography>
-              <FormControl sx={{ flex: 0.5, minWidth: 120 }}>
+              <Box sx={{ flex: 0.5, minWidth: 120, display: 'flex', flexDirection: 'column' }}>
+              <FormControl>
                 <Select
-                  value={hvacOperation}
-                  onChange={handleHvacOperationChange}
-                  displayEmpty
-                  size="small"
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.7rem',
-                    height: '40px',
-                          '& .MuiInputBase-root': { padding: '0 6px' },
-                          '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
-                  }}
+                value={hvacOperation}
+                onChange={handleHvacOperationChange}
+                displayEmpty
+                size="small"
+                sx={{
+                  fontFamily: 'Nunito Sans, sans-serif',
+                  fontSize: '0.7rem',
+                  height: '40px',
+                  '& .MuiInputBase-root': { padding: '0 6px' },
+                  '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
+                }}
                 >
-                  <MenuItem disabled value="" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
-                    Select Operation
-                  </MenuItem>
-                  <MenuItem value="Simultaneous Heating & Cooling" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
-                    Simultaneous Heating & Cooling
-                  </MenuItem>
-                  <MenuItem value="Seasonal Switchover" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
-                    Seasonal Switchover
-                  </MenuItem>
+                <MenuItem disabled value="" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
+                  Select Operation
+                </MenuItem>
+                <MenuItem value="Simultaneous Heating & Cooling" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
+                  Simultaneous Heating & Cooling
+                </MenuItem>
+                <MenuItem value="Seasonal Switchover" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
+                  Seasonal Switchover
+                </MenuItem>
                 </Select>
               </FormControl>
+              </Box>
             </Box>
+              {hvacOperation === "Seasonal Switchover" && (
+                <i style={{ fontSize: '0.65rem', marginTop: 6, marginLeft: 450, textAlign: 'right', color: '#666' }}>
+                Bradley assumes a Fall switchover in Mid-October and a Spring<br />switchover in the last week of March for its energy calculations
+                </i>
+              )}
           </Box>
         </Box>
       </Box>

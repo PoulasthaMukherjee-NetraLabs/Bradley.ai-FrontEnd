@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Box, TextField, Typography, FormControlLabel, Switch, InputAdornment, Tooltip } from '@mui/material';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const SubStep2: React.FC = () => { 
 
   const [showSteam, setShowSteam] = useState(false);
   const [ratekWh, setRatekWh] = useState('');
   const [rateMMBTu, setRateMMBTu] = useState('');
-  const [escalator, setEscalator] = useState('');
+  const [escalatorkWh, setEscalatorkWh] = useState('');
+  const [escalatorMMBTu, setEscalatorMMBTu] = useState('');
   const [termkWh, setTermkWh] = useState('');
   const [termMMBTu, setTermMMBTu] = useState('');
 
@@ -24,12 +26,19 @@ const SubStep2: React.FC = () => {
     }
   };
 
-  const handleEscalatorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      let value = event.target.value;
-      if (/^[1-9]?$/.test(value)) {
-        setEscalator(value);
-      }
-    };
+  const handleEscalatorkWhChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  let value = event.target.value.replace('%', '');
+  if (/^([1-9](\.\d{0,2})?)?$/.test(value)) {
+    setEscalatorkWh(value);
+  }
+};
+
+const handleEscalatorMMBTuChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  let value = event.target.value.replace('%', '');
+  if (/^([1-9](\.\d{0,2})?)?$/.test(value)) {
+    setEscalatorMMBTu(value);
+  }
+};
 
   const handleTermkWhChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let value = event.target.value;
@@ -127,12 +136,12 @@ const SubStep2: React.FC = () => {
             size="small" 
             type="text"
             placeholder='1 - 9% (for kWh)'
-            value={escalator}
-            onChange={handleEscalatorChange} 
+            value={escalatorkWh}
+            onChange={handleEscalatorkWhChange} 
             inputProps={{
               onBlur: () => {
-                if (escalator && !escalator.includes('%')) {
-                  setEscalator(escalator + '%');
+                if (escalatorkWh && !escalatorkWh.includes('%')) {
+                  setEscalatorkWh(escalatorkWh + '%');
                 }
               }
             }}
@@ -153,12 +162,12 @@ const SubStep2: React.FC = () => {
             size="small" 
             type="text"
             placeholder='1 - 9% (for MMBTu)'
-            value={escalator}
-            onChange={handleEscalatorChange} 
+            value={escalatorMMBTu}
+            onChange={handleEscalatorMMBTuChange} 
             inputProps={{
               onBlur: () => {
-                if (escalator && !escalator.includes('%')) {
-                  setEscalator(escalator + '%');
+                if (escalatorMMBTu && !escalatorMMBTu.includes('%')) {
+                  setEscalatorMMBTu(escalatorMMBTu + '%');
                 }
               }
             }}
@@ -215,6 +224,43 @@ const SubStep2: React.FC = () => {
             }}
           /></Tooltip>
         </Box>
+        
+          <Tooltip title="Click to upload files here." placement="bottom-start" arrow>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  border: '1px dashed grey',
+                                  borderRadius: 2,
+                                  p: 2,
+                                  mb: 0,
+                                  mt: 1.5,
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <CloudUploadIcon fontSize="medium" />
+                                <Typography
+                                  sx={{
+                                    fontSize: '0.8rem',
+                                    fontFamily: 'Nunito Sans, sans-serif',
+                                    ml: 1,
+                                  }}
+                                >
+                                  Drag and drop files here or click to upload your existing PPA contracts
+                                  (PDF, Excel, CSV)
+                                </Typography>
+                              </Box>
+                            </Tooltip>
+                            <Typography
+                              sx={{
+                                fontSize: '0.75rem',
+                                fontFamily: 'Nunito Sans, sans-serif',
+                                mb: 0,
+                                textAlign: 'right',
+                              }}
+                            >
+                              <b>*</b>Accepted File Formats: .xls, .xlsx, .csv
+                            </Typography>
         </Box>
       </Box>
               

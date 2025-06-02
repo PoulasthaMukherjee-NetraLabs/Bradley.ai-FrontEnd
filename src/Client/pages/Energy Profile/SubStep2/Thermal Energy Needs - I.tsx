@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Box, TextField, Typography, FormControlLabel, MenuItem, Switch, Select, Tooltip } from '@mui/material';
 
+// Helper function to format a number with commas
+const formatNumberWithCommas = (num: number | null | undefined) => {
+  if (num === null || num === undefined) return '';
+  return num.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  });
+};
+
+// Helper function to parse a string with commas back to a number
+const parseNumberWithoutCommas = (str: string | null | undefined) => {
+  if (str === null || str === undefined || str === '') return null;
+  return parseFloat(str.replace(/,/g, ''));
+};
+
 const SubStep2: React.FC = () => {
   const [showSteam, setShowSteam] = useState(false);
   const [annualSteamUsage, setAnnualSteamUsage] = useState<number | null>(null);
@@ -19,29 +34,27 @@ const SubStep2: React.FC = () => {
   }, [annualSteamUsage, condensateReturn]);
 
   const handleAnnualSteamUsageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value ? parseFloat(event.target.value) : null;
+    const value = parseNumberWithoutCommas(event.target.value);
     setAnnualSteamUsage(value);
-    // calculateCondensateReturnEfficiency();
   };
 
   const handleCondensateReturnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value ? parseFloat(event.target.value) : null;
+    const value = parseNumberWithoutCommas(event.target.value);
     setCondensateReturn(value);
-    // calculateCondensateReturnEfficiency();
   };
 
   const handleReturnFLOWChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value ? parseFloat(event.target.value) : null;
+    const value = parseNumberWithoutCommas(event.target.value);
     setReturnFLOW(value);
   };
 
   const handleReturnMassChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value ? parseFloat(event.target.value) : null;
+    const value = parseNumberWithoutCommas(event.target.value);
     setReturnMass(value);
   };
 
   const handleMakeUpWaterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value ? parseFloat(event.target.value) : null;
+    const value = parseNumberWithoutCommas(event.target.value);
     setMakeUpWater(value);
   };
 
@@ -58,16 +71,17 @@ const SubStep2: React.FC = () => {
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '160px' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Tooltip title="Click to expand or move on to the next step." placement='right' arrow>
-            <FormControlLabel
-              control={<Switch checked={showSteam} onChange={() => setShowSteam(!showSteam)} size="small" />}
-              label="Does your facility require steam?"
-              sx={{
-                '& .MuiFormControlLabel-label': {
-                  fontFamily: 'Nunito Sans, sans-serif',
-                  fontSize: '0.9rem'
-                }
-              }}
-            /></Tooltip>
+              <FormControlLabel
+                control={<Switch checked={showSteam} onChange={() => setShowSteam(!showSteam)} size="small" />}
+                label="Does your facility require steam?"
+                sx={{
+                  '& .MuiFormControlLabel-label': {
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    fontSize: '0.9rem'
+                  }
+                }}
+              />
+            </Tooltip>
           </Box>
 
           {showSteam && (
@@ -83,8 +97,8 @@ const SubStep2: React.FC = () => {
                         variant="outlined"
                         placeholder='Enter the total annual steam usage in MLbs'
                         size="small"
-                        type="number"
-                        value={annualSteamUsage === null ? '' : annualSteamUsage}
+                        type="text" // Change type to "text" to allow non-numeric input for formatting
+                        value={formatNumberWithCommas(annualSteamUsage)}
                         onChange={handleAnnualSteamUsageChange}
                         sx={{
                           flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
@@ -129,7 +143,7 @@ const SubStep2: React.FC = () => {
                       <TextField
                         variant="outlined"
                         size="small"
-                        type="number"
+                        type="text" // Change type to "text"
                         placeholder='Enter the exact steam pressure in PSI'
                         sx={{
                           flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
@@ -174,9 +188,9 @@ const SubStep2: React.FC = () => {
                       <TextField
                         variant="outlined"
                         size="small"
-                        type="number"
+                        type="text" // Change type to "text"
                         placeholder='Enter the condensate return in MLbs'
-                        value={condensateReturn === null ? '' : condensateReturn}
+                        value={formatNumberWithCommas(condensateReturn)}
                         onChange={handleCondensateReturnChange}
                         sx={{
                           flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
@@ -193,20 +207,20 @@ const SubStep2: React.FC = () => {
                       <b>Condensate Return Efficiency:</b>
                     </Typography>
                     <Tooltip title="C.R. Efficiency will be calculated automatically." placement='top-end' arrow>
-                    <TextField
-                      variant="outlined"
-                      size="small"
-                      type="number"
-                      placeholder='Condensate Return Efficiency'
-                      value={condensateReturnEfficiency === null ? '' : condensateReturnEfficiency.toFixed(2)}
-                      disabled
-                      sx={{
-                        flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
-                        fontSize: '0.7rem',
-                        '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-                        '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
-                      }}
-                    />
+                      <TextField
+                        variant="outlined"
+                        size="small"
+                        type="text" // Change type to "text"
+                        placeholder='Condensate Return Efficiency'
+                        value={condensateReturnEfficiency === null ? '' : condensateReturnEfficiency.toFixed(2)}
+                        disabled
+                        sx={{
+                          flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
+                          fontSize: '0.7rem',
+                          '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+                          '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+                        }}
+                      />
                     </Tooltip>
                   </Box>
 
@@ -218,9 +232,9 @@ const SubStep2: React.FC = () => {
                       <TextField
                         variant="outlined"
                         size="small"
-                        type="number"
+                        type="text" // Change type to "text"
                         placeholder='Enter gallons per minute'
-                        value={returnFLOW === null ? '' : returnFLOW}
+                        value={formatNumberWithCommas(returnFLOW)}
                         onChange={handleReturnFLOWChange}
                         sx={{
                           flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
@@ -234,15 +248,15 @@ const SubStep2: React.FC = () => {
 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}>
-                      <b>Return Mass:</b> (in K)
+                      <b>Return Condensate Temperature:</b> (in F)
                     </Typography>
-                    <Tooltip title="Enter the temperature of the average condensate that is returned at a specific atmospheric pressure in K" placement='top-end' arrow>
+                    <Tooltip title="Enter the condensate return average temperature in F" placement='top-end' arrow>
                       <TextField
                         variant="outlined"
                         size="small"
-                        type="number"
-                        placeholder='Enter return mass (temperature) in K'
-                        value={returnMass === null ? '' : returnMass}
+                        type="text" // Change type to "text"
+                        placeholder='Enter condensate return average temperature in F'
+                        value={formatNumberWithCommas(returnMass)}
                         onChange={handleReturnMassChange}
                         sx={{
                           flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
@@ -262,9 +276,9 @@ const SubStep2: React.FC = () => {
                       <TextField
                         variant="outlined"
                         size="small"
-                        type="number"
+                        type="text" // Change type to "text"
                         placeholder='Enter gallons per minute'
-                        value={makeUpWater === null ? '' : makeUpWater}
+                        value={formatNumberWithCommas(makeUpWater)}
                         onChange={handleMakeUpWaterChange}
                         sx={{
                           flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',

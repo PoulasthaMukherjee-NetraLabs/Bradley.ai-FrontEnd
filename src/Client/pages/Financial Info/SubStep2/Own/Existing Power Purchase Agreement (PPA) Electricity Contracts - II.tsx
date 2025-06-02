@@ -15,11 +15,12 @@ const SubStep2: React.FC = () => {
   };
 
   const handlePpaEscalationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let value = event.target.value;
-    if (/^[1-9]?$/.test(value)) {
+    let value = event.target.value.replace('%', '');
+    if (/^([1-9](\.\d{0,2})?)?$/.test(value)) {
       setPpaEscalation(value);
     }
   };
+
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
@@ -77,24 +78,27 @@ const SubStep2: React.FC = () => {
                   </Box>
 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.5 }}><b>PPA Escalation Rate: </b>(In %)</Typography>
-                    <TextField
-                      variant="outlined"
-                      size="small"
-                      type="text"
-                      placeholder='1 - 9%'
-                      value={ppaEscalation}
-                      onChange={handlePpaEscalationChange}
-                      sx={textFieldStyles}
-                      inputProps={{
-                        onBlur: () => {
-                          if (ppaEscalation && !ppaEscalation.includes('%')) {
-                            setPpaEscalation(ppaEscalation + '%');
-                          }
-                        }
-                      }}
-                    />
-                  </Box>
+  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.5 }}>
+    <b>PPA Escalation Rate: </b>(In %)
+  </Typography>
+  <TextField
+    variant="outlined"
+    size="small"
+    type="text"
+    placeholder="1 - 9.99%"
+    value={ppaEscalation}
+    onChange={handlePpaEscalationChange}
+    sx={textFieldStyles}
+    inputProps={{
+      onBlur: () => {
+        if (ppaEscalation && !ppaEscalation.includes('%')) {
+          setPpaEscalation(ppaEscalation + '%');
+        }
+      }
+    }}
+  />
+</Box>
+
 
                   <Box sx={{ display: 'flex', alignItems: 'center', border: '1px dashed grey', borderRadius: 2, p: 2, mb: 0, mt: 1.5, justifyContent: 'center' }}>
         <CloudUploadIcon fontSize='medium'/>

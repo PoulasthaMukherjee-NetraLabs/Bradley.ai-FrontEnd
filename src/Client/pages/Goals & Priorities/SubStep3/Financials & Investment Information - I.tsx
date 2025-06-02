@@ -30,7 +30,7 @@ const SubStep3: React.FC = () => {
                             fontSize: '0.8rem',
                           }}
                         >
-                          Completing this section enables Bradley to accurately calculate a “balance sheet” estimate of your optimized DER recommended solution; providing IRR, NOI, Simple Payback, NPV and cost reductions if you want to own the system. Correctly completing these inputs enables empirically accurate financial projections for the DER concept(s) over their expected lifetime.
+                          Upon full completion of this section, Bradley shall be enabled to prepare a comprehensive balance-sheet estimate for the optimized DER solution, including calculation of Internal Rate of Return (IRR), Net Operating Income (NOI), Simple Payback Period, Net Present Value (NPV), and projected cost-savings under an ownership model. Accurate entry of all required data inputs is a condition precedent to delivery of empirically validated financial forecasts for each DER concept over its anticipated service life.
                         </Typography>
                         <Typography
                           sx={{

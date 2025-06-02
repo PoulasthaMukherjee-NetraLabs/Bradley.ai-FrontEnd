@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; 
-import { Box, TextField, Typography, Slider/* , Radio, RadioGroup, FormControlLabel */, Tooltip } from '@mui/material'; 
+import { Box, TextField, Typography, Slider/* , Radio, RadioGroup, FormControlLabel */, Tooltip, InputAdornment } from '@mui/material'; 
 
 const SubStep2: React.FC = () => { 
 
@@ -26,7 +26,7 @@ const SubStep2: React.FC = () => {
         @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
       </style>
       <Typography variant="h6" sx={{ mb: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center' }}>
-        <h2>Power Purchase Agreement (PPA) Preferences</h2><br />
+        <h2>Power Purchase Agreement (PPA) for Electricity or<br />Energy Services Agreement (ESA) for Electricity and Thermal Preferences</h2><br />
 				Please enter in terms that are most likely to be acceptable to your organization.
       </Typography><br />
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
@@ -69,6 +69,7 @@ const SubStep2: React.FC = () => {
                 fontSize: '0.7rem',
               }
             }}
+            InputProps={{startAdornment: <InputAdornment position="start">$</InputAdornment>}}
           />
 </Box>
 
@@ -93,6 +94,7 @@ const SubStep2: React.FC = () => {
                 fontSize: '0.7rem',
               }
             }}
+            InputProps={{startAdornment: <InputAdornment position="start">$</InputAdornment>}}
           />
 </Box>
 
