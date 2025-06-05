@@ -289,9 +289,9 @@ export const benefitDataTop: BenefitData[] = [
     watermark: '$'
   },
   {
-    percentage: '14.1%',
-    value: 'Internal Rate of Return',
-    description: 'Shows the real project IRR based on all incentives, depreciation, and energy savings.',
+    percentage: '--%',
+    value: '$3.29M Gross System Investment',
+    description: 'Total up-front capital cost (gross EPC, design, commissioning, etc.).',
     type: 'financial',
     watermark: '$'
   },
@@ -303,9 +303,9 @@ export const benefitDataTop: BenefitData[] = [
     watermark: '$'
   },
   {
-    percentage: '--%',
-    value: '$3.29M Gross System Investment',
-    description: 'Total up-front capital cost (gross EPC, design, commissioning, etc.).',
+    percentage: '14.1%',
+    value: 'Internal Rate of Return',
+    description: 'Shows the real project IRR based on all incentives, depreciation, and energy savings.',
     type: 'financial',
     watermark: '$'
   },

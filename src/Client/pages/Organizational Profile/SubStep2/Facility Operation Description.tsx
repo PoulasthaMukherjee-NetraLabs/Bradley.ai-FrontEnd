@@ -51,17 +51,17 @@ const SubStep2: React.FC = () => {
   });
 
   const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, checked: isChecked } = event.target;
-      setChecked((prev) => ({
-        ...prev,
-        [name]: isChecked,
-        ...(name === 'twoPipeSystem' && isChecked ? { fourPipeSystem: false } : {}),
-        ...(name === 'fourPipeSystem' && isChecked ? { twoPipeSystem: false } : {}),
-      }));
-      if (name === 'waterTreatment' && !isChecked) {
-        setDescription(prev => ({ ...prev, waterTreatment: [] }));
-      }
-    };
+    const { name, checked: isChecked } = event.target;
+    setChecked((prev) => ({
+      ...prev,
+      [name]: isChecked,
+      ...(name === 'twoPipeSystem' && isChecked ? { fourPipeSystem: false } : {}),
+      ...(name === 'fourPipeSystem' && isChecked ? { twoPipeSystem: false } : {}),
+    }));
+    if (name === 'waterTreatment' && !isChecked) {
+      setDescription(prev => ({ ...prev, waterTreatment: [] }));
+    }
+  };
 
   const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
@@ -81,7 +81,6 @@ const SubStep2: React.FC = () => {
     });
   };
 
-
   const handleOperationalHoursChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setOperationalHours({ ...operationalHours, [event.target.name]: event.target.value });
   };
@@ -91,7 +90,17 @@ const SubStep2: React.FC = () => {
   };
 
   const handleSetbackTemperatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSetbackTemperature({ ...setbackTemperature, [event.target.name]: event.target.value });
+    const { name, value } = event.target;
+    if (value.length <= 2) {
+      setSetbackTemperature({ ...setbackTemperature, [name]: value });
+    }
+  };
+
+  const handleFacilityTenantTemperatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    if (value.length <= 2) {
+      setFacilityTenantTemperature(value);
+    }
   };
 
   const waterTreatmentOptionsFlat = [
@@ -105,7 +114,6 @@ const SubStep2: React.FC = () => {
     "Boiler: Feedwater Dosing (O2 Scavengers, pH, Antiscalants)",
     "Boiler: Daily Chemistry Testing",
   ];
-
 
   const labelStyle = {
     fontFamily: 'Nunito Sans, sans-serif',
@@ -179,7 +187,7 @@ const SubStep2: React.FC = () => {
       }}>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-        <Typography sx={{ ...labelStyle, opacity: checked.fourPipeSystem ? 0.5 : 1, pointerEvents: checked.fourPipeSystem ? 'none' : 'auto' }}>
+          <Typography sx={{ ...labelStyle, opacity: checked.fourPipeSystem ? 0.5 : 1, pointerEvents: checked.fourPipeSystem ? 'none' : 'auto' }}>
             <b>2 pipe system with seasonal change overs:</b>
           </Typography>
           <Tooltip title="Check if your facility uses a 2 pipe system with seasonal change overs occurring in October to heat and April to cooling." placement='left' arrow>
@@ -202,21 +210,21 @@ const SubStep2: React.FC = () => {
             />
           </Tooltip>
           <Tooltip title="Add description here." placement='right' arrow>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder={checked.twoPipeSystem ? "Add Description" : "Check the Box to Add Description"}
-            name="twoPipeSystem"
-            value={description.twoPipeSystem}
-            onChange={handleDescriptionChange}
-            size="small"
-            sx={inputStyle}
-            disabled={!checked.twoPipeSystem}
-          /></Tooltip>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder={checked.twoPipeSystem ? "Add Description" : "Check the Box to Add Description"}
+              name="twoPipeSystem"
+              value={description.twoPipeSystem}
+              onChange={handleDescriptionChange}
+              size="small"
+              sx={inputStyle}
+              disabled={!checked.twoPipeSystem}
+            /></Tooltip>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-        <Typography sx={{ ...labelStyle, opacity: checked.twoPipeSystem ? 0.5 : 1, pointerEvents: checked.twoPipeSystem ? 'none' : 'auto' }}>
+          <Typography sx={{ ...labelStyle, opacity: checked.twoPipeSystem ? 0.5 : 1, pointerEvents: checked.twoPipeSystem ? 'none' : 'auto' }}>
             <b>4 pipe system:</b>
           </Typography>
           <Tooltip title="Check if your facility uses a 4 pipe system with simultaneous heating and cooling capability." placement='left' arrow>
@@ -239,24 +247,24 @@ const SubStep2: React.FC = () => {
             />
           </Tooltip>
           <Tooltip title="Add description here." placement='right' arrow>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder={checked.fourPipeSystem ? "Add Description" : "Check the Box to Add Description"}
-            name="fourPipeSystem"
-            value={description.fourPipeSystem}
-            onChange={handleDescriptionChange}
-            size="small"
-            sx={inputStyle}
-            disabled={!checked.fourPipeSystem}
-          /></Tooltip>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder={checked.fourPipeSystem ? "Add Description" : "Check the Box to Add Description"}
+              name="fourPipeSystem"
+              value={description.fourPipeSystem}
+              onChange={handleDescriptionChange}
+              size="small"
+              sx={inputStyle}
+              disabled={!checked.fourPipeSystem}
+            /></Tooltip>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-            <Typography sx={labelStyle2}>
+          <Typography sx={labelStyle2}>
             <b>Operational Hours:</b> (00:00 - 23:59)
-            </Typography>
-            <Tooltip title="Start Up Time" placement='left' arrow>
+          </Typography>
+          <Tooltip title="Start Up Time" placement='left' arrow>
             <TextField
               fullWidth
               variant="outlined"
@@ -273,8 +281,8 @@ const SubStep2: React.FC = () => {
                 '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
               }}
             /></Tooltip>
-            to
-            <Tooltip title="Set Back Time" placement='right' arrow>
+          to
+          <Tooltip title="Set Back Time" placement='right' arrow>
             <TextField
               fullWidth
               variant="outlined"
@@ -291,13 +299,13 @@ const SubStep2: React.FC = () => {
                 '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
               }}
             /></Tooltip>
-          </Box>
+        </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-            <Typography sx={labelStyle2}>
-              <b>Typical weekday timing:</b> (00:00 - 23:59)
-            </Typography>
-            <Tooltip title="Start Up Time" placement='left' arrow>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+          <Typography sx={labelStyle2}>
+            <b>Typical weekday timing:</b> (00:00 - 23:59)
+          </Typography>
+          <Tooltip title="Start Up Time" placement='left' arrow>
             <TextField
               fullWidth
               variant="outlined"
@@ -314,8 +322,8 @@ const SubStep2: React.FC = () => {
                 '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
               }}
             /></Tooltip>
-            to
-            <Tooltip title="Set Back Time" placement='right' arrow>
+          to
+          <Tooltip title="Set Back Time" placement='right' arrow>
             <TextField
               fullWidth
               variant="outlined"
@@ -332,7 +340,7 @@ const SubStep2: React.FC = () => {
                 '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
               }}
             /></Tooltip>
-          </Box>
+        </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
           <Typography sx={labelStyle}>
@@ -353,17 +361,17 @@ const SubStep2: React.FC = () => {
             />
           </Tooltip>
           <Tooltip title="Add description here." placement='right' arrow>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder={checked.autoLightSensors ? "Add Description" : "Check the Box to Add Description"}
-            name="autoLightSensors"
-            value={description.autoLightSensors}
-            onChange={handleDescriptionChange}
-            size="small"
-            sx={inputStyle}
-            disabled={!checked.autoLightSensors}
-          /></Tooltip>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder={checked.autoLightSensors ? "Add Description" : "Check the Box to Add Description"}
+              name="autoLightSensors"
+              value={description.autoLightSensors}
+              onChange={handleDescriptionChange}
+              size="small"
+              sx={inputStyle}
+              disabled={!checked.autoLightSensors}
+            /></Tooltip>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
@@ -418,17 +426,17 @@ const SubStep2: React.FC = () => {
                   },
                   '& .MuiSelect-select.MuiInputBase-input.MuiOutlinedInput-input:not([aria-expanded="true"])': {
                     '&:empty::before': {
-                        content: `"${checked.waterTreatment ? "Select Options" : "Check Box to Select"}"`,
-                        fontFamily: 'Nunito Sans, sans-serif',
-                        fontSize: '0.7rem',
-                        opacity: 0.6,
+                      content: `"${checked.waterTreatment ? "Select Options" : "Check Box to Select"}"`,
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.7rem',
+                      opacity: 0.6,
                     },
                   },
                 }}
               >
                 <MenuItem
                   disabled
-                  value="WATER_TREATMENT_PLACEHOLDER_TOP" 
+                  value="WATER_TREATMENT_PLACEHOLDER_TOP"
                   style={{ display: 'none' }}
                 >
                 </MenuItem>
@@ -451,30 +459,34 @@ const SubStep2: React.FC = () => {
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
           <Tooltip title="Bradley needs to confirm what temperature you provide to your tenant occupied areas for weather normalization and new load demand forecasting." placement='left' arrow>
-          <Typography sx={{fontFamily: 'Nunito Sans, sans-serif',
-    fontSize: '0.75rem',
-    minWidth: '409px',
-    flex: 0.376,
-    textAlign: 'left'}}>
-            <b>Facility Tenant Temperate:</b> (in °F)
-          </Typography></Tooltip>
-          <Tooltip title="Enter the temperature in °F" placement='right' arrow>
-          <TextField
-            fullWidth
-            type='number'
-            variant="outlined"
-            placeholder='Enter the temperature in °F'
-            name="facilityTenantTemperature"
-            value={facilityTenantTemperature}
-            onChange={(e) => setFacilityTenantTemperature(e.target.value)}
-            size="small"
-            sx={{flex: 0.376,
-              minWidth: '150px',
-              fontSize: '0.7rem',
+            <Typography sx={{
               fontFamily: 'Nunito Sans, sans-serif',
-              '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }}}
-          /></Tooltip>
+              fontSize: '0.75rem',
+              minWidth: '409px',
+              flex: 0.376,
+              textAlign: 'left'
+            }}>
+              <b>Facility Tenant Temperate:</b> (in °F)
+            </Typography></Tooltip>
+          <Tooltip title="Enter the temperature in °F" placement='right' arrow>
+            <TextField
+              fullWidth
+              type='number'
+              variant="outlined"
+              placeholder='Enter the temperature in °F'
+              name="facilityTenantTemperature"
+              value={facilityTenantTemperature}
+              onChange={handleFacilityTenantTemperatureChange}
+              size="small"
+              sx={{
+                flex: 0.376,
+                minWidth: '150px',
+                fontSize: '0.7rem',
+                fontFamily: 'Nunito Sans, sans-serif',
+                '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+                '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+              }}
+            /></Tooltip>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
@@ -496,31 +508,31 @@ const SubStep2: React.FC = () => {
             />
           </Tooltip>
           <Tooltip title="Setback temp. for summer" placement='left' arrow>
-          <TextField
-            type='number'
-            fullWidth
-            variant="outlined"
-            placeholder={checked.setbackTemperature ? "Enter temp. in °F (Summer)" : "Summer Setback Temp."}
-            name="summer"
-            value={setbackTemperature.summer}
-            onChange={handleSetbackTemperatureChange}
-            size="small"
-            sx={inputStyle2}
-            disabled={!checked.setbackTemperature}
-          /></Tooltip>
+            <TextField
+              type='number'
+              fullWidth
+              variant="outlined"
+              placeholder={checked.setbackTemperature ? "Enter temp. in °F (Summer)" : "Summer Setback Temp."}
+              name="summer"
+              value={setbackTemperature.summer}
+              onChange={handleSetbackTemperatureChange}
+              size="small"
+              sx={inputStyle2}
+              disabled={!checked.setbackTemperature}
+            /></Tooltip>
           <Tooltip title="Setback temp. for winter" placement='right' arrow>
-          <TextField
-            type='number'
-            fullWidth
-            variant="outlined"
-            placeholder={checked.setbackTemperature ? "Enter temp. in °F (Winter)" : "Winter Setback Temp."}
-            name="winter"
-            value={setbackTemperature.winter}
-            onChange={handleSetbackTemperatureChange}
-            size="small"
-            sx={inputStyle2}
-            disabled={!checked.setbackTemperature}
-          /></Tooltip>
+            <TextField
+              type='number'
+              fullWidth
+              variant="outlined"
+              placeholder={checked.setbackTemperature ? "Enter temp. in °F (Winter)" : "Winter Setback Temp."}
+              name="winter"
+              value={setbackTemperature.winter}
+              onChange={handleSetbackTemperatureChange}
+              size="small"
+              sx={inputStyle2}
+              disabled={!checked.setbackTemperature}
+            /></Tooltip>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
@@ -542,17 +554,17 @@ const SubStep2: React.FC = () => {
             />
           </Tooltip>
           <Tooltip title="Add description here." placement='right' arrow>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder={checked.freeCooling ? "Add Description" : "Check the Box to Add Description"}
-            name="freeCooling"
-            value={description.freeCooling}
-            onChange={handleDescriptionChange}
-            size="small"
-            sx={inputStyle}
-            disabled={!checked.freeCooling}
-          /></Tooltip>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder={checked.freeCooling ? "Add Description" : "Check the Box to Add Description"}
+              name="freeCooling"
+              value={description.freeCooling}
+              onChange={handleDescriptionChange}
+              size="small"
+              sx={inputStyle}
+              disabled={!checked.freeCooling}
+            /></Tooltip>
         </Box>
 
       </Box>

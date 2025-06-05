@@ -37,6 +37,17 @@ const SubStep3: React.FC = () => {
       </Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', px: '160px' }}>
+        <Typography
+          sx={{
+            fontFamily: 'Nunito Sans, sans-serif',
+            fontSize: '0.8rem',
+            textAlign: 'justify',
+            mb: 1,
+          }}
+        >
+          <b>IF</b> you do not have a preference do not worry, I will calculate which prime mover, controls, and switchgear are ideal for your prioritization and goal needs.<br />
+          <b>IF</b> you do choose options, I will build the DER recommendation as you instruct, however I reserve the right to provide, along side the choices you have made, the DER system that ideally meets your prioritization and goals if different.
+        </Typography>
         {[
           {
             label: 'Preferred Prime Mover Type:',
