@@ -165,7 +165,7 @@ const SubStep1: React.FC = () => {
             </TabPanel>
 
             <TabPanel value={tabValue} index={1}>
-              <Box sx={{ display: 'grid', gap: 2, height: '1860px', gridTemplateRows: '1fr 1fr 1fr 1fr' }}>
+              <Box sx={{ display: 'grid', gap: 2, height: '1910px', gridTemplateRows: '1fr 1fr 1fr 1fr' }}>
                 <StyledTabPanelBox>
                   <StyledTabPanelTitle variant="h6">
                     Investment Summary

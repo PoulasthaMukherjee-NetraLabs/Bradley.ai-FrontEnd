@@ -410,7 +410,7 @@ export const mockExpandedContent = (title: string) => {
 
   if (title === "Investment Summary") {
     return (
-      <Box sx={{ p: 0, height: '850px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <Box sx={{ p: 0, height: '940px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <InvestmentSummary size="large" />
       </Box>
     );
