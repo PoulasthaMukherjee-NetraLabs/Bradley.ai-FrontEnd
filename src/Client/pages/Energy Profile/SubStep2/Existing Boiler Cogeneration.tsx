@@ -22,6 +22,7 @@ const SubStep2: React.FC = () => {
       history: '',
       utilization: '',
       volume: '',
+      wasteHeatCaptured: '', // New field for cogeneration
     },
   ]);
 
@@ -38,6 +39,7 @@ const SubStep2: React.FC = () => {
         history: '',
         utilization: '',
         volume: '',
+        wasteHeatCaptured: '',
       },
     ]);
   };
@@ -500,7 +502,11 @@ const SubStep2: React.FC = () => {
                 </TextField>
                 <TextField
                   size="small"
-                  label="Volume"
+                  label={
+                    source.type === 'Cogeneration Unit'
+                      ? 'Volume (in MLbs)'
+                      : 'Volume'
+                  }
                   type="number"
                   fullWidth
                   sx={{
@@ -513,7 +519,11 @@ const SubStep2: React.FC = () => {
                       fontSize: '0.8rem',
                     },
                   }}
-                  placeholder="Annual Waste Heat Vol. in MMBTu"
+                  placeholder={
+                    source.type === 'Cogeneration Unit'
+                      ? 'in MLbs'
+                      : 'Annual Waste Heat Vol. in MMBTu'
+                  }
                   value={source.volume}
                   onChange={(e) =>
                     setWasteHeatSources(
@@ -529,28 +539,90 @@ const SubStep2: React.FC = () => {
                     },
                   }}
                 />
+              </Box>
+
+              {/* Additional row for Cogeneration Unit */}
+              {source.type === 'Cogeneration Unit' && (
+                <Box sx={{ display: 'flex', width: '100%', gap: 2, flexWrap: 'wrap' }}>
+                  <TextField
+                    size="small"
+                    label="Waste Heat Status"
+                    select
+                    fullWidth
+                    sx={{
+                      fontFamily: 'Nunito Sans, sans-serif',
+                      fontSize: '0.8rem',
+                      height: '40px',
+                      width: '32%',
+                      '& .MuiInputBase-root': {
+                        fontFamily: 'Nunito Sans, sans-serif',
+                        fontSize: '0.8rem',
+                      },
+                    }}
+                    value={source.wasteHeatCaptured}
+                    onChange={(e) =>
+                      setWasteHeatSources(
+                        wasteHeatSources.map((s, i) =>
+                          i === index ? { ...s, wasteHeatCaptured: e.target.value } : s
+                        )
+                      )
+                    }
+                    InputLabelProps={{
+                      style: {
+                        fontFamily: 'Nunito Sans, sans-serif',
+                        fontSize: '0.8rem',
+                      },
+                    }}
+                  >
+                    <MenuItem
+                      value="Captured"
+                      sx={{
+                        fontFamily: 'Nunito Sans, sans-serif',
+                        fontSize: '0.7rem',
+                      }}
+                    >
+                      Captured
+                    </MenuItem>
+                    <MenuItem
+                      value="Released to Atmosphere"
+                      sx={{
+                        fontFamily: 'Nunito Sans, sans-serif',
+                        fontSize: '0.7rem',
+                      }}
+                    >
+                      Released to Atmosphere
+                    </MenuItem>
+                  </TextField>
+                </Box>
+              )}
+
+              {/* Button row - always appears at the bottom */}
+              <Box sx={{ display: 'flex', width: '100%', gap: 2, flexWrap: 'wrap' }}>
                 <Button
-              startIcon={<AddCircleIcon />}
-              onClick={handleAddWasteHeatSource}
-              size="small"
-              sx={{
-                textTransform: 'none',
-                fontFamily: 'Nunito Sans, sans-serif',
-                fontSize: '0.8rem',
-                '&:focus': {
-      outline: 'none',
-    }
-              }}
-            >
-              Add Another Entry
-            </Button>
+                  startIcon={<AddCircleIcon />}
+                  onClick={handleAddWasteHeatSource}
+                  size="small"
+                  sx={{
+                    textTransform: 'none',
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    fontSize: '0.8rem',
+                    '&:focus': {
+                      outline: 'none',
+                    }
+                  }}
+                >
+                  Add Another Entry
+                </Button>
                 <IconButton
                   onClick={() => handleRemoveWasteHeatSource(index)}
                   size="small"
                   disabled={wasteHeatSources.length === 1}
-                  sx={{ ml: 'auto', '&:focus': {
-      outline: 'none',
-    } }}
+                  sx={{ 
+                    ml: 'auto',
+                    '&:focus': {
+                      outline: 'none',
+                    } 
+                  }}
                 >
                   <DeleteIcon fontSize="medium" />
                 </IconButton>

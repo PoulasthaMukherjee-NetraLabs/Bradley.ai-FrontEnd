@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Box,
   TextField,
@@ -9,14 +9,21 @@ import {
   Tooltip,
   Select,
   MenuItem,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const SubStep2: React.FC = () => {
   const [showSteam, setShowSteam] = useState(false);
   const [condensate, setCondensate] = useState<string>('no');
   const [rate, setRate] = useState<string>('');
   const [escalator, setEscalator] = useState<string>('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleRateChange = (value: string) => {
     const cleaned = value.replace(/[^0-9.]/g, '');
@@ -36,6 +43,41 @@ const SubStep2: React.FC = () => {
     } else {
       setRate('');
     }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      setSelectedFiles(prevFiles => [...prevFiles, ...Array.from(files)]);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const files = event.dataTransfer.files;
+    if (files) {
+      setSelectedFiles(prevFiles => [...prevFiles, ...Array.from(files)]);
+    }
+  };
+
+  const handleUploadBoxClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRemoveFile = (fileName: string) => {
+    setSelectedFiles(prevFiles => prevFiles.filter(file => file.name !== fileName));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
@@ -116,9 +158,9 @@ const SubStep2: React.FC = () => {
                     flexDirection: 'column',
                     gap: 2,
                     pt: '10px',
+                    pb: '10px',
                   }}
                 >
-                  {/* Rate */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography
                       sx={{
@@ -159,7 +201,6 @@ const SubStep2: React.FC = () => {
                     />
                   </Box>
 
-                  {/* Escalator */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography
                       sx={{
@@ -209,7 +250,6 @@ const SubStep2: React.FC = () => {
                     />
                   </Box>
 
-                  {/* Offtake Requirements */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography
                       sx={{
@@ -226,7 +266,7 @@ const SubStep2: React.FC = () => {
                     <TextField
                       variant="outlined"
                       size="small"
-                      type="text"
+                      type="number"
                       placeholder="Input"
                       sx={{
                         flex: 0.5,
@@ -246,7 +286,6 @@ const SubStep2: React.FC = () => {
                     />
                   </Box>
 
-                  {/* Condensate Requirement */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography
                       sx={{
@@ -285,7 +324,6 @@ const SubStep2: React.FC = () => {
                     </Select>
                   </Box>
 
-                  {/* Percentage of Condensate to Return */}
                   {condensate === 'yes' && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography
@@ -325,7 +363,15 @@ const SubStep2: React.FC = () => {
                     </Box>
                   )}
 
-                  {/* Upload section */}
+                  <input
+                    type="file"
+                    multiple
+                    accept=".pdf,.xls,.xlsx,.csv"
+                    onChange={handleFileChange}
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                  />
+
                   <Tooltip title="Click to upload files here." placement="bottom-start" arrow>
                     <Box
                       sx={{
@@ -337,7 +383,14 @@ const SubStep2: React.FC = () => {
                         mb: 0,
                         mt: 1.5,
                         justifyContent: 'center',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          borderColor: 'primary.main',
+                        }
                       }}
+                      onClick={handleUploadBoxClick}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
                     >
                       <CloudUploadIcon fontSize="medium" />
                       <Typography
@@ -362,6 +415,31 @@ const SubStep2: React.FC = () => {
                   >
                     <b>*</b>Accepted File Formats: .xls, .xlsx, .csv
                   </Typography>
+
+                  {selectedFiles.length > 0 && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif', mb: 1, fontWeight: 'bold' }}>Uploaded Files:</Typography>
+                      <List dense>
+                        {selectedFiles.map((file, index) => (
+                          <ListItem
+                            key={index}
+                            secondaryAction={
+                              <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveFile(file.name)}>
+                                <DeleteIcon />
+                              </IconButton>
+                            }
+                          >
+                            <ListItemText
+                              primary={file.name}
+                              secondary={formatFileSize(file.size)}
+                              primaryTypographyProps={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif' }}
+                              secondaryTypographyProps={{ fontSize: '0.65rem', fontFamily: 'Nunito Sans, sans-serif' }}
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  )}
                 </Box>
               </Box>
             </Box>

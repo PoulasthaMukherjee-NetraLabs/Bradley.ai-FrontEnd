@@ -116,10 +116,10 @@ const SubStep3: React.FC = () => {
                   value={value}
                   onChange={(e) => handleInvestmentAmountChange(index, e.target.value)}
                   onBlur={() => handleInvestmentAmountBlur(index)}
-                  placeholder={`Year ${index + 1} - Budget Amt.`}
-                  // InputProps={{
-                  //   startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                  // }}
+                  placeholder={`Yr ${index + 1} - Budget Amt.`}
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  }}
                   sx={{
                     flex: 1,
                     fontFamily: 'Nunito Sans, sans-serif',

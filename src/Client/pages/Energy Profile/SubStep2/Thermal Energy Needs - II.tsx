@@ -10,15 +10,25 @@ const SubStep2: React.FC = () => {
   const [hotWaterUsage, setHotWaterUsage] = useState<number | null>(null);
   const [hotWaterTemperature, setHotWaterTemperature] = useState<number | null>(null);
 
+  const formatNumberWithCommas = (value: number | null) => {
+    if (value === null || isNaN(value)) return '';
+    return value.toLocaleString('en-US');
+  };
+
+  const parseNumberFromString = (value: string) => {
+    const cleaned = value.replace(/,/g, '');
+    return cleaned ? parseFloat(cleaned) : null;
+  };
+
   const handleHotWaterUsageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value ? parseFloat(event.target.value) : null;
+    const value = parseNumberFromString(event.target.value);
     setHotWaterUsage(value);
   };
 
-  const handleHotWaterTemperatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value ? parseFloat(event.target.value) : null;
-    setHotWaterTemperature(value);
-  };
+  const handleHotWaterTemperatureChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = event.target.value ? parseFloat(event.target.value) : null;
+      setHotWaterTemperature(value);
+    };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
@@ -57,14 +67,18 @@ const SubStep2: React.FC = () => {
                         variant="outlined"
                         placeholder='Enter the total hot water usage annually in kGal'
                         size="small"
-                        type="number"
-                        value={hotWaterUsage === null ? '' : hotWaterUsage}
+                        type="text"
+                        value={formatNumberWithCommas(hotWaterUsage)}
                         onChange={handleHotWaterUsageChange}
                         sx={{
                           flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
                           fontSize: '0.7rem',
                           '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
                           '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+                        }}
+                        inputProps={{
+                          inputMode: 'numeric',
+                          pattern: '[0-9,]*'
                         }}
                       />
                     </Tooltip>
@@ -79,7 +93,16 @@ const SubStep2: React.FC = () => {
                         size="small"
                         type="number"
                         value={hotWaterTemperature === null ? '' : hotWaterTemperature}
-                        onChange={handleHotWaterTemperatureChange}
+                        onChange={e => {
+                          const value = e.target.value;
+                          const regex = /^\d{0,2}(\.\d{0,2})?$/;
+                          if (value === '' || regex.test(value)) {
+                            handleHotWaterTemperatureChange(e);
+                          }
+                        }}
+                        inputProps={{
+                          maxLength: 5
+                        }}
                         sx={{
                           flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
                           fontSize: '0.7rem',

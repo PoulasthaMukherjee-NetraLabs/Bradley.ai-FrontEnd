@@ -7,6 +7,20 @@ const SubStep3: React.FC = () => {
   const [controlsBrand, setControlsBrand] = useState('default');
   const [switchgearBrand, setSwitchgearBrand] = useState('default');
 
+  const primeMoverOptions = [
+    { name: "Reciprocating (Piston) Engines", sizeRange: "50 kW – 5 MW" },
+    { name: "Microturbines", sizeRange: "25 kW – 500 kW" },
+    { name: "Gas Turbines (Aero-Derivative)", sizeRange: "1 MW – 50 MW" },
+    { name: "Micro-Engines / Stirling Engines", sizeRange: "1 kW – 50 kW" },
+    { name: "Fuel Cells", sizeRange: "100 kW – 10 MW" },
+    { name: "Steam Turbines (Gas-Fired Boiler)", sizeRange: "500 kW – 50 MW" },
+    { name: "Fuel Cells (Large)", sizeRange: "500 kW – 3 MW" },
+    { name: "Linear Generators", sizeRange: "250 kW – 5 MW" },
+    { name: "Microreactors (Very Small SMRs)", sizeRange: "1 – 20 MW" },
+    { name: "Small nuclear (Light-Water SMRs - LWR-SMRs)", sizeRange: "60 – 470 MW" },
+    { name: "Other", sizeRange: "" }
+  ];
+
   return (
     <Box
       sx={{
@@ -48,13 +62,68 @@ const SubStep3: React.FC = () => {
           <b>IF</b> you do not have a preference do not worry, I will calculate which prime mover, controls, and switchgear are ideal for your prioritization and goal needs.<br />
           <b>IF</b> you do choose options, I will build the DER recommendation as you instruct, however I reserve the right to provide, along side the choices you have made, the DER system that ideally meets your prioritization and goals if different.
         </Typography>
+
+        {/* Preferred Prime Mover Type */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography
+            sx={{
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.75rem',
+              minWidth: '200px',
+              flex: 0.3,
+            }}
+          >
+            <b>Preferred Prime Mover Type:</b>
+          </Typography>
+          <Select
+            size="small"
+            value={primeMover}
+            onChange={(e) => setPrimeMover(e.target.value)}
+            sx={{
+              flex: primeMover === 'Other' ? 0.35 : 0.7,
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.7rem',
+              height: '40px',
+              '& .MuiInputBase-root': { padding: '0 6px' },
+              '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
+            }}
+          >
+            <MenuItem value="default" disabled sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
+              Select
+            </MenuItem>
+            {primeMoverOptions.map((option) => (
+              <MenuItem
+                key={option.name}
+                value={option.name}
+                sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}
+              >
+                {option.name} {option.sizeRange ? `(${option.sizeRange})` : ''}
+              </MenuItem>
+            ))}
+          </Select>
+          {primeMover === 'Other' && (
+            <TextField
+              variant="outlined"
+              size="small"
+              type="text"
+              placeholder="If other, please specify"
+              sx={{
+                flex: 0.35,
+                marginLeft: 'auto',
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+                '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+                '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+                '& .MuiInputBase-input::placeholder': {
+                  fontFamily: 'Nunito Sans, sans-serif',
+                  fontSize: '0.7rem',
+                },
+              }}
+            />
+          )}
+        </Box>
+
         {[
-          {
-            label: 'Preferred Prime Mover Type:',
-            state: primeMover,
-            setState: setPrimeMover,
-            options: ['Reciprocating Engine', 'Micro-Turbine', 'Fuel Cell', 'Other'],
-          },
           {
             label: 'Preferred Prime Mover Brand:',
             state: primeMoverBrand,

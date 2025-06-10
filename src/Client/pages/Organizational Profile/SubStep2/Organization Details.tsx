@@ -363,19 +363,30 @@ const SubStep2: React.FC = () => {
   <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Number of Employees at Facility:</b> 
   </Typography></Tooltip>
   <Tooltip title="Enter the number of employees at your facility" placement='top-end' arrow>
-  <TextField
-    fullWidth
-    placeholder='Enter the number of employees at your facility'
-    variant="outlined"
-    size="small"
-    type="number"
-    sx={{
-      flex: 0.5,
-      fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
-      '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-      '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
-    }}
-  /></Tooltip>
+    <TextField
+      fullWidth
+      placeholder='Enter the number of employees at your facility'
+      variant="outlined"
+      size="small"
+      type="text"
+      inputProps={{
+        inputMode: 'numeric',
+        pattern: '[0-9,]*',
+      }}
+      onChange={(e) => {
+        const rawValue = e.target.value.replace(/,/g, '');
+        if (!/^\d*$/.test(rawValue)) return;
+        const formatted = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        e.target.value = formatted;
+      }}
+      sx={{
+        flex: 0.5,
+        fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
+        '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+        '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }
+      }}
+    />
+  </Tooltip>
 </Box>
         </Box>
       </Box>
