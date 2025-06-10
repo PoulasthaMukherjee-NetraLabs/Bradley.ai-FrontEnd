@@ -50,6 +50,26 @@ const SubStep3: React.FC = () => {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
       <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '160px' }}>
         <Box sx={{ alignItems: 'center', gap: 1 }}>
+          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', fontWeight: 'bold', mb: 1 }}>
+            Enter your Utility Company Name (the name of the regulated supplier of electricity, do not enter any third-party commodity provider) :
+          </Typography>
+          <TextField
+            fullWidth
+            variant="outlined"
+            size="small"
+            placeholder="Utility Company Name"
+            sx={{
+              mb: 2,
+              fontFamily: 'Nunito Sans, sans-serif',
+              fontSize: '0.8rem',
+              '& .MuiInputBase-root': { height: '24px', padding: '0 6px' },
+              '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+              '& .MuiInputBase-input::placeholder': {
+                fontFamily: 'Nunito Sans, sans-serif',
+                fontSize: '0.7rem',
+              }
+            }}
+          />
           <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', textAlign: 'justify' }}>
             Please complete this form in its entirety and press the Authorize & Send Request button, This will automatically send the request to your regulated utility. This request only authorizes Bradley to recieve an excel or CVS data file containing your usage profile.
           </Typography>
@@ -85,7 +105,7 @@ const SubStep3: React.FC = () => {
       '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' },
     }}
   />
-  , 2024, the{' '}
+  , 2025, the{' '}
   <TextField
     variant="standard"
     type="text"
@@ -305,7 +325,12 @@ const SubStep3: React.FC = () => {
               variant="outlined"
               size="small"
               value={signature}
-              onChange={(e) => setSignature(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^[a-zA-Z\s]*$/.test(value)) {
+                  setSignature(value);
+                }
+              }}
               sx={{
                 flex: 0.5,
                 fontFamily: 'Nunito Sans, sans-serif',

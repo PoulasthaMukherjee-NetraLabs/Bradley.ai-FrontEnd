@@ -186,8 +186,15 @@ const SubStep2: React.FC = () => {
                     key={day}
                     variant="outlined"
                     size="small"
-                    type="text"
+                    type="number"
                     placeholder={dayAbbreviations[day]}
+                    inputProps={{ min: 0, max: 24 }}
+                    onChange={(e) => {
+                      let value = parseInt(e.target.value, 10);
+                      if (isNaN(value) || value < 0) value = 0;
+                      if (value > 24) value = 24;
+                      e.target.value = value.toString();
+                    }}
                     sx={{
                       fontFamily: "Nunito Sans, sans-serif",
                       fontSize: "0.7rem",

@@ -1,5 +1,18 @@
-import React, { useState } from 'react';
-import { Box, TextField, Select, MenuItem, Typography, Switch, FormControlLabel } from '@mui/material';
+import React, { useState/* , useEffect */ } from 'react';
+import { Box, TextField, Select, MenuItem, Typography, Switch, FormControlLabel, Button, IconButton } from '@mui/material';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+
+interface BreakerAmperageField {
+  id: string;
+  value: string;
+}
+
+interface Breaker {
+  id: string;
+  amperageFields: BreakerAmperageField[];
+}
 
 const SubStep2: React.FC = () => {
   const [isBreakerSpaceAvailable, setIsBreakerSpaceAvailable] = useState(false);
@@ -11,7 +24,7 @@ const SubStep2: React.FC = () => {
   const [secondaryUtilityEntry, setSecondaryUtilityEntry] = useState('Option 0');
 
   const [numberOfOpenBreakers, setNumberOfOpenBreakers] = useState('');
-  const [breakerTypeAndAmperage, setBreakerTypeAndAmperage] = useState('');
+  const [breakers, setBreakers] = useState<Breaker[]>([]);
 
   const formatNumber = (num: string) => {
     if (!num) return '';
@@ -33,7 +46,6 @@ const SubStep2: React.FC = () => {
 
   const handleYearInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/[^0-9]/g, '');
-    // Allow input up to 4 digits for typing, but don't clear until blur
     if (value.length > 4) value = value.slice(0, 4);
     setYearBuildingOperation(value);
   };
@@ -45,13 +57,95 @@ const SubStep2: React.FC = () => {
       const minYear = 1000;
       const maxYear = new Date().getFullYear();
       if (isNaN(year) || year < minYear || year > maxYear) {
-        setYearBuildingOperation(''); // Clear field if invalid year
+        setYearBuildingOperation('');
       }
     } else if (value.length > 0 && value.length < 4) {
-      setYearBuildingOperation(''); // Clear if partial year is entered and focus is lost
+      setYearBuildingOperation('');
     }
   };
 
+  const handleNumberOfBreakersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const numValue = parseInt(value, 10);
+    
+    if (value === '' || (numValue >= 1 && numValue <= 5)) {
+      setNumberOfOpenBreakers(value);
+      
+      if (value === '') {
+        setBreakers([]);
+      } else {
+        const newBreakers: Breaker[] = [];
+        for (let i = 0; i < numValue; i++) {
+          const existingBreaker = breakers[i];
+          newBreakers.push({
+            id: existingBreaker?.id || `breaker-${i + 1}`,
+            amperageFields: existingBreaker?.amperageFields || [{
+              id: `amperage-${i + 1}-1`,
+              value: ''
+            }]
+          });
+        }
+        setBreakers(newBreakers);
+      }
+    }
+  };
+
+  const addBreaker = () => {
+    if (breakers.length < 5) {
+      const newBreaker: Breaker = {
+        id: `breaker-${breakers.length + 1}`,
+        amperageFields: [{
+          id: `amperage-${breakers.length + 1}-1`,
+          value: ''
+        }]
+      };
+      const newBreakers = [...breakers, newBreaker];
+      setBreakers(newBreakers);
+      setNumberOfOpenBreakers(newBreakers.length.toString());
+    }
+  };
+
+  const removeBreaker = (breakerIndex: number) => {
+    if (breakers.length > 1) {
+      const newBreakers = breakers.filter((_, index) => index !== breakerIndex);
+      setBreakers(newBreakers);
+      setNumberOfOpenBreakers(newBreakers.length.toString());
+    }
+  };
+
+  const addAmperageField = (breakerIndex: number) => {
+    const breaker = breakers[breakerIndex];
+    if (breaker.amperageFields.length < 3) {
+      const newAmperageField: BreakerAmperageField = {
+        id: `amperage-${breakerIndex + 1}-${breaker.amperageFields.length + 1}`,
+        value: ''
+      };
+      const newBreakers = [...breakers];
+      newBreakers[breakerIndex] = {
+        ...breaker,
+        amperageFields: [...breaker.amperageFields, newAmperageField]
+      };
+      setBreakers(newBreakers);
+    }
+  };
+
+  const removeAmperageField = (breakerIndex: number, fieldIndex: number) => {
+    const breaker = breakers[breakerIndex];
+    if (breaker.amperageFields.length > 1) {
+      const newBreakers = [...breakers];
+      newBreakers[breakerIndex] = {
+        ...breaker,
+        amperageFields: breaker.amperageFields.filter((_, index) => index !== fieldIndex)
+      };
+      setBreakers(newBreakers);
+    }
+  };
+
+  const updateAmperageField = (breakerIndex: number, fieldIndex: number, value: string) => {
+    const newBreakers = [...breakers];
+    newBreakers[breakerIndex].amperageFields[fieldIndex].value = value;
+    setBreakers(newBreakers);
+  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
@@ -120,15 +214,15 @@ const SubStep2: React.FC = () => {
             <TextField
               variant="outlined"
               size="small"
-              type="text" // Changed to text to allow custom formatting and validation better
+              type="text"
               placeholder='YYYY'
               value={yearBuildingOperation}
               onChange={handleYearInputChange}
-              onBlur={handleYearInputBlur} // Add onBlur event
+              onBlur={handleYearInputBlur}
               inputProps={{
                 inputMode: 'numeric',
                 maxLength: 4,
-                pattern: '[0-9]{4}', // Visual hint for pattern
+                pattern: '[0-9]{4}',
               }}
               sx={{
                 flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
@@ -225,9 +319,10 @@ const SubStep2: React.FC = () => {
                   variant="outlined"
                   size="small"
                   type="number"
-                  placeholder='Input'
+                  placeholder='Max 5'
                   value={numberOfOpenBreakers}
-                  onChange={(e) => setNumberOfOpenBreakers(e.target.value)}
+                  onChange={handleNumberOfBreakersChange}
+                  inputProps={{ min: 1, max: 5 }}
                   sx={{
                     flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
                     fontSize: '0.7rem',
@@ -240,29 +335,103 @@ const SubStep2: React.FC = () => {
                   }}
                 />
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
-                  <b>Breaker Type and Amperage:</b>
-                </Typography>
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  type="text"
-                  placeholder='Input'
-                  value={breakerTypeAndAmperage}
-                  onChange={(e) => setBreakerTypeAndAmperage(e.target.value)}
-                  sx={{
-                    flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.7rem',
-                    '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-                    '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
-                    '& .MuiInputBase-input::placeholder': {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }
-                  }}
-                />
-              </Box>
+
+              {breakers.map((breaker, breakerIndex) => (
+                <Box key={breaker.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+                  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
+                    <b>Breaker {breakerIndex + 1} Amperage(s):</b>
+                  </Typography>
+                  <Box sx={{ flex: 0.448, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: 'flex', gap: 1, flex: 1 }}>
+                      {breaker.amperageFields.map((field, fieldIndex) => (
+                        <TextField
+                          key={field.id}
+                          variant="outlined"
+                          size="small"
+                          type="number"
+                          placeholder='Amp.'
+                          value={field.value}
+                          onChange={(e) => updateAmperageField(breakerIndex, fieldIndex, e.target.value)}
+                          sx={{
+                            flex: 1,
+                            fontFamily: 'Nunito Sans, sans-serif',
+                            fontSize: '0.7rem',
+                            '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+                            '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
+                            '& .MuiInputBase-input::placeholder': {
+                              fontFamily: 'Nunito Sans, sans-serif',
+                              fontSize: '0.7rem',
+                            }
+                          }}
+                        />
+                      ))}
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      {breaker.amperageFields.length < 3 && (
+                        <IconButton
+                          size="small"
+                          onClick={() => addAmperageField(breakerIndex)}
+                          sx={{ 
+                            p: 0.5,
+                            '&:focus': { outline: 'none' }
+                          }}
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                      {breaker.amperageFields.length > 1 && (
+                        <IconButton
+                          size="small"
+                          onClick={() => removeAmperageField(breakerIndex, breaker.amperageFields.length - 1)}
+                          sx={{ 
+                            p: 0.5,
+                            '&:focus': { outline: 'none' }
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
+
+              {breakers.length > 0 && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+                  <Box sx={{ flex: 0.3, display: 'flex', justifyContent: 'flex-start' }}>
+                    <Button
+                      startIcon={<AddCircleIcon />}
+                      onClick={addBreaker}
+                      size="small"
+                      disabled={breakers.length >= 5}
+                      sx={{
+                        textTransform: 'none',
+                        fontFamily: 'Nunito Sans, sans-serif',
+                        fontSize: '0.75rem',
+                        '&:focus': {
+                          outline: 'none',
+                        }
+                      }}
+                    >
+                      Add Another Breaker
+                    </Button>
+                  </Box>
+                  <Box sx={{ flex: 0.448, display: 'flex', justifyContent: 'flex-end' }}>
+                    <IconButton
+                      onClick={() => removeBreaker(breakers.length - 1)}
+                      size="small"
+                      disabled={breakers.length === 1}
+                      sx={{ 
+                        '&:focus': {
+                          outline: 'none',
+                        } 
+                      }}
+                    >
+                      <DeleteIcon fontSize="medium" />
+                    </IconButton>
+                  </Box>
+                </Box>
+              )}
             </Box>
           )}
         </Box>

@@ -394,7 +394,7 @@ export const mockExpandedContent = (title: string) => {
 
   if (title === "General Arrangement") {
     return (
-      <Box sx={{ p: 0, height: '600px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <Box sx={{ p: 0, height: '900px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <GeneralArrangement size="large" />
       </Box>
     );

@@ -227,7 +227,7 @@ const SubStep1: React.FC = () => {
             </TabPanel>
 
             <TabPanel value={tabValue} index={2}>
-              <Box sx={{ display: 'grid', gap: 2, gridTemplateRows: '1fr 1fr', height: '1390px' }}>
+              <Box sx={{ display: 'grid', gap: 2, gridTemplateRows: '1fr 1fr', height: '1590px' }}>
               <StyledTabPanelBox>
                 <StyledTabPanelTitle variant="h6">Project Schedule</StyledTabPanelTitle>
                 <StyledExpandButton onClick={() => handleExpandClick('project-schedule', 'Project Schedule')}>
