@@ -396,7 +396,7 @@ export const mockExpandedContent = (title: string) => {
 
   if (title === "Resources") {
     return (
-      <Box sx={{ p: 0, height: '500px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <Box sx={{ p: 0, height: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <Resources size="large" />
       </Box>
     );
