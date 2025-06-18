@@ -1,629 +1,70 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  MenuItem,
-  IconButton,
-} from '@mui/material';
+import React from 'react';
+import { Box, TextField, Button, Typography, MenuItem, IconButton } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useBoilerCogeneration } from '../../../../Context/Energy Profile/SubStep2/Existing Boiler Cogeneration Context';
 
 const SubStep2: React.FC = () => {
-  const [wasteHeatSources, setWasteHeatSources] = useState([
-    {
-      type: '',
-      capacity: '',
-      fuelSource: '',
-      efficiency: '',
-      age: '',
-      operatingPressure: '',
-      history: '',
-      utilization: '',
-      volume: '',
-      wasteHeatCaptured: '', // New field for cogeneration
-    },
-  ]);
-
-  const handleAddWasteHeatSource = () => {
-    setWasteHeatSources([
-      ...wasteHeatSources,
-      {
-        type: '',
-        capacity: '',
-        fuelSource: '',
-        efficiency: '',
-        age: '',
-        operatingPressure: '',
-        history: '',
-        utilization: '',
-        volume: '',
-        wasteHeatCaptured: '',
-      },
-    ]);
-  };
-
-  const handleRemoveWasteHeatSource = (index: number) => {
-    setWasteHeatSources(wasteHeatSources.filter((_, i) => i !== index));
-  };
+  const { boilerCogenerationState, addSource, removeSource, updateSourceField } = useBoilerCogeneration();
+  const { sources } = boilerCogenerationState;
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        fontFamily: 'Nunito Sans, sans-serif',
-        fontSize: '0.75rem',
-        p: 1,
-        pr: 4,
-        pl: 1,
-        pt: 1,
-      }}
-    >
+    <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
       <style>
-        @import
-        url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
       </style>
-      <Typography
-        variant="h6"
-        sx={{
-          mb: 1,
-          fontFamily: 'Nunito Sans, sans-serif',
-          fontSize: '0.85rem',
-          fontWeight: 'bold',
-          textAlign: 'center',
-        }}
-      >
+      <Typography variant="h6" sx={{ mb: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center' }}>
         <h2>Existing Boiler/Cogeneration</h2>
       </Typography>
 
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          gap: 0,
-        }}
-      >
-        <Box
-          sx={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            pt: '10px',
-            pb: '10px',
-            pl: '160px',
-            pr: '123px',
-          }}
-        >
-          {wasteHeatSources.map((source, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                mb: 1,
-              }}
-            >
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '123px' }}>
+          {sources.map((source, index) => (
+            <Box key={index} sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 1 }}>
               <Box sx={{ display: 'flex', width: '100%', gap: 2, flexWrap: 'wrap' }}>
-                <TextField
-                  size="small"
-                  label="Type"
-                  select
-                  fullWidth
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.8rem',
-                    height: '40px',
-                    width: '32%',
-                    '& .MuiInputBase-root': {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                  value={source.type}
-                  onChange={(e) =>
-                    setWasteHeatSources(
-                      wasteHeatSources.map((s, i) =>
-                        i === index ? { ...s, type: e.target.value } : s
-                      )
-                    )
-                  }
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                >
-                  <MenuItem
-                    value="Boiler (Hot Water)"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Boiler (Hot Water)
-                  </MenuItem>
-                  <MenuItem
-                    value="Boiler (Steam)"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Boiler (Steam)
-                  </MenuItem>
-                  <MenuItem
-                    value="Cogeneration Unit"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Cogeneration Unit
-                  </MenuItem>
+                <TextField size="small" label="Type" select fullWidth value={source.type} onChange={(e) => updateSourceField(index, 'type', e.target.value)} sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', height: '40px', width: '32%', '& .MuiInputBase-root': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} InputLabelProps={{ style: { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }}>
+                  <MenuItem value="Boiler (Hot Water)" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Boiler (Hot Water)</MenuItem>
+                  <MenuItem value="Boiler (Steam)" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Boiler (Steam)</MenuItem>
+                  <MenuItem value="Cogeneration Unit" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Cogeneration Unit</MenuItem>
                 </TextField>
-                <TextField
-                  size="small"
-                  label={
-                    source.type === 'Boiler (Hot Water)'
-                      ? 'Capacity (in KGal)'
-                      : source.type === 'Boiler (Steam)'
-                      ? 'Capacity (in MLbs)'
-                      : 'Capacity (in MWh annually)'
-                  }
-                  type="number"
-                  fullWidth
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.8rem',
-                    height: '40px',
-                    width: '32%',
-                    '& .MuiInputBase-root': {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                  placeholder={
-                    source.type === 'Boiler (Hot Water)'
-                      ? 'in KGal'
-                      : source.type === 'Boiler (Steam)'
-                      ? 'in MLbs'
-                      : 'Enter Capacity'
-                  }
-                  value={source.capacity}
-                  onChange={(e) =>
-                    setWasteHeatSources(
-                      wasteHeatSources.map((s, i) =>
-                        i === index ? { ...s, capacity: e.target.value } : s
-                      )
-                    )
-                  }
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                />
-
-                <TextField
-                  size="small"
-                  label="Fuel Source"
-                  select
-                  fullWidth
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.8rem',
-                    height: '40px',
-                    width: '32%',
-                    '& .MuiInputBase-root': {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                  value={source.fuelSource}
-                  onChange={(e) =>
-                    setWasteHeatSources(
-                      wasteHeatSources.map((s, i) =>
-                        i === index ? { ...s, fuelSource: e.target.value } : s
-                      )
-                    )
-                  }
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                >
-                  <MenuItem
-                    value="Natural Gas"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Natural Gas
-                  </MenuItem>
-                  <MenuItem
-                    value="Oil"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Oil
-                  </MenuItem>
-                  <MenuItem
-                    value="Biomass"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Biomass
-                  </MenuItem>
-                  <MenuItem
-                    value="Coal"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Coal
-                  </MenuItem>
-                  <MenuItem
-                    value="Electricity"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Electricity
-                  </MenuItem>
+                <TextField size="small" label={ source.type === 'Boiler (Hot Water)' ? 'Capacity (in KGal)' : source.type === 'Boiler (Steam)' ? 'Capacity (in MLbs)' : 'Capacity (in MWh annually)' } type="number" fullWidth value={source.capacity} onChange={(e) => updateSourceField(index, 'capacity', e.target.value)} placeholder={ source.type === 'Boiler (Hot Water)' ? 'in KGal' : source.type === 'Boiler (Steam)' ? 'in MLbs' : 'Enter Capacity' } sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', height: '40px', width: '32%', '& .MuiInputBase-root': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} InputLabelProps={{ style: { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} />
+                <TextField size="small" label="Fuel Source" select fullWidth value={source.fuelSource} onChange={(e) => updateSourceField(index, 'fuelSource', e.target.value)} sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', height: '40px', width: '32%', '& .MuiInputBase-root': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} InputLabelProps={{ style: { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }}>
+                  <MenuItem value="Natural Gas" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Natural Gas</MenuItem>
+                  <MenuItem value="Oil" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Oil</MenuItem>
+                  <MenuItem value="Biomass" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Biomass</MenuItem>
+                  <MenuItem value="Coal" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Coal</MenuItem>
+                  <MenuItem value="Electricity" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Electricity</MenuItem>
                 </TextField>
               </Box>
-
               <Box sx={{ display: 'flex', width: '100%', gap: 2, flexWrap: 'wrap' }}>
-                <TextField
-                  size="small"
-                  label="Efficiency"
-                  type="number"
-                  fullWidth
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.8rem',
-                    height: '40px',
-                    width: '32%',
-                    '& .MuiInputBase-root': {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                  placeholder="In Percentage"
-                  value={source.efficiency}
-                  onChange={(e) =>
-                    setWasteHeatSources(
-                      wasteHeatSources.map((s, i) =>
-                        i === index ? { ...s, efficiency: e.target.value } : s
-                      )
-                    )
-                  }
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                />
-                <TextField
-                  size="small"
-                  label="Age"
-                  type="number"
-                  fullWidth
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.8rem',
-                    height: '40px',
-                    width: '32%',
-                    '& .MuiInputBase-root': {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                  placeholder="In Years"
-                  value={source.age}
-                  onChange={(e) =>
-                    setWasteHeatSources(
-                      wasteHeatSources.map((s, i) =>
-                        i === index ? { ...s, age: e.target.value } : s
-                      )
-                    )
-                  }
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                />
-
-                <TextField
-                  size="small"
-                  label="Operating Pressure"
-                  type="number"
-                  fullWidth
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.8rem',
-                    height: '40px',
-                    width: '32%',
-                    '& .MuiInputBase-root': {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                  placeholder="In Psi"
-                  value={source.operatingPressure}
-                  onChange={(e) =>
-                    setWasteHeatSources(
-                      wasteHeatSources.map((s, i) =>
-                        i === index
-                          ? { ...s, operatingPressure: e.target.value }
-                          : s
-                      )
-                    )
-                  }
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                />
+                <TextField size="small" label="Efficiency" type="number" fullWidth value={source.efficiency} onChange={(e) => updateSourceField(index, 'efficiency', e.target.value)} placeholder="In Percentage" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', height: '40px', width: '32%', '& .MuiInputBase-root': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} InputLabelProps={{ style: { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} />
+                <TextField size="small" label="Age" type="number" fullWidth value={source.age} onChange={(e) => updateSourceField(index, 'age', e.target.value)} placeholder="In Years" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', height: '40px', width: '32%', '& .MuiInputBase-root': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} InputLabelProps={{ style: { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} />
+                <TextField size="small" label="Operating Pressure" type="number" fullWidth value={source.operatingPressure} onChange={(e) => updateSourceField(index, 'operatingPressure', e.target.value)} placeholder="In Psi" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', height: '40px', width: '32%', '& .MuiInputBase-root': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} InputLabelProps={{ style: { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} />
               </Box>
-
               <Box sx={{ display: 'flex', width: '100%', gap: 2, flexWrap: 'wrap' }}>
-                <TextField
-                  size="small"
-                  label="History"
-                  type="text"
-                  fullWidth
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.8rem',
-                    height: '40px',
-                    width: '32%',
-                    '& .MuiInputBase-root': {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                  placeholder="Maintenance History (Optional)"
-                  value={source.history}
-                  onChange={(e) =>
-                    setWasteHeatSources(
-                      wasteHeatSources.map((s, i) =>
-                        i === index ? { ...s, history: e.target.value } : s
-                      )
-                    )
-                  }
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                />
-
-                <TextField
-                  size="small"
-                  label={
-                    source.type === 'Cogeneration Unit'
-                      ? 'Utilization of Waste Heat'
-                      : 'Utilization'
-                  }
-                  select
-                  fullWidth
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.8rem',
-                    height: '40px',
-                    width: '32%',
-                    '& .MuiInputBase-root': {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                  value={source.utilization}
-                  onChange={(e) =>
-                    setWasteHeatSources(
-                      wasteHeatSources.map((s, i) =>
-                        i === index ? { ...s, utilization: e.target.value } : s
-                      )
-                    )
-                  }
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                >
-                  <MenuItem
-                    value="Electricity Generation"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Electricity Generation
-                  </MenuItem>
-                  <MenuItem
-                    value="Space Heating"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Space Heating
-                  </MenuItem>
-                  <MenuItem
-                    value="Process Heating"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Process Heating
-                  </MenuItem>
-                  <MenuItem
-                    value="None"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    None
-                  </MenuItem>
-                  <MenuItem
-                    value="Other"
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }}
-                  >
-                    Other
-                  </MenuItem>
+                <TextField size="small" label="History" type="text" fullWidth value={source.history} onChange={(e) => updateSourceField(index, 'history', e.target.value)} placeholder="Maintenance History (Optional)" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', height: '40px', width: '32%', '& .MuiInputBase-root': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} InputLabelProps={{ style: { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} />
+                <TextField size="small" label={ source.type === 'Cogeneration Unit' ? 'Utilization of Waste Heat' : 'Utilization' } select fullWidth value={source.utilization} onChange={(e) => updateSourceField(index, 'utilization', e.target.value)} sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', height: '40px', width: '32%', '& .MuiInputBase-root': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} InputLabelProps={{ style: { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }}>
+                  <MenuItem value="Electricity Generation" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Electricity Generation</MenuItem>
+                  <MenuItem value="Space Heating" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Space Heating</MenuItem>
+                  <MenuItem value="Process Heating" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Process Heating</MenuItem>
+                  <MenuItem value="None" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>None</MenuItem>
+                  <MenuItem value="Other" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Other</MenuItem>
                 </TextField>
-                <TextField
-                  size="small"
-                  label={
-                    source.type === 'Cogeneration Unit'
-                      ? 'Volume (in MLbs)'
-                      : 'Volume'
-                  }
-                  type="number"
-                  fullWidth
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.8rem',
-                    height: '40px',
-                    width: '32%',
-                    '& .MuiInputBase-root': {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                  placeholder={
-                    source.type === 'Cogeneration Unit'
-                      ? 'in MLbs'
-                      : 'Annual Waste Heat Vol. in MMBTu'
-                  }
-                  value={source.volume}
-                  onChange={(e) =>
-                    setWasteHeatSources(
-                      wasteHeatSources.map((s, i) =>
-                        i === index ? { ...s, volume: e.target.value } : s
-                      )
-                    )
-                  }
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                    },
-                  }}
-                />
+                <TextField size="small" label={ source.type === 'Cogeneration Unit' ? 'Volume (in MLbs)' : 'Volume' } type="number" fullWidth value={source.volume} onChange={(e) => updateSourceField(index, 'volume', e.target.value)} placeholder={ source.type === 'Cogeneration Unit' ? 'in MLbs' : 'Annual Waste Heat Vol. in MMBTu' } sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', height: '40px', width: '32%', '& .MuiInputBase-root': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} InputLabelProps={{ style: { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} />
               </Box>
-
-              {/* Additional row for Cogeneration Unit */}
               {source.type === 'Cogeneration Unit' && (
                 <Box sx={{ display: 'flex', width: '100%', gap: 2, flexWrap: 'wrap' }}>
-                  <TextField
-                    size="small"
-                    label="Waste Heat Status"
-                    select
-                    fullWidth
-                    sx={{
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.8rem',
-                      height: '40px',
-                      width: '32%',
-                      '& .MuiInputBase-root': {
-                        fontFamily: 'Nunito Sans, sans-serif',
-                        fontSize: '0.8rem',
-                      },
-                    }}
-                    value={source.wasteHeatCaptured}
-                    onChange={(e) =>
-                      setWasteHeatSources(
-                        wasteHeatSources.map((s, i) =>
-                          i === index ? { ...s, wasteHeatCaptured: e.target.value } : s
-                        )
-                      )
-                    }
-                    InputLabelProps={{
-                      style: {
-                        fontFamily: 'Nunito Sans, sans-serif',
-                        fontSize: '0.8rem',
-                      },
-                    }}
-                  >
-                    <MenuItem
-                      value="Captured"
-                      sx={{
-                        fontFamily: 'Nunito Sans, sans-serif',
-                        fontSize: '0.7rem',
-                      }}
-                    >
-                      Captured
-                    </MenuItem>
-                    <MenuItem
-                      value="Released to Atmosphere"
-                      sx={{
-                        fontFamily: 'Nunito Sans, sans-serif',
-                        fontSize: '0.7rem',
-                      }}
-                    >
-                      Released to Atmosphere
-                    </MenuItem>
+                  <TextField size="small" label="Waste Heat Status" select fullWidth value={source.wasteHeatCaptured} onChange={(e) => updateSourceField(index, 'wasteHeatCaptured', e.target.value)} sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', height: '40px', width: '32%', '& .MuiInputBase-root': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }} InputLabelProps={{ style: { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' } }}>
+                    <MenuItem value="Captured" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Captured</MenuItem>
+                    <MenuItem value="Released to Atmosphere" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Released to Atmosphere</MenuItem>
                   </TextField>
                 </Box>
               )}
-
-              {/* Button row - always appears at the bottom */}
               <Box sx={{ display: 'flex', width: '100%', gap: 2, flexWrap: 'wrap' }}>
-                <Button
-                  startIcon={<AddCircleIcon />}
-                  onClick={handleAddWasteHeatSource}
-                  size="small"
-                  sx={{
-                    textTransform: 'none',
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.8rem',
-                    '&:focus': {
-                      outline: 'none',
-                    }
-                  }}
-                >
+                <Button startIcon={<AddCircleIcon />} onClick={addSource} size="small" sx={{ textTransform: 'none', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', '&:focus': { outline: 'none' } }}>
                   Add Another Entry
                 </Button>
-                <IconButton
-                  onClick={() => handleRemoveWasteHeatSource(index)}
-                  size="small"
-                  disabled={wasteHeatSources.length === 1}
-                  sx={{ 
-                    ml: 'auto',
-                    '&:focus': {
-                      outline: 'none',
-                    } 
-                  }}
-                >
+                <IconButton onClick={() => removeSource(index)} size="small" disabled={sources.length === 1} sx={{ ml: 'auto', '&:focus': { outline: 'none' } }}>
                   <DeleteIcon fontSize="medium" />
                 </IconButton>
               </Box>

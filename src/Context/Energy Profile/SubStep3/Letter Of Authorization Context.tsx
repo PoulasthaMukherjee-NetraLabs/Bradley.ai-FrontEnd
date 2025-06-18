@@ -1,64 +1,89 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface AuthorizationLetter {
+interface LOATextFields {
   day: string;
   month: string;
   customerName: string;
   address: string;
   contactName: string;
+}
+
+interface LOAContactDetails {
   name: string;
   serviceAddress: string;
   fullAddress: string;
   cityState: string;
-  phoneNumber: string;
+  phoneNo: string;
   zip: string;
-  emailAddress: string;
-  serviceAccountNumber: string;
+  email: string;
+  serviceAccountNo: string;
+}
+
+interface LOAState {
+  utilityCompanyName: string;
+  textFields: LOATextFields;
+  contactDetails: LOAContactDetails;
   signature: string;
-  agreedToTerms: boolean;
+  agreed: boolean;
 }
 
-interface AuthorizationLetterContextType {
-  authorizationLetter: AuthorizationLetter;
-  updateAuthorizationLetter: (letter: Partial<AuthorizationLetter>) => void;
+interface LOAContextType {
+  loaState: LOAState;
+  updateField: (field: keyof LOAState, value: string | boolean) => void;
+  updateNestedField: <K extends 'textFields' | 'contactDetails'>(
+    section: K,
+    field: keyof LOAState[K],
+    value: string
+  ) => void;
 }
 
-const AuthorizationLetterContext = createContext<AuthorizationLetterContextType | undefined>(undefined);
+const LOAContext = createContext<LOAContextType | undefined>(undefined);
 
-export const useAuthorizationLetter = () => {
-  const context = useContext(AuthorizationLetterContext);
+export const useLOA = () => {
+  const context = useContext(LOAContext);
   if (!context) {
-    throw new Error('useAuthorizationLetter must be used within an AuthorizationLetterProvider');
+    throw new Error('useLOA must be used within an LOAProvider');
   }
   return context;
 };
 
-export const AuthorizationLetterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [authorizationLetter, setAuthorizationLetter] = useState<AuthorizationLetter>({
-    day: '',
-    month: '',
-    customerName: '',
-    address: '',
-    contactName: '',
-    name: '',
-    serviceAddress: '',
-    fullAddress: '',
-    cityState: '',
-    phoneNumber: '',
-    zip: '',
-    emailAddress: '',
-    serviceAccountNumber: '',
-    signature: '',
-    agreedToTerms: false,
+const defaultState: LOAState = {
+  utilityCompanyName: '',
+  textFields: { day: '', month: '', customerName: '', address: '', contactName: '' },
+  contactDetails: { name: '', serviceAddress: '', fullAddress: '', cityState: '', phoneNo: '', zip: '', email: '', serviceAccountNo: '' },
+  signature: '',
+  agreed: false,
+};
+
+export const LOAProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [loaState, setLoaState] = useState<LOAState>(() => {
+    const savedState = Cookies.get('loaState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateAuthorizationLetter = (letter: Partial<AuthorizationLetter>) => {
-    setAuthorizationLetter((prevLetter) => ({ ...prevLetter, ...letter }));
+  useEffect(() => {
+    Cookies.set('loaState', JSON.stringify(loaState));
+  }, [loaState]);
+
+  const updateField = (field: keyof LOAState, value: string | boolean) => {
+    setLoaState(prevState => ({ ...prevState, [field]: value }));
+  };
+  
+  const updateNestedField = <K extends 'textFields' | 'contactDetails'>(
+    section: K,
+    field: keyof LOAState[K],
+    value: string
+  ) => {
+    setLoaState(prevState => ({
+      ...prevState,
+      [section]: { ...prevState[section] as object, [field]: value },
+    }));
   };
 
   return (
-    <AuthorizationLetterContext.Provider value={{ authorizationLetter, updateAuthorizationLetter }}>
+    <LOAContext.Provider value={{ loaState, updateField, updateNestedField }}>
       {children}
-    </AuthorizationLetterContext.Provider>
+    </LOAContext.Provider>
   );
 };

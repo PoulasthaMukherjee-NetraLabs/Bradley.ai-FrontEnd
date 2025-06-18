@@ -1,38 +1,69 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface GroundMountedSolar {
-  availableLandArea: string;
-  landTopography: string;
+interface SelectedArea {
+  coordinates: [number, number][];
+  area: number;
 }
 
-interface GroundMountedSolarContextType {
-  groundMountedSolar: GroundMountedSolar;
-  updateGroundMountedSolar: (solar: Partial<GroundMountedSolar>) => void;
+interface GroundMountSolarState {
+  landArea: string;
+  topography: string;
+  address: string;
+  showMap: boolean;
+  selectedAreas: SelectedArea[];
 }
 
-const GroundMountedSolarContext = createContext<GroundMountedSolarContextType | undefined>(undefined);
+interface GroundMountSolarContextType {
+  groundMountState: GroundMountSolarState;
+  updateField: (field: keyof Omit<GroundMountSolarState, 'selectedAreas' | 'landArea'>, value: string | boolean) => void;
+  updateLandArea: (value: string) => void;
+  updateSelectedAreas: (areas: SelectedArea[]) => void;
+}
 
-export const useGroundMountedSolar = () => {
-  const context = useContext(GroundMountedSolarContext);
+const GroundMountSolarContext = createContext<GroundMountSolarContextType | undefined>(undefined);
+
+export const useGroundMountSolar = () => {
+  const context = useContext(GroundMountSolarContext);
   if (!context) {
-    throw new Error('useGroundMountedSolar must be used within a GroundMountedSolarProvider');
+    throw new Error('useGroundMountSolar must be used within a GroundMountSolarProvider');
   }
   return context;
 };
 
-export const GroundMountedSolarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [groundMountedSolar, setGroundMountedSolar] = useState<GroundMountedSolar>({
-    availableLandArea: '',
-    landTopography: '',
+const defaultState: GroundMountSolarState = {
+  landArea: '',
+  topography: 'default',
+  address: '',
+  showMap: false,
+  selectedAreas: [],
+};
+
+export const GroundMountSolarProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [groundMountState, setGroundMountState] = useState<GroundMountSolarState>(() => {
+    const savedState = Cookies.get('groundMountSolarState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateGroundMountedSolar = (solar: Partial<GroundMountedSolar>) => {
-    setGroundMountedSolar((prevSolar) => ({ ...prevSolar, ...solar }));
+  useEffect(() => {
+    Cookies.set('groundMountSolarState', JSON.stringify(groundMountState));
+  }, [groundMountState]);
+
+  const updateField = (field: keyof Omit<GroundMountSolarState, 'selectedAreas' | 'landArea'>, value: string | boolean) => {
+    setGroundMountState(prevState => ({ ...prevState, [field]: value }));
+  };
+  
+  const updateLandArea = (value: string) => {
+    setGroundMountState(prevState => ({ ...prevState, landArea: value }));
+  };
+
+  const updateSelectedAreas = (areas: SelectedArea[]) => {
+    setGroundMountState(prevState => ({ ...prevState, selectedAreas: areas }));
   };
 
   return (
-    <GroundMountedSolarContext.Provider value={{ groundMountedSolar, updateGroundMountedSolar }}>
+    <GroundMountSolarContext.Provider value={{ groundMountState, updateField, updateSelectedAreas, updateLandArea }}>
       {children}
-    </GroundMountedSolarContext.Provider>
+    </GroundMountSolarContext.Provider>
   );
 };

@@ -1,105 +1,82 @@
-import React, { useState } from 'react';
+import React/* , { useState } */ from 'react';
 import { Box, TextField, Typography, FormControlLabel, Checkbox, Tooltip, Select, MenuItem, /* OutlinedInput, */ FormControl, SelectChangeEvent } from '@mui/material';
+import { useFacilityOperation } from '../../../../Context/Organizational Profile/SubStep2/Facility Operation Description Context';
 
-interface DescriptionState {
-  twoPipeSystem: string;
-  fourPipeSystem: string;
-  steamDistribution: string;
-  steamToBuilding: string;
-  autoLightSensors: string;
-  waterTreatment: string[];
-  freeCooling: string;
-}
+// interface DescriptionState {
+//   twoPipeSystem: string;
+//   fourPipeSystem: string;
+//   steamDistribution: string;
+//   steamToBuilding: string;
+//   autoLightSensors: string;
+//   waterTreatment: string[];
+//   freeCooling: string;
+// }
 
 const SubStep2: React.FC = () => {
-  const [checked, setChecked] = useState({
-    twoPipeSystem: false,
-    fourPipeSystem: false,
-    steamDistribution: false,
-    steamToBuilding: false,
-    autoLightSensors: false,
-    waterTreatment: false,
-    setbackTemperature: false,
-    freeCooling: false,
-  });
+  // 2. Get the entire state object and the update function from the context.
+  const { facilityOperation, updateFacilityOperation } = useFacilityOperation();
+  const { checked, description, operationalHours, typicalHours, setbackTemperature, facilityTenantTemperature } = facilityOperation;
 
-  const [description, setDescription] = useState<DescriptionState>({
-    twoPipeSystem: '',
-    fourPipeSystem: '',
-    steamDistribution: '',
-    steamToBuilding: '',
-    autoLightSensors: '',
-    waterTreatment: [],
-    freeCooling: '',
-  });
-
-  const [facilityTenantTemperature, setFacilityTenantTemperature] = useState('');
-
-  const [operationalHours, setOperationalHours] = useState({
-    startUpTime: '',
-    setBackTime: '',
-  });
-
-  const [typicalHours, setTypicalHours] = useState({
-    startUpTime: '',
-    setBackTime: '',
-  });
-
-  const [setbackTemperature, setSetbackTemperature] = useState({
-    summer: '',
-    winter: '',
-  });
-
+  // 3. Create handlers that update the central context state.
   const handleCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked: isChecked } = event.target;
-    setChecked((prev) => ({
-      ...prev,
+    const { name, checked: isChecked } = event.target as { name: keyof typeof checked, checked: boolean };
+
+    // Create a new 'checked' object with the updated value and exclusive logic
+    const newChecked = {
+      ...checked,
       [name]: isChecked,
-      ...(name === 'twoPipeSystem' && isChecked ? { fourPipeSystem: false } : {}),
-      ...(name === 'fourPipeSystem' && isChecked ? { twoPipeSystem: false } : {}),
-    }));
+      ...(name === 'twoPipeSystem' && isChecked && { fourPipeSystem: false }),
+      ...(name === 'fourPipeSystem' && isChecked && { twoPipeSystem: false }),
+    };
+
+    // If unchecking water treatment, also clear its description
     if (name === 'waterTreatment' && !isChecked) {
-      setDescription(prev => ({ ...prev, waterTreatment: [] }));
+      updateFacilityOperation({
+        checked: newChecked,
+        description: { ...description, waterTreatment: [] }
+      });
+    } else {
+      updateFacilityOperation({ checked: newChecked });
     }
   };
 
   const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = event.target;
-    setDescription((prevDescription) => ({
-      ...prevDescription,
-      [name]: value,
-    }));
-  };
-
-  const handleWaterTreatmentChange = (event: SelectChangeEvent<string[]>) => {
-    const {
-      target: { value },
-    } = event;
-    setDescription({
-      ...description,
-      waterTreatment: typeof value === 'string' ? value.split(',') : value,
+    const { name, value } = event.target as { name: keyof typeof description, value: string };
+    updateFacilityOperation({
+      description: { ...description, [name]: value }
     });
   };
 
-  const handleOperationalHoursChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setOperationalHours({ ...operationalHours, [event.target.name]: event.target.value });
+  const handleWaterTreatmentChange = (event: SelectChangeEvent<string[]>) => {
+    const { target: { value } } = event;
+    updateFacilityOperation({
+      description: { ...description, waterTreatment: typeof value === 'string' ? value.split(',') : value }
+    });
   };
 
-  const handleTypicalHoursChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTypicalHours({ ...typicalHours, [event.target.name]: event.target.value });
+  const handleHoursChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    type: 'operationalHours' | 'typicalHours'
+  ) => {
+    const { name, value } = event.target;
+    updateFacilityOperation({
+      [type]: { ...facilityOperation[type], [name]: value }
+    });
   };
 
   const handleSetbackTemperatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     if (value.length <= 2) {
-      setSetbackTemperature({ ...setbackTemperature, [name]: value });
+      updateFacilityOperation({
+        setbackTemperature: { ...setbackTemperature, [name]: value }
+      });
     }
   };
 
   const handleFacilityTenantTemperatureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
     if (value.length <= 2) {
-      setFacilityTenantTemperature(value);
+      updateFacilityOperation({ facilityTenantTemperature: value });
     }
   };
 
@@ -271,7 +248,7 @@ const SubStep2: React.FC = () => {
               type="time"
               name="startUpTime"
               value={operationalHours.startUpTime}
-              onChange={handleOperationalHoursChange}
+              onChange={(e) => handleHoursChange(e, 'operationalHours')}
               size="small"
               sx={{
                 flex: 0.177,
@@ -289,7 +266,7 @@ const SubStep2: React.FC = () => {
               type="time"
               name="setBackTime"
               value={operationalHours.setBackTime}
-              onChange={handleOperationalHoursChange}
+              onChange={(e) => handleHoursChange(e, 'operationalHours')}
               size="small"
               sx={{
                 flex: 0.177,
@@ -312,7 +289,7 @@ const SubStep2: React.FC = () => {
               type="time"
               name="startUpTime"
               value={typicalHours.startUpTime}
-              onChange={handleTypicalHoursChange}
+              onChange={(e) => handleHoursChange(e, 'typicalHours')}
               size="small"
               sx={{
                 flex: 0.177,
@@ -330,7 +307,7 @@ const SubStep2: React.FC = () => {
               type="time"
               name="setBackTime"
               value={typicalHours.setBackTime}
-              onChange={handleTypicalHoursChange}
+              onChange={(e) => handleHoursChange(e, 'typicalHours')}
               size="small"
               sx={{
                 flex: 0.177,

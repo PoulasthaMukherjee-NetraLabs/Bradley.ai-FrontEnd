@@ -1,40 +1,53 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface FinancialsInvestmentInfo {
-  desiredIRR: string;
-  desiredROI: string;
-  minimumPaybackPeriod: string;
+interface FinancialsIState {
+  acceptableIRR: string;
+  minimumROI: string;
+  paybackPeriod: string;
 }
 
-interface FinancialsInvestmentInfoContextType {
-  financialsInvestmentInfo: FinancialsInvestmentInfo;
-  updateFinancialsInvestmentInfo: (info: Partial<FinancialsInvestmentInfo>) => void;
+interface FinancialsIContextType {
+  financialsIState: FinancialsIState;
+  updateField: (field: keyof FinancialsIState, value: string) => void;
 }
 
-const FinancialsInvestmentInfoContext = createContext<FinancialsInvestmentInfoContextType | undefined>(undefined);
+const FinancialsIContext = createContext<FinancialsIContextType | undefined>(undefined);
 
-export const useFinancialsInvestmentInfo = () => {
-  const context = useContext(FinancialsInvestmentInfoContext);
+export const useFinancialsI = () => {
+  const context = useContext(FinancialsIContext);
   if (!context) {
-    throw new Error('useFinancialsInvestmentInfo must be used within a FinancialsInvestmentInfoProvider');
+    throw new Error('useFinancialsI must be used within a FinancialsIProvider');
   }
   return context;
 };
 
-export const FinancialsInvestmentInfoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [financialsInvestmentInfo, setFinancialsInvestmentInfo] = useState<FinancialsInvestmentInfo>({
-    desiredIRR: '',
-    desiredROI: '',
-    minimumPaybackPeriod: '',
+const defaultState: FinancialsIState = {
+  acceptableIRR: '10', // Set default to 10 as in the original component
+  minimumROI: '',
+  paybackPeriod: '',
+};
+
+export const FinancialsIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [financialsIState, setFinancialsIState] = useState<FinancialsIState>(() => {
+    const savedState = Cookies.get('financialsIState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateFinancialsInvestmentInfo = (info: Partial<FinancialsInvestmentInfo>) => {
-    setFinancialsInvestmentInfo((prevInfo) => ({ ...prevInfo, ...info }));
+  useEffect(() => {
+    Cookies.set('financialsIState', JSON.stringify(financialsIState));
+  }, [financialsIState]);
+
+  const updateField = (field: keyof FinancialsIState, value: string) => {
+    setFinancialsIState(prevState => ({
+      ...prevState,
+      [field]: value,
+    }));
   };
 
   return (
-    <FinancialsInvestmentInfoContext.Provider value={{ financialsInvestmentInfo, updateFinancialsInvestmentInfo }}>
+    <FinancialsIContext.Provider value={{ financialsIState, updateField }}>
       {children}
-    </FinancialsInvestmentInfoContext.Provider>
+    </FinancialsIContext.Provider>
   );
 };

@@ -1,53 +1,45 @@
-import React, { useState } from 'react';
+import React/* , { useState } */ from 'react';
 import { Box, TextField, Typography, Tooltip, InputAdornment } from '@mui/material';
+import { useAnnualEnergySpend } from '../../../../Context/Organizational Profile/SubStep2/Annual Energy Spend Context';
 
 const formatNumber = (value: string) => {
   if (!value) return '';
-  if (value.endsWith('.')) return value;
-
+  // This regex handles integers and decimals correctly
   const parts = value.split('.');
-  const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  const decPart = parts[1] ? '.' + parts[1] : '';
-  return intPart + decPart;
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
 };
 
+// Helper function to remove formatting and invalid characters before updating state
 const parseInput = (value: string) => {
-  return value.replace(/,/g, '').replace(/[^0-9.]/g, '');
+  return value.replace(/,/g, '');
 };
 
 const SubStep2: React.FC = () => {
-  const [inputs, setInputs] = useState({
-    electricity: '',
-    naturalGas: '',
-    water: '',
-    oil: '',
-    propane: '',
-    steam: '',
-    chilledWater: '',
-    other: '',
-  });
+  const { annualEnergySpend, updateAnnualEnergySpend } = useAnnualEnergySpend();
 
-  const [otherLabel, setOtherLabel] = useState('');
-
+  // 3. Create a single, generic handler function to update the context
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
+    
+    // For text fields like 'otherLabel', update directly
     if (name === 'otherLabel') {
-      setOtherLabel(value);
+      updateAnnualEnergySpend({ [name]: value });
       return;
     }
 
-    const parsed = parseInput(value);
-    const decimalCount = (parsed.match(/\./g) || []).length;
-    if (decimalCount > 1) return;
+    // For numeric fields, parse and validate
+    const parsedValue = parseInput(value);
 
-    setInputs((prev) => ({
-      ...prev,
-      [name]: parsed,
-    }));
+    // Allow only one decimal point and numbers
+    if (!/^\d*\.?\d*$/.test(parsedValue)) {
+      return;
+    }
+    
+    updateAnnualEnergySpend({ [name]: parsedValue });
   };
 
-  const renderCurrencyField = (label: string, name: keyof typeof inputs, tooltip: string) => (
+  const renderCurrencyField = (label: string, name: keyof typeof annualEnergySpend, tooltip: string) => (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
       <Tooltip title={tooltip} placement="left-end" arrow>
         <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}>
@@ -61,7 +53,7 @@ const SubStep2: React.FC = () => {
           placeholder={`Enter the total annual spend on ${label.toLowerCase()}`}
           size="small"
           type="text"
-          value={formatNumber(inputs[name])}
+          value={formatNumber(annualEnergySpend[name])}
           onChange={handleChange}
           name={name}
           InputProps={{
@@ -110,7 +102,7 @@ const SubStep2: React.FC = () => {
                 placeholder="Enter the total annual spend on steam (in MLbs)."
                 size="small"
                 type="text"
-                value={formatNumber(inputs.steam)}
+                value={formatNumber(annualEnergySpend.steam)}
                 onChange={handleChange}
                 name="steam"
                 sx={{
@@ -137,7 +129,7 @@ const SubStep2: React.FC = () => {
                 placeholder="Enter the total annual spend on chilled water (in Tons/hr)."
                 size="small"
                 type="text"
-                value={formatNumber(inputs.chilledWater)}
+                value={formatNumber(annualEnergySpend.chilledWater)}
                 onChange={handleChange}
                 name="chilledWater"
                 sx={{
@@ -164,7 +156,7 @@ const SubStep2: React.FC = () => {
               placeholder="If 'Other', please specify"
               size="small"
               type="text"
-              value={otherLabel}
+              value={annualEnergySpend.otherLabel || ''}
               onChange={handleChange}
               name="otherLabel"
               sx={{
@@ -179,10 +171,10 @@ const SubStep2: React.FC = () => {
             <TextField
               fullWidth
               variant="outlined"
-              placeholder={`Enter total annual spend on ${otherLabel || 'other'}`}
+              placeholder={`Enter total annual spend on ${annualEnergySpend.otherLabel || 'other'}`}
               size="small"
               type="text"
-              value={formatNumber(inputs.other)}
+              value={formatNumber(annualEnergySpend.other)}
               onChange={handleChange}
               name="other"
               InputProps={{

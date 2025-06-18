@@ -1,5 +1,6 @@
 import React, {useState} from 'react'; 
 import { Box, TextField, Typography, Select, MenuItem, Tooltip, Autocomplete, Paper } from '@mui/material';
+import { useOrganizationDetails } from '../../../../Context/Organizational Profile/SubStep2/Organization Details Context';
 
 const companyOptions = [
   "Adobe", "Airbnb", "Alibaba", "Alphabet", "Amazon", "AMD", "Apple", "ASUS", "Atlassian", "Autodesk",
@@ -31,7 +32,17 @@ const companyOptions = [
 ];
 
 const SubStep2: React.FC = () => { 
-  const [company, setCompany] = useState<string | null>(null);
+
+  const { organizationDetails, updateOrganizationDetails } = useOrganizationDetails();
+
+  const handleEmployeeCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/,/g, '');
+    if (!/^\d*$/.test(rawValue)) return; // Allow only numbers
+    const formatted = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    updateOrganizationDetails({ employeeCount: formatted });
+  };
+
+  const [company, _setCompany] = useState<string | null>(null);
   return ( 
     <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
       <style>
@@ -50,8 +61,10 @@ const SubStep2: React.FC = () => {
     <Autocomplete
       options={['Select your Organization Name', ...companyOptions]}
       getOptionDisabled={(option) => option === 'Select your Organization Name'}
-      value={company || 'Select your Organization Name'}
-      onChange={(_event: any, newValue: string | null) => setCompany(newValue)}
+      value={organizationDetails.organizationName || null} // Read value from context
+      onChange={(_event: any, newValue: string | null) => {
+        updateOrganizationDetails({ organizationName: newValue || '' }); // Update context
+      }}
       disableClearable={company === 'Select your Organization Name'}
       noOptionsText="No options available"
       renderInput={(params) => (
@@ -117,6 +130,8 @@ const SubStep2: React.FC = () => {
     variant="outlined"
     size="small"
     type="text"
+                value={organizationDetails.userName} // Read value from context
+                onChange={(e) => updateOrganizationDetails({ userName: e.target.value })}
     sx={{
       flex: 0.5,
       fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
@@ -136,6 +151,8 @@ const SubStep2: React.FC = () => {
     variant="outlined"
     size="small"
     type="email"
+                value={organizationDetails.userEmail} // Read value from context
+                onChange={(e) => updateOrganizationDetails({ userEmail: e.target.value })}
     sx={{
       flex: 0.5,
       fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
@@ -155,6 +172,8 @@ const SubStep2: React.FC = () => {
     variant="outlined"
     size="small"
     type="text"
+                value={organizationDetails.userTitle} // Read value from context
+                onChange={(e) => updateOrganizationDetails({ userTitle: e.target.value })}
     sx={{
       flex: 0.5,
       fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',
@@ -173,6 +192,8 @@ const SubStep2: React.FC = () => {
   fullWidth
   size="small"
   variant="outlined"
+                value={organizationDetails.organizationType || "default"} // Read from context, provide default for placeholder
+                onChange={(e) => updateOrganizationDetails({ organizationType: e.target.value })}
   defaultValue="Option 1"
   sx={{
     flex: 0.498,
@@ -222,6 +243,8 @@ const SubStep2: React.FC = () => {
   fullWidth
   size="small"
   variant="outlined"
+                value={organizationDetails.industry || "default"} // Read from context
+                onChange={(e) => updateOrganizationDetails({ industry: e.target.value })}
   defaultValue="Option 1"
   sx={{
     flex: 0.498,
@@ -290,6 +313,8 @@ const SubStep2: React.FC = () => {
   fullWidth
   size="small"
   variant="outlined"
+                value={organizationDetails.irsCategory || "default"} // Read from context
+                onChange={(e) => updateOrganizationDetails({ irsCategory: e.target.value })}
   defaultValue="Option 1"
   sx={{
     flex: 0.498,
@@ -368,17 +393,19 @@ const SubStep2: React.FC = () => {
       placeholder='Enter the number of employees at your facility'
       variant="outlined"
       size="small"
+                value={organizationDetails.employeeCount} // Read from context
+                onChange={handleEmployeeCountChange}
       type="text"
       inputProps={{
         inputMode: 'numeric',
         pattern: '[0-9,]*',
       }}
-      onChange={(e) => {
-        const rawValue = e.target.value.replace(/,/g, '');
-        if (!/^\d*$/.test(rawValue)) return;
-        const formatted = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        e.target.value = formatted;
-      }}
+      // onChange={(e) => {
+      //   const rawValue = e.target.value.replace(/,/g, '');
+      //   if (!/^\d*$/.test(rawValue)) return;
+      //   const formatted = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      //   e.target.value = formatted;
+      // }}
       sx={{
         flex: 0.5,
         fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif',

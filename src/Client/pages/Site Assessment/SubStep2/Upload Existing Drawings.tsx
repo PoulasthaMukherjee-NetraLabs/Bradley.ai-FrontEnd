@@ -1,24 +1,18 @@
-import React, { useState, useRef } from 'react';
-import {
-  Box,
-  Typography,
-  Tooltip,
-  List,
-  ListItem,
-  ListItemText,
-  IconButton
-} from '@mui/material';
+import React, { useRef } from 'react';
+import { Box, Typography, Tooltip, List, ListItem, ListItemText, IconButton } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useMEPDrawings } from '../../../../Context/Site Assessment/SubStep2/Upload Existing Drawings Context';
 
 const SubStep2: React.FC = () => {
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const { mepDrawingsState, addFiles, removeFile } = useMEPDrawings();
+  const { files } = mepDrawingsState;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      setSelectedFiles(prevFiles => [...prevFiles, ...Array.from(files)]);
+    const newFiles = event.target.files;
+    if (newFiles) {
+      addFiles(Array.from(newFiles));
     }
   };
 
@@ -28,18 +22,14 @@ const SubStep2: React.FC = () => {
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const files = event.dataTransfer.files;
-    if (files) {
-      setSelectedFiles(prevFiles => [...prevFiles, ...Array.from(files)]);
+    const newFiles = event.dataTransfer.files;
+    if (newFiles) {
+      addFiles(Array.from(newFiles));
     }
   };
 
   const handleUploadBoxClick = () => {
     fileInputRef.current?.click();
-  };
-
-  const handleRemoveFile = (fileName: string) => {
-    setSelectedFiles(prevFiles => prevFiles.filter(file => file.name !== fileName));
   };
 
   const formatFileSize = (bytes: number) => {
@@ -61,7 +51,9 @@ const SubStep2: React.FC = () => {
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', pl: '160px', pr: '160px' }}>
-          <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'center' }}>I generate one-line diagrams and balance of plant layouts. Knowing your available floor space, equipment layout and having access to your existing one-line diagram and short circuit study will increase the accuracy of the method to connect the recommended DER solution to your existing infrastructure.<br /><br /><b>IF</b> – you do not have these documents uploaded, do not worry: I will still provide a fully capable 30% conceptual DER design but will engineer a method of interconnect, control, protection and synchronization as needed by the DER recommendation.</Typography>
+          <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'center' }}>
+            I generate one-line diagrams and balance of plant layouts. Knowing your available floor space, equipment layout and having access to your existing one-line diagram and short circuit study will increase the accuracy of the method to connect the recommended DER solution to your existing infrastructure.<br /><br /><b>IF</b> – you do not have these documents uploaded, do not worry: I will still provide a fully capable 30% conceptual DER design but will engineer a method of interconnect, control, protection and synchronization as needed by the DER recommendation.
+          </Typography>
 
           <input
             type="file"
@@ -96,17 +88,19 @@ const SubStep2: React.FC = () => {
               <Typography sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif', ml: 1 }}>Drag and drop files here or click to upload (PDF, CAD, JPEG, BMP, TIF)</Typography>
             </Box>
           </Tooltip>
-          <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'right' }}><b>*</b>Accepted File Formats: .pdf, .cad, .jpeg, .bmp, .tif</Typography>
+          <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'right' }}>
+            <b>*</b>Accepted File Formats: .pdf, .cad, .jpeg, .bmp, .tif
+          </Typography>
 
-          {selectedFiles.length > 0 && (
+          {files.length > 0 && (
             <Box sx={{ mt: 2 }}>
               <Typography sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif', mb: 1, fontWeight: 'bold' }}>Uploaded Files:</Typography>
               <List dense>
-                {selectedFiles.map((file, index) => (
+                {files.map((file, index) => (
                   <ListItem
                     key={index}
                     secondaryAction={
-                      <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveFile(file.name)}>
+                      <IconButton edge="end" aria-label="delete" onClick={() => removeFile(file.name)}>
                         <DeleteIcon />
                       </IconButton>
                     }

@@ -1,40 +1,107 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface FacilityOperationDescription {
-  description: string;
+interface FacilityOperationState {
+  checked: {
+    twoPipeSystem: boolean;
+    fourPipeSystem: boolean;
+    autoLightSensors: boolean;
+    waterTreatment: boolean;
+    setbackTemperature: boolean;
+    freeCooling: boolean;
+  };
+  description: {
+    twoPipeSystem: string;
+    fourPipeSystem: string;
+    autoLightSensors: string;
+    waterTreatment: string[];
+    freeCooling: string;
+  };
+  operationalHours: {
+    startUpTime: string;
+    setBackTime: string;
+  };
+  typicalHours: {
+    startUpTime: string;
+    setBackTime: string;
+  };
+  setbackTemperature: {
+    summer: string;
+    winter: string;
+  };
+  facilityTenantTemperature: string;
 }
 
-interface FacilityOperationDescriptionContextType {
-  facilityOperationDescription: FacilityOperationDescription;
-  updateFacilityOperationDescription: (description: string) => void;
+interface FacilityOperationContextType {
+  facilityOperation: FacilityOperationState;
+  updateFacilityOperation: (newState: Partial<FacilityOperationState>) => void;
 }
 
-const FacilityOperationDescriptionContext = createContext<FacilityOperationDescriptionContextType | undefined>(undefined);
+const FacilityOperationContext = createContext<FacilityOperationContextType | undefined>(undefined);
 
-export const useFacilityOperationDescription = () => {
-  const context = useContext(FacilityOperationDescriptionContext);
+export const useFacilityOperation = () => {
+  const context = useContext(FacilityOperationContext);
   if (!context) {
-    throw new Error('useFacilityOperationDescription must be used within a FacilityOperationDescriptionProvider');
+    throw new Error('useFacilityOperation must be used within a FacilityOperationProvider');
   }
   return context;
 };
 
-interface Props {
-  children: React.ReactNode;
+interface FacilityOperationProviderProps {
+  children: ReactNode;
 }
 
-export const FacilityOperationDescriptionProvider: React.FC<Props> = ({ children }) => {
-  const [facilityOperationDescription, setFacilityOperationDescription] = useState<FacilityOperationDescription>({
-    description: '',
+const defaultState: FacilityOperationState = {
+  checked: {
+    twoPipeSystem: false,
+    fourPipeSystem: false,
+    autoLightSensors: false,
+    waterTreatment: false,
+    setbackTemperature: false,
+    freeCooling: false,
+  },
+  description: {
+    twoPipeSystem: '',
+    fourPipeSystem: '',
+    autoLightSensors: '',
+    waterTreatment: [],
+    freeCooling: '',
+  },
+  operationalHours: {
+    startUpTime: '',
+    setBackTime: '',
+  },
+  typicalHours: {
+    startUpTime: '',
+    setBackTime: '',
+  },
+  setbackTemperature: {
+    summer: '',
+    winter: '',
+  },
+  facilityTenantTemperature: '',
+};
+
+export const FacilityOperationProvider: React.FC<FacilityOperationProviderProps> = ({ children }) => {
+  const [facilityOperation, setFacilityOperation] = useState<FacilityOperationState>(() => {
+    const savedState = Cookies.get('facilityOperationState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateFacilityOperationDescription = (description: string) => {
-    setFacilityOperationDescription({ description });
+  useEffect(() => {
+    Cookies.set('facilityOperationState', JSON.stringify(facilityOperation));
+  }, [facilityOperation]);
+
+  const updateFacilityOperation = (newState: Partial<FacilityOperationState>) => {
+    setFacilityOperation((prevState) => ({
+      ...prevState,
+      ...newState,
+    }));
   };
 
   return (
-    <FacilityOperationDescriptionContext.Provider value={{ facilityOperationDescription, updateFacilityOperationDescription }}>
+    <FacilityOperationContext.Provider value={{ facilityOperation, updateFacilityOperation }}>
       {children}
-    </FacilityOperationDescriptionContext.Provider>
+    </FacilityOperationContext.Provider>
   );
 };

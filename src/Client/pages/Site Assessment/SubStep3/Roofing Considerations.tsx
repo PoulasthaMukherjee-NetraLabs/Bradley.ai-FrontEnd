@@ -1,31 +1,17 @@
-import React, { useState } from 'react';
-import { Box, Typography, TextField, Select, MenuItem, FormControl } from '@mui/material';
+import React from 'react';
+import { Box, Typography, TextField, Select, MenuItem, FormControl, SelectChangeEvent } from '@mui/material';
+import { useRoofingConsiderations } from '../../../../Context/Site Assessment/SubStep3/Roofing Considerations Context';
 
 const SubStep3: React.FC = () => {
-  const [roofPenetration, setRoofPenetration] = useState('');
-  const [roofWarrantyTerm, setRoofWarrantyTerm] = useState('');
-  const [roofCondition, setRoofCondition] = useState('');
-  const [insuranceProvider, setInsuranceProvider] = useState('');
-  const [policyId, setPolicyId] = useState('');
+  const { roofingConsiderationsState, updateField } = useRoofingConsiderations();
+  const { roofPenetration, roofWarrantyTerm, roofCondition, insuranceProvider, policyId } = roofingConsiderationsState;
 
-  const handleRoofPenetrationChange = (event: { target: { value: any } }) => {
-    setRoofPenetration(event.target.value);
+  const handleSelectChange = (event: SelectChangeEvent<string>, field: keyof typeof roofingConsiderationsState) => {
+    updateField(field, event.target.value);
   };
-
-  const handleRoofWarrantyTermChange = (event: { target: { value: any } }) => {
-    setRoofWarrantyTerm(event.target.value);
-  };
-
-  const handleRoofConditionChange = (event: { target: { value: any } }) => {
-    setRoofCondition(event.target.value);
-  };
-
-  const handleInsuranceProviderChange = (event: { target: { value: any } }) => {
-    setInsuranceProvider(event.target.value);
-  };
-
-  const handlePolicyIdChange = (event: { target: { value: any } }) => {
-    setPolicyId(event.target.value);
+  
+  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: keyof typeof roofingConsiderationsState) => {
+    updateField(field, event.target.value);
   };
 
   return (
@@ -46,26 +32,14 @@ const SubStep3: React.FC = () => {
               <FormControl sx={{ flex: 0.5, minWidth: 120 }}>
                 <Select
                   value={roofPenetration}
-                  onChange={handleRoofPenetrationChange}
+                  onChange={(e) => handleSelectChange(e, 'roofPenetration')}
                   displayEmpty
                   size="small"
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.7rem',
-                    height: '40px',
-                    '& .MuiInputBase-root': { padding: '0 6px' },
-                    '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
-                  }}
+                  sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', height: '40px', '& .MuiInputBase-root': { padding: '0 6px' }, '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' } }}
                 >
-                  <MenuItem disabled value="" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
-                    Select Yes or No
-                  </MenuItem>
-                  <MenuItem value="yes" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
-                    Yes
-                  </MenuItem>
-                  <MenuItem value="no" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
-                    No
-                  </MenuItem>
+                  <MenuItem disabled value="" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Select Yes or No</MenuItem>
+                  <MenuItem value="yes" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Yes</MenuItem>
+                  <MenuItem value="no" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>No</MenuItem>
                 </Select>
               </FormControl>
             </Box>
@@ -80,18 +54,8 @@ const SubStep3: React.FC = () => {
                 type="text"
                 placeholder="1 Year, 20 Years, etc..."
                 value={roofWarrantyTerm}
-                onChange={handleRoofWarrantyTermChange}
-                sx={{
-                  flex: 0.5,
-                  fontFamily: 'Nunito Sans, sans-serif',
-                  fontSize: '0.7rem',
-                  '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-                  '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input::placeholder': {
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.7rem',
-                  },
-                }}
+                onChange={(e) => handleTextChange(e, 'roofWarrantyTerm')}
+                sx={{ flex: 0.5, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', '& .MuiInputBase-root': { height: '40px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }}
               />
             </Box>
 
@@ -102,29 +66,15 @@ const SubStep3: React.FC = () => {
               <FormControl sx={{ flex: 0.5, minWidth: 120 }}>
                 <Select
                   value={roofCondition}
-                  onChange={handleRoofConditionChange}
+                  onChange={(e) => handleSelectChange(e, 'roofCondition')}
                   displayEmpty
                   size="small"
-                  sx={{
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.7rem',
-                    height: '40px',
-                    '& .MuiInputBase-root': { padding: '0 6px' },
-                    '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
-                  }}
+                  sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', height: '40px', '& .MuiInputBase-root': { padding: '0 6px' }, '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' } }}
                 >
-                  <MenuItem disabled value="" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
-                    Select Condition
-                  </MenuItem>
-                  <MenuItem value="great" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
-                    Great
-                  </MenuItem>
-                  <MenuItem value="fair" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
-                    Fair
-                  </MenuItem>
-                  <MenuItem value="poor" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>
-                    Poor
-                  </MenuItem>
+                  <MenuItem disabled value="" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Select Condition</MenuItem>
+                  <MenuItem value="great" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Great</MenuItem>
+                  <MenuItem value="fair" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Fair</MenuItem>
+                  <MenuItem value="poor" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Poor</MenuItem>
                 </Select>
               </FormControl>
             </Box>
@@ -151,18 +101,8 @@ const SubStep3: React.FC = () => {
                 type="text"
                 placeholder="Provider Name"
                 value={insuranceProvider}
-                onChange={handleInsuranceProviderChange}
-                sx={{
-                  flex: 0.5,
-                  fontFamily: 'Nunito Sans, sans-serif',
-                  fontSize: '0.7rem',
-                  '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-                  '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input::placeholder': {
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.7rem',
-                  },
-                }}
+                onChange={(e) => handleTextChange(e, 'insuranceProvider')}
+                sx={{ flex: 0.5, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', '& .MuiInputBase-root': { height: '40px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }}
               />
             </Box>
 
@@ -176,18 +116,8 @@ const SubStep3: React.FC = () => {
                 type="text"
                 placeholder="Policy ID"
                 value={policyId}
-                onChange={handlePolicyIdChange}
-                sx={{
-                  flex: 0.5,
-                  fontFamily: 'Nunito Sans, sans-serif',
-                  fontSize: '0.7rem',
-                  '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-                  '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
-                  '& .MuiInputBase-input::placeholder': {
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.7rem',
-                  },
-                }}
+                onChange={(e) => handleTextChange(e, 'policyId')}
+                sx={{ flex: 0.5, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', '& .MuiInputBase-root': { height: '40px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }}
               />
             </Box>
           </Box>

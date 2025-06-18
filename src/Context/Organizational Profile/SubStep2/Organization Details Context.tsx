@@ -1,11 +1,17 @@
-import { createContext, useContext, useState } from 'react';
+// src/Context/OrganizationDetailsContext.tsx
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 interface OrganizationDetails {
   organizationName: string;
+  userName: string;
+  userEmail: string;
+  userTitle: string;
   organizationType: string;
   industry: string;
   irsCategory: string;
-  employeeCount: number;
+  employeeCount: string;
 }
 
 interface OrganizationDetailsContextType {
@@ -28,13 +34,23 @@ interface OrganizationDetailsProviderProps {
 }
 
 export const OrganizationDetailsProvider: React.FC<OrganizationDetailsProviderProps> = ({ children }) => {
-  const [organizationDetails, setOrganizationDetails] = useState<OrganizationDetails>({
-    organizationName: '',
-    organizationType: '',
-    industry: '',
-    irsCategory: '',
-    employeeCount: 0,
+  const [organizationDetails, setOrganizationDetails] = useState<OrganizationDetails>(() => {
+    const savedDetails = Cookies.get('organizationDetails');
+    return savedDetails ? JSON.parse(savedDetails) : {
+      organizationName: '',
+      userName: '',
+      userEmail: '',
+      userTitle: '',
+      organizationType: '',
+      industry: '',
+      irsCategory: '',
+      employeeCount: '',
+    };
   });
+
+  useEffect(() => {
+    Cookies.set('organizationDetails', JSON.stringify(organizationDetails));
+  }, [organizationDetails]);
 
   const updateOrganizationDetails = (details: Partial<OrganizationDetails>) => {
     setOrganizationDetails((prevDetails) => ({ ...prevDetails, ...details }));

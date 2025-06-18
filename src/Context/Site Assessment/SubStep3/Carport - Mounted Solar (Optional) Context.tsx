@@ -1,14 +1,18 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface CarportSolar {
-  allowRoofPenetration: string;
+interface CarportSolarState {
+  roofPenetration: string;
   totalParkingSpots: string;
-  parkingGarageType: string;
+  parkingGarageWidth: string;
+  parkingGarageLength: string;
+  switchgearFloor: string;
+  topFloorHeight: string;
 }
 
 interface CarportSolarContextType {
-  carportSolar: CarportSolar;
-  updateCarportSolar: (data: Partial<CarportSolar>) => void;
+  carportSolarState: CarportSolarState;
+  updateField: (field: keyof CarportSolarState, value: string) => void;
 }
 
 const CarportSolarContext = createContext<CarportSolarContextType | undefined>(undefined);
@@ -21,19 +25,34 @@ export const useCarportSolar = () => {
   return context;
 };
 
-export const CarportSolarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [carportSolar, setCarportSolar] = useState<CarportSolar>({
-    allowRoofPenetration: '',
-    totalParkingSpots: '',
-    parkingGarageType: '',
+const defaultState: CarportSolarState = {
+  roofPenetration: '',
+  totalParkingSpots: '',
+  parkingGarageWidth: '',
+  parkingGarageLength: '',
+  switchgearFloor: '',
+  topFloorHeight: '',
+};
+
+export const CarportSolarProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [carportSolarState, setCarportSolarState] = useState<CarportSolarState>(() => {
+    const savedState = Cookies.get('carportSolarState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateCarportSolar = (data: Partial<CarportSolar>) => {
-    setCarportSolar((prevData) => ({ ...prevData, ...data }));
+  useEffect(() => {
+    Cookies.set('carportSolarState', JSON.stringify(carportSolarState));
+  }, [carportSolarState]);
+
+  const updateField = (field: keyof CarportSolarState, value: string) => {
+    setCarportSolarState(prevState => ({
+      ...prevState,
+      [field]: value,
+    }));
   };
 
   return (
-    <CarportSolarContext.Provider value={{ carportSolar, updateCarportSolar }}>
+    <CarportSolarContext.Provider value={{ carportSolarState, updateField }}>
       {children}
     </CarportSolarContext.Provider>
   );

@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { /* useState, */ useRef } from 'react';
 import { Box, Typography, TextField, Button, Tooltip } from '@mui/material';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { useFacilityAddress } from '../../../../Context/Organizational Profile/SubStep2/Facility Address Context';
 
 const createCustomIcon = (IconComponent: React.ElementType) => {
   const iconMarkup = renderToStaticMarkup(
@@ -18,32 +19,29 @@ const createCustomIcon = (IconComponent: React.ElementType) => {
   });
 };
 
-const MapMarker = ({ position, setPosition }: { position: L.LatLng | null, setPosition: React.Dispatch<React.SetStateAction<L.LatLng | null>> }) => {
+const MapMarker = ({ position, onPositionChange }: { position: L.LatLng | null; onPositionChange: (pos: L.LatLng) => void; }) => {
   const customIcon = createCustomIcon(FaMapMarkerAlt);
 
   useMapEvents({
     click(e) {
-      setPosition(e.latlng);
+      onPositionChange(e.latlng); // Call the provided handler to update context
     },
   });
-
+  
+  // Set a default position only if it's null initially
   if (!position) {
     const defaultPosition = new L.LatLng(51.505, -0.09);
-    setPosition(defaultPosition);
+    onPositionChange(defaultPosition);
   }
 
   return position ? <Marker position={position} icon={customIcon} /> : null;
 };
 
 const SubStep2 = () => {
-  const [position, setPosition] = useState<L.LatLng | null>(null);
-  const [address, setAddress] = useState({
-    streetAddress: 'Southwark Bridge Road',
-    city: 'London',
-    state: 'England',
-    zipCode: 'SE1 1UN',
-    otherAddress: '',
-  });
+  const { facilityAddress, updateFacilityAddress, updateAddressField } = useFacilityAddress();
+  const { position, address } = facilityAddress;
+  
+  // mapRef can remain a local ref as it's for direct DOM interaction.
   const mapRef = useRef<L.Map | null>(null);
 
   const handleSavePinnedLocation = () => {
@@ -52,12 +50,15 @@ const SubStep2 = () => {
       fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
         .then(response => response.json())
         .then(data => {
-          setAddress({
-            streetAddress: data.address.road || '',
-            city: data.address.city || data.address.town || '',
-            state: data.address.state || '',
-            zipCode: data.address.postcode || '',
-            otherAddress: '',
+          // 3. Update the context state with the fetched address.
+          updateFacilityAddress({
+            address: {
+              streetAddress: data.address.road || '',
+              city: data.address.city || data.address.town || '',
+              state: data.address.state || '',
+              zipCode: data.address.postcode || '',
+              otherAddress: address.otherAddress, // Preserve existing 'otherAddress'
+            }
           });
         })
         .catch(error => console.error('Error fetching address:', error));
@@ -84,7 +85,10 @@ const SubStep2 = () => {
         <Box sx={{ flex: 1, height: '268.5px', border: '1px solid lightgrey', borderRadius: 1 }}>
           <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100%', width: '100%' }} ref={mapRef}>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <MapMarker position={position} setPosition={setPosition} />
+            <MapMarker
+                position={position}
+                onPositionChange={(newPos) => updateFacilityAddress({ position: newPos })}
+              />
           </MapContainer>
         </Box>
       </Tooltip>
@@ -121,8 +125,8 @@ const SubStep2 = () => {
                   variant="outlined"
                   size="small"
                   type="text"
-                  value={address[key]}
-                  onChange={(e) => setAddress({ ...address, [key]: e.target.value })}
+                  value={address[key as keyof typeof address]}
+                  onChange={(e) => updateAddressField(key as keyof typeof address, e.target.value)}
                   placeholder={placeholder}
                   sx={{
                     flex: 1,
@@ -142,7 +146,7 @@ const SubStep2 = () => {
                 type="text"
                 value={address.otherAddress}
                 placeholder='Address 1; Address 2; Address 3, ...'
-                onChange={(e) => setAddress({ ...address, otherAddress: e.target.value })}
+                onChange={(e) => updateAddressField('otherAddress', e.target.value)}
                 sx={{
                   flex: 1,
                   fontSize: '0.7rem',

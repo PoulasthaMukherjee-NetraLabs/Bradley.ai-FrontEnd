@@ -1,50 +1,65 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface ThermalEnergyNeeds {
-  requiresSteam: boolean;
+interface ThermalEnergyNeedsIState {
+  showSteam: boolean;
   annualSteamUsage: string;
-  annualSteamUsageUnit: string;
-  steamPressure: string;
+  steamPressureRange: string;
+  exactSteamPressure: string;
   steamUsageConsistency: string;
   condensateReturn: string;
+  returnFLOW: string;
+  returnCondensateTemperature: string;
+  makeUpWater: string;
 }
 
-interface ThermalEnergyNeedsContextType {
-  thermalEnergyNeeds: ThermalEnergyNeeds;
-  updateThermalEnergyNeeds: (needs: Partial<ThermalEnergyNeeds>) => void;
+interface ThermalEnergyNeedsIContextType {
+  thermalNeedsIState: ThermalEnergyNeedsIState;
+  updateField: (field: keyof ThermalEnergyNeedsIState, value: string | boolean) => void;
 }
 
-const ThermalEnergyNeedsContext = createContext<ThermalEnergyNeedsContextType | undefined>(undefined);
+const ThermalEnergyNeedsIContext = createContext<ThermalEnergyNeedsIContextType | undefined>(undefined);
 
-export const useThermalEnergyNeeds = () => {
-  const context = useContext(ThermalEnergyNeedsContext);
+export const useThermalEnergyNeedsI = () => {
+  const context = useContext(ThermalEnergyNeedsIContext);
   if (!context) {
-    throw new Error('useThermalEnergyNeeds must be used within a ThermalEnergyNeedsProvider');
+    throw new Error('useThermalEnergyNeedsI must be used within a ThermalEnergyNeedsIProvider');
   }
   return context;
 };
 
-interface ThermalEnergyNeedsProviderProps {
-  children: React.ReactNode;
-}
+const defaultState: ThermalEnergyNeedsIState = {
+  showSteam: false,
+  annualSteamUsage: '',
+  steamPressureRange: '0.5-15',
+  exactSteamPressure: '',
+  steamUsageConsistency: 'select',
+  condensateReturn: '',
+  returnFLOW: '',
+  returnCondensateTemperature: '',
+  makeUpWater: '',
+};
 
-export const ThermalEnergyNeedsProvider: React.FC<ThermalEnergyNeedsProviderProps> = ({ children }) => {
-  const [thermalEnergyNeeds, setThermalEnergyNeeds] = useState<ThermalEnergyNeeds>({
-    requiresSteam: false,
-    annualSteamUsage: '',
-    annualSteamUsageUnit: 'Tons',
-    steamPressure: '15 PSIG',
-    steamUsageConsistency: '',
-    condensateReturn: '',
+export const ThermalEnergyNeedsIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [thermalNeedsIState, setThermalNeedsIState] = useState<ThermalEnergyNeedsIState>(() => {
+    const savedState = Cookies.get('thermalEnergyNeedsIState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateThermalEnergyNeeds = (needs: Partial<ThermalEnergyNeeds>) => {
-    setThermalEnergyNeeds((prevNeeds) => ({ ...prevNeeds, ...needs }));
+  useEffect(() => {
+    Cookies.set('thermalEnergyNeedsIState', JSON.stringify(thermalNeedsIState));
+  }, [thermalNeedsIState]);
+
+  const updateField = (field: keyof ThermalEnergyNeedsIState, value: string | boolean) => {
+    setThermalNeedsIState(prevState => ({
+      ...prevState,
+      [field]: value,
+    }));
   };
 
   return (
-    <ThermalEnergyNeedsContext.Provider value={{ thermalEnergyNeeds, updateThermalEnergyNeeds }}>
+    <ThermalEnergyNeedsIContext.Provider value={{ thermalNeedsIState, updateField }}>
       {children}
-    </ThermalEnergyNeedsContext.Provider>
+    </ThermalEnergyNeedsIContext.Provider>
   );
 };

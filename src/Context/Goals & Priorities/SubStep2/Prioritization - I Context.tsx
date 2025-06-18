@@ -1,51 +1,75 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface Priority {
-  rank: number;
-  value: string;
+interface PrioritizationIState {
+  selectedRanks: { [key: number]: string };
+  descriptions: { [key: number]: string };
 }
 
-interface Prioritization {
-  priorities: Priority[];
+interface PrioritizationIContextType {
+  prioritizationIState: PrioritizationIState;
+  updateRank: (rank: number, value: string) => void;
+  updateDescription: (rank: number, value: string) => void;
+  clearAllPriorities: () => void;
 }
 
-interface PrioritizationContextType {
-  prioritization: Prioritization;
-  updatePriority: (rank: number, value: string) => void;
-}
+const PrioritizationIContext = createContext<PrioritizationIContextType | undefined>(undefined);
 
-const PrioritizationContext = createContext<PrioritizationContextType | undefined>(undefined);
-
-export const usePrioritization = () => {
-  const context = useContext(PrioritizationContext);
+export const usePrioritizationI = () => {
+  const context = useContext(PrioritizationIContext);
   if (!context) {
-    throw new Error('usePrioritization must be used within a PrioritizationProvider');
+    throw new Error('usePrioritizationI must be used within a PrioritizationIProvider');
   }
   return context;
 };
 
-export const PrioritizationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [prioritization, setPrioritization] = useState<Prioritization>({
-    priorities: [
-      { rank: 1, value: 'Decarbonization' },
-      { rank: 2, value: 'Cost Reduction' },
-      { rank: 3, value: 'Increased Resiliency' },
-      { rank: 4, value: 'Maximize Renewable Generation' },
-    ],
+const defaultState: PrioritizationIState = {
+  selectedRanks: { 1: "Select one", 2: "Select one", 3: "Select one", 4: "Select one" },
+  descriptions: { 1: "", 2: "", 3: "", 4: "" },
+};
+
+export const PrioritizationIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [prioritizationIState, setPrioritizationIState] = useState<PrioritizationIState>(() => {
+    const savedState = Cookies.get('prioritizationIState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updatePriority = (rank: number, value: string) => {
-    setPrioritization((prev) => ({
-      ...prev,
-      priorities: prev.priorities.map((priority) =>
-        priority.rank === rank ? { ...priority, value } : priority
-      ),
+  useEffect(() => {
+    Cookies.set('prioritizationIState', JSON.stringify(prioritizationIState));
+  }, [prioritizationIState]);
+
+  const updateRank = (rank: number, value: string) => {
+    setPrioritizationIState(prevState => {
+      const newRanks = { ...prevState.selectedRanks };
+      if (newRanks[rank] === value) {
+        newRanks[rank] = "Select one";
+      } else {
+        const existingRankKey = Object.keys(newRanks).find(
+          (key) => newRanks[Number(key)] === value
+        );
+        if (existingRankKey) {
+          newRanks[Number(existingRankKey)] = "Select one";
+        }
+        newRanks[rank] = value;
+      }
+      return { ...prevState, selectedRanks: newRanks };
+    });
+  };
+
+  const updateDescription = (rank: number, value: string) => {
+    setPrioritizationIState(prevState => ({
+        ...prevState,
+        descriptions: { ...prevState.descriptions, [rank]: value }
     }));
   };
 
+  const clearAllPriorities = () => {
+    setPrioritizationIState(defaultState);
+  };
+
   return (
-    <PrioritizationContext.Provider value={{ prioritization, updatePriority }}>
+    <PrioritizationIContext.Provider value={{ prioritizationIState, updateRank, updateDescription, clearAllPriorities }}>
       {children}
-    </PrioritizationContext.Provider>
+    </PrioritizationIContext.Provider>
   );
 };

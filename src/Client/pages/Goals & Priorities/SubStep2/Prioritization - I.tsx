@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Button, Typography, MenuItem, Select, TextField, Tooltip } from '@mui/material';
+import { usePrioritizationI } from '../../../../Context/Goals & Priorities/SubStep2/Prioritization - I Context';
 
 const options = [
   "Select one",
@@ -10,36 +11,8 @@ const options = [
 ];
 
 const SubStep2: React.FC = () => {
-  const [selectedRanks, setSelectedRanks] = useState<{ [key: number]: string }>(
-    { 1: "Select one", 2: "Select one", 3: "Select one", 4: "Select one" }
-  );
-
-  const [descriptions, setDescriptions] = useState<{ [key: number]: string }>(
-    { 1: "", 2: "", 3: "", 4: "" }
-  );
-
-  const handleChange = (rank: number, value: string) => {
-    setSelectedRanks((prev) => {
-      const newRanks = { ...prev };
-      if (newRanks[rank] === value) {
-        newRanks[rank] = "Select one";
-      } else {
-        const existingRank = Object.keys(newRanks).find(
-          (key) => newRanks[Number(key)] === value
-        );
-        if (existingRank) {
-          newRanks[Number(existingRank)] = "Select one";
-        }
-        newRanks[rank] = value;
-      }
-      return newRanks;
-    });
-  };
-
-  const handleClearAll = () => {
-    setSelectedRanks({ 1: "Select one", 2: "Select one", 3: "Select one", 4: "Select one" });
-    setDescriptions({ 1: "", 2: "", 3: "", 4: "" });
-  };
+  const { prioritizationIState, updateRank, updateDescription, clearAllPriorities } = usePrioritizationI();
+  const { selectedRanks, descriptions } = prioritizationIState;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
@@ -57,9 +30,11 @@ const SubStep2: React.FC = () => {
               <p></p>
             </Typography>
             <Tooltip title="Click to clear current form" placement='right' arrow>
-            <Button variant="outlined" size="small" onClick={handleClearAll} sx={{ fontSize: '0.7rem', textTransform: 'none', flex: 0.06 }}>
-              Clear All
-            </Button></Tooltip><p></p><br />
+              <Button variant="outlined" size="small" onClick={clearAllPriorities} sx={{ fontSize: '0.7rem', textTransform: 'none', flex: 0.06 }}>
+                Clear All
+              </Button>
+            </Tooltip>
+            <p></p><br />
           </Box>
           {[1, 2, 3, 4].map((rank) => (
             <Box key={rank} sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
@@ -69,8 +44,8 @@ const SubStep2: React.FC = () => {
               <Select
                 size="small"
                 variant="outlined"
-                value={selectedRanks[rank] || "Select One"}
-                onChange={(e) => handleChange(rank, e.target.value)}
+                value={selectedRanks[rank] || "Select one"}
+                onChange={(e) => updateRank(rank, e.target.value)}
                 sx={{
                   flex: 0.21,
                   fontFamily: 'Nunito Sans, sans-serif',
@@ -92,32 +67,31 @@ const SubStep2: React.FC = () => {
                 ))}
               </Select>
               <Tooltip title="Set rank to add explanation" placement='right' arrow>
-              <TextField
-                fullWidth
-                variant="outlined"
-                placeholder="Add Explanation"
-                name={`description-${rank}`}
-                size="small"
-                value={descriptions[rank]}
-                onChange={(e) => setDescriptions({ ...descriptions, [rank]: e.target.value })}
-                disabled={selectedRanks[rank] === "Select one"}
-                sx={{
-                  flex: 0.43,
-                  height: '40px',
-                  fontFamily: 'Nunito Sans, sans-serif',
-                  '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-                  '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' },
-                  fontSize: '0.7rem',
-                  padding: '2px 1px',
-                  pr: '15px',
-                  pl: '15px',
-                  alignSelf: 'flex-end',
-                  textTransform: 'none',
-                  '&:focus': {
-                    outline: 'none',
-                  }
-                }}
-              /></Tooltip>
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  placeholder="Add Explanation"
+                  name={`description-${rank}`}
+                  size="small"
+                  value={descriptions[rank]}
+                  onChange={(e) => updateDescription(rank, e.target.value)}
+                  disabled={selectedRanks[rank] === "Select one"}
+                  sx={{
+                    flex: 0.43,
+                    height: '40px',
+                    fontFamily: 'Nunito Sans, sans-serif',
+                    '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
+                    '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' },
+                    fontSize: '0.7rem',
+                    padding: '2px 1px',
+                    pr: '15px',
+                    pl: '15px',
+                    alignSelf: 'flex-end',
+                    textTransform: 'none',
+                    '&:focus': { outline: 'none' }
+                  }}
+                />
+              </Tooltip>
             </Box>
           ))}
         </Box>
