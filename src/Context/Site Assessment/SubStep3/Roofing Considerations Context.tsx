@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface RoofingConsiderations {
-  allowRoofPenetration: string;
+interface RoofingConsiderationsState {
+  roofPenetration: string;
   roofWarrantyTerm: string;
   roofCondition: string;
   insuranceProvider: string;
@@ -9,8 +10,8 @@ interface RoofingConsiderations {
 }
 
 interface RoofingConsiderationsContextType {
-  roofingConsiderations: RoofingConsiderations;
-  updateRoofingConsiderations: (considerations: Partial<RoofingConsiderations>) => void;
+  roofingConsiderationsState: RoofingConsiderationsState;
+  updateField: (field: keyof RoofingConsiderationsState, value: string) => void;
 }
 
 const RoofingConsiderationsContext = createContext<RoofingConsiderationsContextType | undefined>(undefined);
@@ -23,21 +24,33 @@ export const useRoofingConsiderations = () => {
   return context;
 };
 
-export const RoofingConsiderationsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [roofingConsiderations, setRoofingConsiderations] = useState<RoofingConsiderations>({
-    allowRoofPenetration: '',
-    roofWarrantyTerm: '',
-    roofCondition: '',
-    insuranceProvider: '',
-    policyId: '',
+const defaultState: RoofingConsiderationsState = {
+  roofPenetration: '',
+  roofWarrantyTerm: '',
+  roofCondition: '',
+  insuranceProvider: '',
+  policyId: '',
+};
+
+export const RoofingConsiderationsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [roofingConsiderationsState, setRoofingConsiderationsState] = useState<RoofingConsiderationsState>(() => {
+    const savedState = Cookies.get('roofingConsiderationsState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateRoofingConsiderations = (considerations: Partial<RoofingConsiderations>) => {
-    setRoofingConsiderations((prevConsiderations) => ({ ...prevConsiderations, ...considerations }));
+  useEffect(() => {
+    Cookies.set('roofingConsiderationsState', JSON.stringify(roofingConsiderationsState));
+  }, [roofingConsiderationsState]);
+
+  const updateField = (field: keyof RoofingConsiderationsState, value: string) => {
+    setRoofingConsiderationsState(prevState => ({
+      ...prevState,
+      [field]: value,
+    }));
   };
 
   return (
-    <RoofingConsiderationsContext.Provider value={{ roofingConsiderations, updateRoofingConsiderations }}>
+    <RoofingConsiderationsContext.Provider value={{ roofingConsiderationsState, updateField }}>
       {children}
     </RoofingConsiderationsContext.Provider>
   );

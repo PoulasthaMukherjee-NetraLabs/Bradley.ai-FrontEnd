@@ -1,19 +1,30 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface ThermalEnergyNeedsII {
-  requiresHotWater: boolean;
+interface ThermalEnergyNeedsIIState {
+  showHotWaterHVAC: boolean;
+  showHotWaterBoilers: boolean;
+  showSteam2HWDomestic: boolean;
+  showSteam2HWAHU: boolean;
+  showSteam4Washdowns: boolean;
   hotWaterUsage: string;
-  hotWaterUsageUnit: string;
   hotWaterTemperature: string;
-  domesticHotWater: string;
+  hotWaterUsageTypeAmount: string;
+  hotWaterUsageTypeReason: string;
   preheatForSteam: string;
-  foodPreparationsWashdowns: string;
-  otherHotWaterUsage: string;
+  foodWashdowns: string;
+  otherUsage: string;
+  boilerCapacity: string;
+  boilerBHP: string;
+  boilerType: string;
+  boilerModulation: string;
+  boilerCount: string;
+  bhpBoilerCount: string;
 }
 
 interface ThermalEnergyNeedsIIContextType {
-  thermalEnergyNeedsII: ThermalEnergyNeedsII;
-  updateThermalEnergyNeedsII: (needs: Partial<ThermalEnergyNeedsII>) => void;
+  thermalNeedsIIState: ThermalEnergyNeedsIIState;
+  updateField: (field: keyof ThermalEnergyNeedsIIState, value: string | boolean) => void;
 }
 
 const ThermalEnergyNeedsIIContext = createContext<ThermalEnergyNeedsIIContextType | undefined>(undefined);
@@ -26,28 +37,46 @@ export const useThermalEnergyNeedsII = () => {
   return context;
 };
 
-interface ThermalEnergyNeedsIIProviderProps {
-  children: React.ReactNode;
-}
+const defaultState: ThermalEnergyNeedsIIState = {
+  showHotWaterHVAC: false,
+  showHotWaterBoilers: false,
+  showSteam2HWDomestic: false,
+  showSteam2HWAHU: false,
+  showSteam4Washdowns: false,
+  hotWaterUsage: '',
+  hotWaterTemperature: '',
+  hotWaterUsageTypeAmount: '',
+  hotWaterUsageTypeReason: '',
+  preheatForSteam: '',
+  foodWashdowns: '',
+  otherUsage: '',
+  boilerCapacity: '',
+  boilerBHP: '',
+  boilerType: 'Select Boiler Type',
+  boilerModulation: 'Select',
+  boilerCount: '',
+  bhpBoilerCount: '',
+};
 
-export const ThermalEnergyNeedsIIProvider: React.FC<ThermalEnergyNeedsIIProviderProps> = ({ children }) => {
-  const [thermalEnergyNeedsII, setThermalEnergyNeedsII] = useState<ThermalEnergyNeedsII>({
-    requiresHotWater: false,
-    hotWaterUsage: '',
-    hotWaterUsageUnit: 'Gallons',
-    hotWaterTemperature: '',
-    domesticHotWater: '',
-    preheatForSteam: '',
-    foodPreparationsWashdowns: '',
-    otherHotWaterUsage: '',
+export const ThermalEnergyNeedsIIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [thermalNeedsIIState, setThermalNeedsIState] = useState<ThermalEnergyNeedsIIState>(() => {
+    const savedState = Cookies.get('thermalEnergyNeedsIIState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateThermalEnergyNeedsII = (needs: Partial<ThermalEnergyNeedsII>) => {
-    setThermalEnergyNeedsII((prevNeeds) => ({ ...prevNeeds, ...needs }));
+  useEffect(() => {
+    Cookies.set('thermalEnergyNeedsIIState', JSON.stringify(thermalNeedsIIState));
+  }, [thermalNeedsIIState]);
+
+  const updateField = (field: keyof ThermalEnergyNeedsIIState, value: string | boolean) => {
+    setThermalNeedsIState(prevState => ({
+      ...prevState,
+      [field]: value,
+    }));
   };
 
   return (
-    <ThermalEnergyNeedsIIContext.Provider value={{ thermalEnergyNeedsII, updateThermalEnergyNeedsII }}>
+    <ThermalEnergyNeedsIIContext.Provider value={{ thermalNeedsIIState, updateField }}>
       {children}
     </ThermalEnergyNeedsIIContext.Provider>
   );

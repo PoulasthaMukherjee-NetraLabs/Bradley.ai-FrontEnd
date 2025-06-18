@@ -1,16 +1,18 @@
-import React, { useState, useRef } from 'react';
-import { Box, TextField, Typography, Tooltip, List, ListItem, ListItemText, IconButton } from '@mui/material';
+import React, { useRef } from 'react';
+import { Box, Typography, TextField, List, ListItem, ListItemText, IconButton, Tooltip } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useElectricBillUploadProvider } from '../../../../Context/Energy Profile/SubStep2/Electric Bill Upload Context'
 
 const SubStep2: React.FC = () => {
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const { electricBillUploadState, addFiles, removeFile, updateDateRange } = useElectricBillUploadProvider();
+  const { files, dateRange } = electricBillUploadState;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      setSelectedFiles(prevFiles => [...prevFiles, ...Array.from(files)]);
+    const newFiles = event.target.files;
+    if (newFiles) {
+      addFiles(Array.from(newFiles));
     }
   };
 
@@ -20,18 +22,14 @@ const SubStep2: React.FC = () => {
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const files = event.dataTransfer.files;
-    if (files) {
-      setSelectedFiles(prevFiles => [...prevFiles, ...Array.from(files)]);
+    const newFiles = event.dataTransfer.files;
+    if (newFiles) {
+      addFiles(Array.from(newFiles));
     }
   };
 
   const handleUploadBoxClick = () => {
     fileInputRef.current?.click();
-  };
-
-  const handleRemoveFile = (fileName: string) => {
-    setSelectedFiles(prevFiles => prevFiles.filter(file => file.name !== fileName));
   };
 
   const formatFileSize = (bytes: number) => {
@@ -61,6 +59,8 @@ const SubStep2: React.FC = () => {
                 variant="outlined"
                 size="small"
                 type="date"
+                value={dateRange.start}
+                onChange={(e) => updateDateRange({ start: e.target.value })}
                 sx={{
                   flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
                   fontSize: '0.7rem',
@@ -75,6 +75,8 @@ const SubStep2: React.FC = () => {
                 variant="outlined"
                 size="small"
                 type="date"
+                value={dateRange.end}
+                onChange={(e) => updateDateRange({ end: e.target.value })}
                 sx={{
                   flex: 0.75, fontFamily: 'Nunito Sans, sans-serif',
                   fontSize: '0.7rem',
@@ -122,15 +124,15 @@ const SubStep2: React.FC = () => {
 
           <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', mb: 0, textAlign: 'right' }}><b>*</b>Accepted File Formats: .xls, .xlsx, .csv</Typography>
 
-          {selectedFiles.length > 0 && (
+          {files.length > 0 && (
             <Box sx={{ mt: 2 }}>
               <Typography sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif', mb: 1, fontWeight: 'bold' }}>Uploaded Files:</Typography>
               <List dense>
-                {selectedFiles.map((file, index) => (
+                {files.map((file, index) => (
                   <ListItem
                     key={index}
                     secondaryAction={
-                      <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveFile(file.name)}>
+                      <IconButton edge="end" aria-label="delete" onClick={() => removeFile(file.name)}>
                         <DeleteIcon />
                       </IconButton>
                     }

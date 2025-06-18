@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
 interface WasteHeatSource {
   type: string;
@@ -7,17 +8,18 @@ interface WasteHeatSource {
   utilization: string;
 }
 
-interface ThermalEnergyNeedsIV {
-  generateWasteHeat: boolean;
+interface ThermalEnergyNeedsIVState {
+  showWasteHeat: boolean;
   wasteHeatSources: WasteHeatSource[];
+  benefitFromUtilization: string;
 }
 
 interface ThermalEnergyNeedsIVContextType {
-  thermalEnergyNeedsIV: ThermalEnergyNeedsIV;
-  updateThermalEnergyNeedsIV: (needs: Partial<ThermalEnergyNeedsIV>) => void;
+  thermalNeedsIVState: ThermalEnergyNeedsIVState;
+  updateField: (field: keyof ThermalEnergyNeedsIVState, value: string | boolean) => void;
   addWasteHeatSource: () => void;
-  updateWasteHeatSource: (index: number, source: Partial<WasteHeatSource>) => void;
   removeWasteHeatSource: (index: number) => void;
+  updateWasteHeatSourceField: (index: number, field: keyof WasteHeatSource, value: string) => void;
 }
 
 const ThermalEnergyNeedsIVContext = createContext<ThermalEnergyNeedsIVContextType | undefined>(undefined);
@@ -30,47 +32,51 @@ export const useThermalEnergyNeedsIV = () => {
   return context;
 };
 
-export const ThermalEnergyNeedsIVProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [thermalEnergyNeedsIV, setThermalEnergyNeedsIV] = useState<ThermalEnergyNeedsIV>({
-    generateWasteHeat: false,
-    wasteHeatSources: [{ type: '', temperature: '', flowRate: '', utilization: '' }],
+const defaultState: ThermalEnergyNeedsIVState = {
+  showWasteHeat: false,
+  wasteHeatSources: [{ type: '', temperature: '', flowRate: '', utilization: '' }],
+  benefitFromUtilization: 'Option 1',
+};
+
+export const ThermalEnergyNeedsIVProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [thermalNeedsIVState, setThermalNeedsIVState] = useState<ThermalEnergyNeedsIVState>(() => {
+    const savedState = Cookies.get('thermalEnergyNeedsIVState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateThermalEnergyNeedsIV = (needs: Partial<ThermalEnergyNeedsIV>) => {
-    setThermalEnergyNeedsIV((prevNeeds) => ({ ...prevNeeds, ...needs }));
+  useEffect(() => {
+    Cookies.set('thermalEnergyNeedsIVState', JSON.stringify(thermalNeedsIVState));
+  }, [thermalNeedsIVState]);
+
+  const updateField = (field: keyof ThermalEnergyNeedsIVState, value: string | boolean) => {
+    setThermalNeedsIVState(prevState => ({ ...prevState, [field]: value }));
   };
 
   const addWasteHeatSource = () => {
-    setThermalEnergyNeedsIV((prevNeeds) => ({
-      ...prevNeeds,
-      wasteHeatSources: [...prevNeeds.wasteHeatSources, { type: '', temperature: '', flowRate: '', utilization: '' }],
-    }));
-  };
-
-  const updateWasteHeatSource = (index: number, source: Partial<WasteHeatSource>) => {
-    setThermalEnergyNeedsIV((prevNeeds) => ({
-      ...prevNeeds,
-      wasteHeatSources: prevNeeds.wasteHeatSources.map((s, i) => (i === index ? { ...s, ...source } : s)),
+    setThermalNeedsIVState(prevState => ({
+      ...prevState,
+      wasteHeatSources: [...prevState.wasteHeatSources, { type: '', temperature: '', flowRate: '', utilization: '' }],
     }));
   };
 
   const removeWasteHeatSource = (index: number) => {
-    setThermalEnergyNeedsIV((prevNeeds) => ({
-      ...prevNeeds,
-      wasteHeatSources: prevNeeds.wasteHeatSources.filter((_, i) => i !== index),
+    setThermalNeedsIVState(prevState => ({
+      ...prevState,
+      wasteHeatSources: prevState.wasteHeatSources.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateWasteHeatSourceField = (index: number, field: keyof WasteHeatSource, value: string) => {
+    setThermalNeedsIVState(prevState => ({
+      ...prevState,
+      wasteHeatSources: prevState.wasteHeatSources.map((source, i) =>
+        i === index ? { ...source, [field]: value } : source
+      ),
     }));
   };
 
   return (
-    <ThermalEnergyNeedsIVContext.Provider
-      value={{
-        thermalEnergyNeedsIV,
-        updateThermalEnergyNeedsIV,
-        addWasteHeatSource,
-        updateWasteHeatSource,
-        removeWasteHeatSource,
-      }}
-    >
+    <ThermalEnergyNeedsIVContext.Provider value={{ thermalNeedsIVState, updateField, addWasteHeatSource, removeWasteHeatSource, updateWasteHeatSourceField }}>
       {children}
     </ThermalEnergyNeedsIVContext.Provider>
   );

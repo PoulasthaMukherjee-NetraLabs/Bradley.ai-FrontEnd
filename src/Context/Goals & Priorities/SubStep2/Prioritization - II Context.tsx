@@ -1,25 +1,30 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface PrioritizationII {
-  scopeReduction: number;
-  energyCostReduction: number;
+interface Target {
+  value: string;
+  unit: string;
+  date: string;
+}
+
+interface PrioritizationIIState {
+  resiliencyIncrease: number;
+  scope2Reduction: number;
+  costReduction: number;
+  blackStartCapability: string;
+  islandModeCapability: string;
+  gridIndependentDuration: string;
   backupPowerDuration: string;
   renewableSystemSize: string;
-  decarbonizationTarget: {
-    value: string;
-    unit: string;
-    date: string;
-  };
-  energySavingsTarget: {
-    value: string;
-    unit: string;
-    date: string;
-  };
+  decarbonizationTarget1: Target;
+  decarbonizationTarget2: Target;
+  energySavingsTarget: Target;
 }
 
 interface PrioritizationIIContextType {
-  prioritizationII: PrioritizationII;
-  updatePrioritizationII: (priorities: Partial<PrioritizationII>) => void;
+  prioritizationIIState: PrioritizationIIState;
+  updateField: (field: keyof PrioritizationIIState, value: string | number) => void;
+  updateTargetField: (target: 'decarbonizationTarget1' | 'decarbonizationTarget2' | 'energySavingsTarget', field: keyof Target, value: string) => void;
 }
 
 const PrioritizationIIContext = createContext<PrioritizationIIContextType | undefined>(undefined);
@@ -32,34 +37,50 @@ export const usePrioritizationII = () => {
   return context;
 };
 
-interface PrioritizationIIProviderProps {
-  children: React.ReactNode;
-}
+const defaultState: PrioritizationIIState = {
+  resiliencyIncrease: 50,
+  scope2Reduction: 50,
+  costReduction: 50,
+  blackStartCapability: '',
+  islandModeCapability: '',
+  gridIndependentDuration: '',
+  backupPowerDuration: '',
+  renewableSystemSize: '',
+  decarbonizationTarget1: { value: '', unit: '%', date: '' },
+  decarbonizationTarget2: { value: '', unit: '%', date: '' },
+  energySavingsTarget: { value: '', unit: '%', date: '' },
+};
 
-export const PrioritizationIIProvider: React.FC<PrioritizationIIProviderProps> = ({ children }) => {
-  const [prioritizationII, setPrioritizationII] = useState<PrioritizationII>({
-    scopeReduction: 50,
-    energyCostReduction: 50,
-    backupPowerDuration: '',
-    renewableSystemSize: '',
-    decarbonizationTarget: {
-      value: '',
-      unit: '%',
-      date: '',
-    },
-    energySavingsTarget: {
-      value: '',
-      unit: '%',
-      date: '',
-    },
+export const PrioritizationIIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [prioritizationIIState, setPrioritizationIIState] = useState<PrioritizationIIState>(() => {
+    const savedState = Cookies.get('prioritizationIIState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updatePrioritizationII = (priorities: Partial<PrioritizationII>) => {
-    setPrioritizationII((prevPriorities) => ({ ...prevPriorities, ...priorities }));
+  useEffect(() => {
+    Cookies.set('prioritizationIIState', JSON.stringify(prioritizationIIState));
+  }, [prioritizationIIState]);
+
+  const updateField = (field: keyof PrioritizationIIState, value: string | number) => {
+    setPrioritizationIIState(prevState => ({ ...prevState, [field]: value }));
+  };
+  
+  const updateTargetField = (
+    target: 'decarbonizationTarget1' | 'decarbonizationTarget2' | 'energySavingsTarget',
+    field: keyof Target,
+    value: string
+  ) => {
+    setPrioritizationIIState(prevState => ({
+      ...prevState,
+      [target]: {
+        ...prevState[target],
+        [field]: value
+      }
+    }));
   };
 
   return (
-    <PrioritizationIIContext.Provider value={{ prioritizationII, updatePrioritizationII }}>
+    <PrioritizationIIContext.Provider value={{ prioritizationIIState, updateField, updateTargetField }}>
       {children}
     </PrioritizationIIContext.Provider>
   );

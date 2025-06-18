@@ -1,16 +1,17 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface SiteCharacteristicsII {
-  humidificationIssues: string;
+interface SiteCharacteristicsIIState {
+  shifts: string;
+  humidification: string;
   hotColdSpots: string;
-  outdoorAirSupplyIssues: string;
-  numberOfShiftsPerDay: string;
-  hvacSystemOperation: string;
+  outdoorAirSupply: string;
+  hvacOperation: string;
 }
 
 interface SiteCharacteristicsIIContextType {
-  siteCharacteristicsII: SiteCharacteristicsII;
-  updateSiteCharacteristicsII: (characteristics: Partial<SiteCharacteristicsII>) => void;
+  siteCharacteristicsIIState: SiteCharacteristicsIIState;
+  updateField: (field: keyof SiteCharacteristicsIIState, value: string) => void;
 }
 
 const SiteCharacteristicsIIContext = createContext<SiteCharacteristicsIIContextType | undefined>(undefined);
@@ -23,25 +24,33 @@ export const useSiteCharacteristicsII = () => {
   return context;
 };
 
-interface SiteCharacteristicsIIProviderProps {
-  children: React.ReactNode;
-}
+const defaultState: SiteCharacteristicsIIState = {
+  shifts: '',
+  humidification: '',
+  hotColdSpots: '',
+  outdoorAirSupply: '',
+  hvacOperation: '',
+};
 
-export const SiteCharacteristicsIIProvider: React.FC<SiteCharacteristicsIIProviderProps> = ({ children }) => {
-  const [siteCharacteristicsII, setSiteCharacteristicsII] = useState<SiteCharacteristicsII>({
-    humidificationIssues: '',
-    hotColdSpots: '',
-    outdoorAirSupplyIssues: '',
-    numberOfShiftsPerDay: '',
-    hvacSystemOperation: '',
+export const SiteCharacteristicsIIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [siteCharacteristicsIIState, setSiteCharacteristicsIIState] = useState<SiteCharacteristicsIIState>(() => {
+    const savedState = Cookies.get('siteCharacteristicsIIState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateSiteCharacteristicsII = (characteristics: Partial<SiteCharacteristicsII>) => {
-    setSiteCharacteristicsII((prevCharacteristics) => ({ ...prevCharacteristics, ...characteristics }));
+  useEffect(() => {
+    Cookies.set('siteCharacteristicsIIState', JSON.stringify(siteCharacteristicsIIState));
+  }, [siteCharacteristicsIIState]);
+
+  const updateField = (field: keyof SiteCharacteristicsIIState, value: string) => {
+    setSiteCharacteristicsIIState(prevState => ({
+      ...prevState,
+      [field]: value,
+    }));
   };
 
   return (
-    <SiteCharacteristicsIIContext.Provider value={{ siteCharacteristicsII, updateSiteCharacteristicsII }}>
+    <SiteCharacteristicsIIContext.Provider value={{ siteCharacteristicsIIState, updateField }}>
       {children}
     </SiteCharacteristicsIIContext.Provider>
   );

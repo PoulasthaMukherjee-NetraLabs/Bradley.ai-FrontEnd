@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface BoilerCogeneration {
+interface BoilerCogenerationSource {
   type: string;
   capacity: string;
   fuelSource: string;
@@ -10,13 +11,18 @@ interface BoilerCogeneration {
   history: string;
   utilization: string;
   volume: string;
+  wasteHeatCaptured: string;
+}
+
+interface BoilerCogenerationState {
+  sources: BoilerCogenerationSource[];
 }
 
 interface BoilerCogenerationContextType {
-  boilerCogeneration: BoilerCogeneration[];
-  updateBoilerCogeneration: (boilers: BoilerCogeneration[]) => void;
-  addBoilerCogeneration: () => void;
-  removeBoilerCogeneration: (index: number) => void;
+  boilerCogenerationState: BoilerCogenerationState;
+  addSource: () => void;
+  removeSource: (index: number) => void;
+  updateSourceField: (index: number, field: keyof BoilerCogenerationSource, value: string) => void;
 }
 
 const BoilerCogenerationContext = createContext<BoilerCogenerationContextType | undefined>(undefined);
@@ -29,25 +35,45 @@ export const useBoilerCogeneration = () => {
   return context;
 };
 
-export const BoilerCogenerationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [boilerCogeneration, setBoilerCogeneration] = useState<BoilerCogeneration[]>([
-    { type: '', capacity: '', fuelSource: '', efficiency: '', age: '', operatingPressure: '', history: '', utilization: '', volume: '' }
-  ]);
+const defaultState: BoilerCogenerationState = {
+  sources: [{ type: '', capacity: '', fuelSource: '', efficiency: '', age: '', operatingPressure: '', history: '', utilization: '', volume: '', wasteHeatCaptured: '' }],
+};
 
-  const updateBoilerCogeneration = (boilers: BoilerCogeneration[]) => {
-    setBoilerCogeneration(boilers);
+export const BoilerCogenerationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [boilerCogenerationState, setBoilerCogenerationState] = useState<BoilerCogenerationState>(() => {
+    const savedState = Cookies.get('boilerCogenerationState');
+    return savedState ? JSON.parse(savedState) : defaultState;
+  });
+
+  useEffect(() => {
+    Cookies.set('boilerCogenerationState', JSON.stringify(boilerCogenerationState));
+  }, [boilerCogenerationState]);
+
+  const addSource = () => {
+    setBoilerCogenerationState(prevState => ({
+      ...prevState,
+      sources: [...prevState.sources, { type: '', capacity: '', fuelSource: '', efficiency: '', age: '', operatingPressure: '', history: '', utilization: '', volume: '', wasteHeatCaptured: '' }],
+    }));
   };
 
-  const addBoilerCogeneration = () => {
-    setBoilerCogeneration([...boilerCogeneration, { type: '', capacity: '', fuelSource: '', efficiency: '', age: '', operatingPressure: '', history: '', utilization: '', volume: '' }]);
+  const removeSource = (index: number) => {
+    setBoilerCogenerationState(prevState => ({
+      ...prevState,
+      sources: prevState.sources.filter((_, i) => i !== index),
+    }));
   };
 
-  const removeBoilerCogeneration = (index: number) => {
-    setBoilerCogeneration(boilerCogeneration.filter((_, i) => i !== index));
+  const updateSourceField = (index: number, field: keyof BoilerCogenerationSource, value: string) => {
+    setBoilerCogenerationState(prevState => ({
+      ...prevState,
+      sources: prevState.sources.map((source, i) =>
+        i === index ? { ...source, [field]: value } : source
+      ),
+    }));
   };
 
   return (
-    <BoilerCogenerationContext.Provider value={{ boilerCogeneration, updateBoilerCogeneration, addBoilerCogeneration, removeBoilerCogeneration }}>
+    <BoilerCogenerationContext.Provider value={{ boilerCogenerationState, addSource, removeSource, updateSourceField }}>
       {children}
     </BoilerCogenerationContext.Provider>
   );

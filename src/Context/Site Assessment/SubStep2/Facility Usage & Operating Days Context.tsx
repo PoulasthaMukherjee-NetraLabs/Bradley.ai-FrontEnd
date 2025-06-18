@@ -1,42 +1,68 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface FacilityUsageOperations {
+interface FacilityUsageState {
   facilityUsage: string[];
   facilityDetails: string;
   daysOfOperation: string[];
-  hoursOfOperation: string;
+  operatingHours: { [key: string]: string }; // Object to store hours for each selected day
 }
 
-interface FacilityUsageOperationsContextType {
-  facilityUsageOperations: FacilityUsageOperations;
-  updateFacilityUsageOperations: (operations: Partial<FacilityUsageOperations>) => void;
+interface FacilityUsageContextType {
+  facilityUsageState: FacilityUsageState;
+  updateMultiSelect: (field: 'facilityUsage' | 'daysOfOperation', value: string[]) => void;
+  updateField: (field: 'facilityDetails', value: string) => void;
+  updateOperatingHour: (day: string, hours: string) => void;
 }
 
-const FacilityUsageOperationsContext = createContext<FacilityUsageOperationsContextType | undefined>(undefined);
+const FacilityUsageContext = createContext<FacilityUsageContextType | undefined>(undefined);
 
-export const useFacilityUsageOperations = () => {
-  const context = useContext(FacilityUsageOperationsContext);
+export const useFacilityUsage = () => {
+  const context = useContext(FacilityUsageContext);
   if (!context) {
-    throw new Error('useFacilityUsageOperations must be used within a FacilityUsageOperationsProvider');
+    throw new Error('useFacilityUsage must be used within a FacilityUsageProvider');
   }
   return context;
 };
 
-export const FacilityUsageOperationsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [facilityUsageOperations, setFacilityUsageOperations] = useState<FacilityUsageOperations>({
-    facilityUsage: [],
-    facilityDetails: '',
-    daysOfOperation: [],
-    hoursOfOperation: '',
+const defaultState: FacilityUsageState = {
+  facilityUsage: [],
+  facilityDetails: '',
+  daysOfOperation: [],
+  operatingHours: {},
+};
+
+export const FacilityUsageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [facilityUsageState, setFacilityUsageState] = useState<FacilityUsageState>(() => {
+    const savedState = Cookies.get('facilityUsageState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateFacilityUsageOperations = (operations: Partial<FacilityUsageOperations>) => {
-    setFacilityUsageOperations((prevOperations) => ({ ...prevOperations, ...operations }));
+  useEffect(() => {
+    Cookies.set('facilityUsageState', JSON.stringify(facilityUsageState));
+  }, [facilityUsageState]);
+
+  const updateMultiSelect = (field: 'facilityUsage' | 'daysOfOperation', value: string[]) => {
+    setFacilityUsageState(prevState => ({ ...prevState, [field]: value }));
+  };
+
+  const updateField = (field: 'facilityDetails', value: string) => {
+    setFacilityUsageState(prevState => ({ ...prevState, [field]: value }));
+  };
+
+  const updateOperatingHour = (day: string, hours: string) => {
+    setFacilityUsageState(prevState => ({
+      ...prevState,
+      operatingHours: {
+        ...prevState.operatingHours,
+        [day]: hours,
+      }
+    }));
   };
 
   return (
-    <FacilityUsageOperationsContext.Provider value={{ facilityUsageOperations, updateFacilityUsageOperations }}>
+    <FacilityUsageContext.Provider value={{ facilityUsageState, updateMultiSelect, updateField, updateOperatingHour }}>
       {children}
-    </FacilityUsageOperationsContext.Provider>
+    </FacilityUsageContext.Provider>
   );
 };

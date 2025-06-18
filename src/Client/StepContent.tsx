@@ -104,7 +104,6 @@ const stepSubStepMapping: StepSubStepMapping = {
   6: {
     0: {
       0: lazy(() => import('./pages/Onboarding/SubStep1/DER Analysis By Bradley.ai Is Underway!')),
-      // 1: lazy(() => import("./pages/Onboarding/SubStep1/Bradley's Recommendation For Acme Manufacturing")),
     },
   },
   7: {

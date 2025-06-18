@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
           variant="body2"
           sx={{ fontFamily: 'Nunito Sans, sans-serif', pb: '30px', fontSize: '0.800rem' }}
         >
-          <p>Powered by <strong>Netra Labs</strong></p>
+          <p>Powered by <strong>8x Energy™</strong></p>
         </Typography>
       </Toolbar>
     </AppBar>

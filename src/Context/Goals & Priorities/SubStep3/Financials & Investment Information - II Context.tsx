@@ -1,81 +1,79 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
 
-interface InvestmentAmount {
-  year: number;
-  amount: string;
-}
-
-interface FinancialsInvestmentInfo {
-  investmentAmounts: InvestmentAmount[];
+interface FinancialsIIState {
+  investmentAmounts: string[];
+  financeOption: string;
+  financeDetails: string;
   desiredCostReduction: string;
-  termOfAgreement: string;
-  financingPreference: string;
+  preferredTerm: string;
 }
 
-interface FinancialsInvestmentInfoContextType {
-  financialsInvestmentInfo: FinancialsInvestmentInfo;
-  updateFinancialsInvestmentInfo: (info: Partial<FinancialsInvestmentInfo>) => void;
+interface FinancialsIIContextType {
+  financialsIIState: FinancialsIIState;
+  updateField: (field: keyof Omit<FinancialsIIState, 'investmentAmounts'>, value: string) => void;
+  updateInvestmentAmount: (index: number, value: string) => void;
   addInvestmentAmount: () => void;
   removeInvestmentAmount: (index: number) => void;
-  updateInvestmentAmount: (index: number, amount: string) => void;
 }
 
-const FinancialsInvestmentInfoContext = createContext<FinancialsInvestmentInfoContextType | undefined>(undefined);
+const FinancialsIIContext = createContext<FinancialsIIContextType | undefined>(undefined);
 
-export const useFinancialsInvestmentInfo = () => {
-  const context = useContext(FinancialsInvestmentInfoContext);
+export const useFinancialsII = () => {
+  const context = useContext(FinancialsIIContext);
   if (!context) {
-    throw new Error('useFinancialsInvestmentInfo must be used within a FinancialsInvestmentInfoProvider');
+    throw new Error('useFinancialsII must be used within a FinancialsIIProvider');
   }
   return context;
 };
 
-export const FinancialsInvestmentInfoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [financialsInvestmentInfo, setFinancialsInvestmentInfo] = useState<FinancialsInvestmentInfo>({
-    investmentAmounts: [{ year: 1, amount: '' }, { year: 2, amount: '' }, { year: 3, amount: '' }],
-    desiredCostReduction: '',
-    termOfAgreement: '',
-    financingPreference: 'Cash Purchase',
+const defaultState: FinancialsIIState = {
+  investmentAmounts: ['', '', ''],
+  financeOption: 'default',
+  financeDetails: '',
+  desiredCostReduction: '',
+  preferredTerm: '',
+};
+
+export const FinancialsIIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [financialsIIState, setFinancialsIIState] = useState<FinancialsIIState>(() => {
+    const savedState = Cookies.get('financialsIIState');
+    return savedState ? JSON.parse(savedState) : defaultState;
   });
 
-  const updateFinancialsInvestmentInfo = (info: Partial<FinancialsInvestmentInfo>) => {
-    setFinancialsInvestmentInfo((prevInfo) => ({ ...prevInfo, ...info }));
+  useEffect(() => {
+    Cookies.set('financialsIIState', JSON.stringify(financialsIIState));
+  }, [financialsIIState]);
+
+  const updateField = (field: keyof Omit<FinancialsIIState, 'investmentAmounts'>, value: string) => {
+    setFinancialsIIState(prevState => ({ ...prevState, [field]: value }));
+  };
+
+  const updateInvestmentAmount = (index: number, value: string) => {
+    setFinancialsIIState(prevState => {
+      const newAmounts = [...prevState.investmentAmounts];
+      newAmounts[index] = value;
+      return { ...prevState, investmentAmounts: newAmounts };
+    });
   };
 
   const addInvestmentAmount = () => {
-    setFinancialsInvestmentInfo((prevInfo) => ({
-      ...prevInfo,
-      investmentAmounts: [...prevInfo.investmentAmounts, { year: prevInfo.investmentAmounts.length + 1, amount: '' }],
+    setFinancialsIIState(prevState => ({
+      ...prevState,
+      investmentAmounts: [...prevState.investmentAmounts, ''],
     }));
   };
 
   const removeInvestmentAmount = (index: number) => {
-    setFinancialsInvestmentInfo((prevInfo) => ({
-      ...prevInfo,
-      investmentAmounts: prevInfo.investmentAmounts.filter((_, i) => i !== index),
-    }));
-  };
-
-  const updateInvestmentAmount = (index: number, amount: string) => {
-    setFinancialsInvestmentInfo((prevInfo) => ({
-      ...prevInfo,
-      investmentAmounts: prevInfo.investmentAmounts.map((item, i) => 
-        i === index ? { ...item, amount } : item
-      ),
+    setFinancialsIIState(prevState => ({
+      ...prevState,
+      investmentAmounts: prevState.investmentAmounts.filter((_, i) => i !== index),
     }));
   };
 
   return (
-    <FinancialsInvestmentInfoContext.Provider 
-      value={{ 
-        financialsInvestmentInfo, 
-        updateFinancialsInvestmentInfo, 
-        addInvestmentAmount, 
-        removeInvestmentAmount, 
-        updateInvestmentAmount 
-      }}
-    >
+    <FinancialsIIContext.Provider value={{ financialsIIState, updateField, addInvestmentAmount, removeInvestmentAmount, updateInvestmentAmount }}>
       {children}
-    </FinancialsInvestmentInfoContext.Provider>
+    </FinancialsIIContext.Provider>
   );
 };

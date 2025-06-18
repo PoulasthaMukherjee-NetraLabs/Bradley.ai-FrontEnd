@@ -1,10 +1,19 @@
-import { createContext, useContext, useState } from 'react';
+// src/Context/AnnualEnergySpendContext.tsx
 
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Cookies from 'js-cookie';
+
+// 1. Expand the interface to include all form fields
 interface AnnualEnergySpend {
   electricity: string;
   naturalGas: string;
   water: string;
+  oil: string;
+  propane: string;
+  steam: string;
+  chilledWater: string;
   other: string;
+  otherLabel: string; // Add a field for the "Other" label
 }
 
 interface AnnualEnergySpendContextType {
@@ -22,19 +31,31 @@ export const useAnnualEnergySpend = () => {
   return context;
 };
 
-import { ReactNode } from 'react';
-
 interface AnnualEnergySpendProviderProps {
   children: ReactNode;
 }
 
 export const AnnualEnergySpendProvider: React.FC<AnnualEnergySpendProviderProps> = ({ children }) => {
-  const [annualEnergySpend, setAnnualEnergySpend] = useState<AnnualEnergySpend>({
-    electricity: '',
-    naturalGas: '',
-    water: '',
-    other: '',
+  // 2. Initialize state from cookies with the new, expanded shape
+  const [annualEnergySpend, setAnnualEnergySpend] = useState<AnnualEnergySpend>(() => {
+    const savedSpend = Cookies.get('annualEnergySpend');
+    return savedSpend ? JSON.parse(savedSpend) : {
+      electricity: '',
+      naturalGas: '',
+      water: '',
+      oil: '',
+      propane: '',
+      steam: '',
+      chilledWater: '',
+      other: '',
+      otherLabel: '', // Initialize the new field
+    };
   });
+
+  // This useEffect will automatically save the expanded state to cookies
+  useEffect(() => {
+    Cookies.set('annualEnergySpend', JSON.stringify(annualEnergySpend));
+  }, [annualEnergySpend]);
 
   const updateAnnualEnergySpend = (spend: Partial<AnnualEnergySpend>) => {
     setAnnualEnergySpend((prevSpend) => ({ ...prevSpend, ...spend }));

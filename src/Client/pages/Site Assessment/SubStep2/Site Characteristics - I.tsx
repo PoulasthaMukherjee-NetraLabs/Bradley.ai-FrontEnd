@@ -1,30 +1,30 @@
-import React, { useState/* , useEffect */ } from 'react';
-import { Box, TextField, Select, MenuItem, Typography, Switch, FormControlLabel, Button, IconButton } from '@mui/material';
+import React from 'react';
+import { Box, TextField, Select, MenuItem, Typography, Switch, FormControlLabel, Button, IconButton, SelectChangeEvent } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-
-interface BreakerAmperageField {
-  id: string;
-  value: string;
-}
-
-interface Breaker {
-  id: string;
-  amperageFields: BreakerAmperageField[];
-}
+import { useSiteCharacteristicsI } from '../../../../Context/Site Assessment/SubStep2/Site Characteristics - I Context';
 
 const SubStep2: React.FC = () => {
-  const [isBreakerSpaceAvailable, setIsBreakerSpaceAvailable] = useState(false);
-  const [overallFacilitySize, setOverallFacilitySize] = useState('');
-  const [commonAreaSquareFootage, setCommonAreaSquareFootage] = useState('');
-  const [yearBuildingOperation, setYearBuildingOperation] = useState('');
-
-  const [primaryUtilityEntry, setPrimaryUtilityEntry] = useState('Option 1');
-  const [secondaryUtilityEntry, setSecondaryUtilityEntry] = useState('Option 0');
-
-  const [numberOfOpenBreakers, setNumberOfOpenBreakers] = useState('');
-  const [breakers, setBreakers] = useState<Breaker[]>([]);
+  const {
+    siteCharacteristicsIState,
+    updateField,
+    handleNumberOfBreakersChange,
+    addBreaker,
+    removeBreaker,
+    // addAmperageField,
+    // removeAmperageField,
+    updateAmperageField
+  } = useSiteCharacteristicsI();
+  const {
+    isBreakerSpaceAvailable,
+    overallFacilitySize,
+    commonAreaSquareFootage,
+    yearBuildingOperation,
+    primaryUtilityEntry,
+    secondaryUtilityEntry,
+    numberOfOpenBreakers,
+    breakers
+  } = siteCharacteristicsIState;
 
   const formatNumber = (num: string) => {
     if (!num) return '';
@@ -37,114 +37,28 @@ const SubStep2: React.FC = () => {
 
   const handleFormattedNumericInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    setter: React.Dispatch<React.SetStateAction<string>>
+    fieldName: 'overallFacilitySize' | 'commonAreaSquareFootage'
   ) => {
-    const value = e.target.value;
-    const rawValue = value.replace(/[^0-9]/g, '');
-    setter(rawValue);
+    updateField(fieldName, e.target.value.replace(/[^0-9]/g, ''));
   };
 
   const handleYearInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/[^0-9]/g, '');
     if (value.length > 4) value = value.slice(0, 4);
-    setYearBuildingOperation(value);
+    updateField('yearBuildingOperation', value);
   };
 
   const handleYearInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (value.length === 4) {
+    if (value.length > 0 && value.length < 4) {
+      updateField('yearBuildingOperation', '');
+    } else if (value.length === 4) {
       const year = parseInt(value, 10);
-      const minYear = 1000;
       const maxYear = new Date().getFullYear();
-      if (isNaN(year) || year < minYear || year > maxYear) {
-        setYearBuildingOperation('');
-      }
-    } else if (value.length > 0 && value.length < 4) {
-      setYearBuildingOperation('');
-    }
-  };
-
-  const handleNumberOfBreakersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const numValue = parseInt(value, 10);
-    
-    if (value === '' || (numValue >= 1 && numValue <= 5)) {
-      setNumberOfOpenBreakers(value);
-      
-      if (value === '') {
-        setBreakers([]);
-      } else {
-        const newBreakers: Breaker[] = [];
-        for (let i = 0; i < numValue; i++) {
-          const existingBreaker = breakers[i];
-          newBreakers.push({
-            id: existingBreaker?.id || `breaker-${i + 1}`,
-            amperageFields: existingBreaker?.amperageFields || [{
-              id: `amperage-${i + 1}-1`,
-              value: ''
-            }]
-          });
-        }
-        setBreakers(newBreakers);
+      if (isNaN(year) || year < 1000 || year > maxYear) {
+        updateField('yearBuildingOperation', '');
       }
     }
-  };
-
-  const addBreaker = () => {
-    if (breakers.length < 5) {
-      const newBreaker: Breaker = {
-        id: `breaker-${breakers.length + 1}`,
-        amperageFields: [{
-          id: `amperage-${breakers.length + 1}-1`,
-          value: ''
-        }]
-      };
-      const newBreakers = [...breakers, newBreaker];
-      setBreakers(newBreakers);
-      setNumberOfOpenBreakers(newBreakers.length.toString());
-    }
-  };
-
-  const removeBreaker = (breakerIndex: number) => {
-    if (breakers.length > 1) {
-      const newBreakers = breakers.filter((_, index) => index !== breakerIndex);
-      setBreakers(newBreakers);
-      setNumberOfOpenBreakers(newBreakers.length.toString());
-    }
-  };
-
-  const addAmperageField = (breakerIndex: number) => {
-    const breaker = breakers[breakerIndex];
-    if (breaker.amperageFields.length < 3) {
-      const newAmperageField: BreakerAmperageField = {
-        id: `amperage-${breakerIndex + 1}-${breaker.amperageFields.length + 1}`,
-        value: ''
-      };
-      const newBreakers = [...breakers];
-      newBreakers[breakerIndex] = {
-        ...breaker,
-        amperageFields: [...breaker.amperageFields, newAmperageField]
-      };
-      setBreakers(newBreakers);
-    }
-  };
-
-  const removeAmperageField = (breakerIndex: number, fieldIndex: number) => {
-    const breaker = breakers[breakerIndex];
-    if (breaker.amperageFields.length > 1) {
-      const newBreakers = [...breakers];
-      newBreakers[breakerIndex] = {
-        ...breaker,
-        amperageFields: breaker.amperageFields.filter((_, index) => index !== fieldIndex)
-      };
-      setBreakers(newBreakers);
-    }
-  };
-
-  const updateAmperageField = (breakerIndex: number, fieldIndex: number, value: string) => {
-    const newBreakers = [...breakers];
-    newBreakers[breakerIndex].amperageFields[fieldIndex].value = value;
-    setBreakers(newBreakers);
   };
 
   return (
@@ -158,275 +72,72 @@ const SubStep2: React.FC = () => {
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 0 }}>
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2, p: '10px' }}>
-
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
-              <b>Overall Facility Size, incl. Common Area: </b>(in Sq. Ft.)
-            </Typography>
-            <TextField
-              variant="outlined"
-              size="small"
-              type="text"
-              placeholder='Input'
-              value={formatNumber(overallFacilitySize)}
-              onChange={(e) => handleFormattedNumericInputChange(e, setOverallFacilitySize)}
-              sx={{
-                flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
-                fontSize: '0.7rem',
-                '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-                '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
-                '& .MuiInputBase-input::placeholder': {
-                  fontFamily: 'Nunito Sans, sans-serif',
-                  fontSize: '0.7rem',
-                }
-              }}
-            />
+            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}><b>Overall Facility Size, incl. Common Area: </b>(in Sq. Ft.)</Typography>
+            <TextField variant="outlined" size="small" type="text" placeholder='Input' value={formatNumber(overallFacilitySize)} onChange={(e) => handleFormattedNumericInputChange(e, 'overallFacilitySize')} sx={{ flex: 0.448, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', '& .MuiInputBase-root': { height: '40px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
           </Box>
-
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
-              <b>Common Area Square Footage: </b>(in Sq. Ft.)
-            </Typography>
-            <TextField
-              variant="outlined"
-              size="small"
-              type="text"
-              placeholder='Input'
-              value={formatNumber(commonAreaSquareFootage)}
-              onChange={(e) => handleFormattedNumericInputChange(e, setCommonAreaSquareFootage)}
-              sx={{
-                flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
-                fontSize: '0.7rem',
-                '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-                '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
-                '& .MuiInputBase-input::placeholder': {
-                  fontFamily: 'Nunito Sans, sans-serif',
-                  fontSize: '0.7rem',
-                }
-              }}
-            />
+            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}><b>Common Area Square Footage: </b>(in Sq. Ft.)</Typography>
+            <TextField variant="outlined" size="small" type="text" placeholder='Input' value={formatNumber(commonAreaSquareFootage)} onChange={(e) => handleFormattedNumericInputChange(e, 'commonAreaSquareFootage')} sx={{ flex: 0.448, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', '& .MuiInputBase-root': { height: '40px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
           </Box>
-
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
-              <b>Year Building was Placed in Operation:</b>
-            </Typography>
-            <TextField
-              variant="outlined"
-              size="small"
-              type="text"
-              placeholder='YYYY'
-              value={yearBuildingOperation}
-              onChange={handleYearInputChange}
-              onBlur={handleYearInputBlur}
-              inputProps={{
-                inputMode: 'numeric',
-                maxLength: 4,
-                pattern: '[0-9]{4}',
-              }}
-              sx={{
-                flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
-                fontSize: '0.7rem',
-                '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-                '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
-                '& .MuiInputBase-input::placeholder': {
-                  fontFamily: 'Nunito Sans, sans-serif',
-                  fontSize: '0.7rem',
-                }
-              }}
-            />
+            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}><b>Year Building was Placed in Operation:</b></Typography>
+            <TextField variant="outlined" size="small" type="text" placeholder='YYYY' value={yearBuildingOperation} onChange={handleYearInputChange} onBlur={handleYearInputBlur} inputProps={{ inputMode: 'numeric', maxLength: 4, pattern: '[0-9]{4}' }} sx={{ flex: 0.448, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', '& .MuiInputBase-root': { height: '40px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
           </Box>
-
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
-              <b>Primary Electric Utility Entry Point at Property:</b>
-            </Typography>
-            <Select
-              size="small"
-              variant="outlined"
-              value={primaryUtilityEntry}
-              onChange={(e) => setPrimaryUtilityEntry(e.target.value as string)}
-              sx={{
-                flex: 0.448,
-                fontFamily: 'Nunito Sans, sans-serif',
-                fontSize: '0.7rem',
-                height: '40px',
-                '& .MuiInputBase-root': { padding: '0 6px' },
-                '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
-              }}
-            >
-              <MenuItem value="Option 1" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', }}>North</MenuItem>
-              <MenuItem value="Option 2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', }}>South</MenuItem>
-              <MenuItem value="Option 3" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', }}>East</MenuItem>
-              <MenuItem value="Option 4" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', }}>West</MenuItem>
+            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}><b>Primary Electric Utility Entry Point at Property:</b></Typography>
+            <Select size="small" variant="outlined" value={primaryUtilityEntry} onChange={(e: SelectChangeEvent) => updateField('primaryUtilityEntry', e.target.value)} sx={{ flex: 0.448, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', height: '40px', '& .MuiInputBase-root': { padding: '0 6px' }, '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' } }}>
+              <MenuItem value="Option 1" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>North</MenuItem>
+              <MenuItem value="Option 2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>South</MenuItem>
+              <MenuItem value="Option 3" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>East</MenuItem>
+              <MenuItem value="Option 4" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>West</MenuItem>
             </Select>
           </Box>
-
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
-              <b>Secondary Electric Utility Entry Point: </b>(If Available)
-            </Typography>
-            <Select
-              size="small"
-              variant="outlined"
-              value={secondaryUtilityEntry}
-              onChange={(e) => setSecondaryUtilityEntry(e.target.value as string)}
-              sx={{
-                flex: 0.448,
-                fontFamily: 'Nunito Sans, sans-serif',
-                fontSize: '0.7rem',
-                height: '40px',
-                '& .MuiInputBase-root': { padding: '0 6px' },
-                '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' },
-              }}
-            >
-              <MenuItem value="Option 0" disabled sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', }}>Select</MenuItem>
-              <MenuItem value="Option 1" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', }}>North</MenuItem>
-              <MenuItem value="Option 2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', }}>South</MenuItem>
-              <MenuItem value="Option 3" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', }}>East</MenuItem>
-              <MenuItem value="Option 4" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', }}>West</MenuItem>
+            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}><b>Secondary Electric Utility Entry Point: </b>(If Available)</Typography>
+            <Select size="small" variant="outlined" value={secondaryUtilityEntry} onChange={(e: SelectChangeEvent) => updateField('secondaryUtilityEntry', e.target.value)} sx={{ flex: 0.448, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', height: '40px', '& .MuiInputBase-root': { padding: '0 6px' }, '& .MuiSelect-select': { padding: '4px 6px', fontSize: '0.7rem' } }}>
+              <MenuItem value="Option 0" disabled sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>Select</MenuItem>
+              <MenuItem value="Option 1" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>North</MenuItem>
+              <MenuItem value="Option 2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>South</MenuItem>
+              <MenuItem value="Option 3" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>East</MenuItem>
+              <MenuItem value="Option 4" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' }}>West</MenuItem>
             </Select>
           </Box>
-
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
-              <b>Open Breaker Space Available?</b>
-            </Typography>
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  checked={isBreakerSpaceAvailable}
-                  onChange={() => setIsBreakerSpaceAvailable(!isBreakerSpaceAvailable)}
-                />
-              }
-              label=""
-              sx={{
-                flex: 0.448,
-                justifyContent: 'flex-start',
-                '& .MuiSwitch-root': { marginLeft: '5px' }
-              }}
-            />
+            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}><b>Open Breaker Space Available?</b></Typography>
+            <FormControlLabel control={<Switch size="small" checked={isBreakerSpaceAvailable} onChange={(e) => updateField('isBreakerSpaceAvailable', e.target.checked)} />} label="" sx={{ flex: 0.448, justifyContent: 'flex-start', '& .MuiSwitch-root': { marginLeft: '5px' } }} />
           </Box>
-
           {isBreakerSpaceAvailable && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
-                  <b>Number of Open Breakers:</b>
-                </Typography>
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  type="number"
-                  placeholder='Max 5'
-                  value={numberOfOpenBreakers}
-                  onChange={handleNumberOfBreakersChange}
-                  inputProps={{ min: 1, max: 5 }}
-                  sx={{
-                    flex: 0.448, fontFamily: 'Nunito Sans, sans-serif',
-                    fontSize: '0.7rem',
-                    '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-                    '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
-                    '& .MuiInputBase-input::placeholder': {
-                      fontFamily: 'Nunito Sans, sans-serif',
-                      fontSize: '0.7rem',
-                    }
-                  }}
-                />
+                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}><b>Number of Open Breakers:</b></Typography>
+                <TextField variant="outlined" size="small" type="number" placeholder='Max 5' value={numberOfOpenBreakers} onChange={(e) => handleNumberOfBreakersChange(e.target.value)} inputProps={{ min: 1, max: 5 }} sx={{ flex: 0.448, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', '& .MuiInputBase-root': { height: '40px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
               </Box>
-
               {breakers.map((breaker, breakerIndex) => (
                 <Box key={breaker.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-                  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}>
-                    <b>Breaker {breakerIndex + 1} Amperage(s):</b>
-                  </Typography>
+                  <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', flex: 0.3 }}><b>Breaker {breakerIndex + 1} Amperage:</b></Typography>
                   <Box sx={{ flex: 0.448, display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Box sx={{ display: 'flex', gap: 1, flex: 1 }}>
                       {breaker.amperageFields.map((field, fieldIndex) => (
-                        <TextField
-                          key={field.id}
-                          variant="outlined"
-                          size="small"
-                          type="number"
-                          placeholder='Amp.'
-                          value={field.value}
-                          onChange={(e) => updateAmperageField(breakerIndex, fieldIndex, e.target.value)}
-                          sx={{
-                            flex: 1,
-                            fontFamily: 'Nunito Sans, sans-serif',
-                            fontSize: '0.7rem',
-                            '& .MuiInputBase-root': { height: '40px', padding: '0 6px' },
-                            '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' },
-                            '& .MuiInputBase-input::placeholder': {
-                              fontFamily: 'Nunito Sans, sans-serif',
-                              fontSize: '0.7rem',
-                            }
-                          }}
-                        />
+                        <TextField key={field.id} variant="outlined" size="small" type="number" placeholder='Amp.' value={field.value} onChange={(e) => updateAmperageField(breakerIndex, fieldIndex, e.target.value)} sx={{ flex: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', '& .MuiInputBase-root': { height: '40px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
                       ))}
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      {breaker.amperageFields.length < 3 && (
-                        <IconButton
-                          size="small"
-                          onClick={() => addAmperageField(breakerIndex)}
-                          sx={{ 
-                            p: 0.5,
-                            '&:focus': { outline: 'none' }
-                          }}
-                        >
-                          <AddIcon fontSize="small" />
-                        </IconButton>
-                      )}
-                      {breaker.amperageFields.length > 1 && (
-                        <IconButton
-                          size="small"
-                          onClick={() => removeAmperageField(breakerIndex, breaker.amperageFields.length - 1)}
-                          sx={{ 
-                            p: 0.5,
-                            '&:focus': { outline: 'none' }
-                          }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      )}
-                    </Box>
+                    {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      {breaker.amperageFields.length < 3 && <IconButton size="small" onClick={() => addAmperageField(breakerIndex)} sx={{ p: 0.5, '&:focus': { outline: 'none' } }}><AddIcon fontSize="small" /></IconButton>}
+                      {breaker.amperageFields.length > 1 && <IconButton size="small" onClick={() => removeAmperageField(breakerIndex, breaker.amperageFields.length - 1)} sx={{ p: 0.5, '&:focus': { outline: 'none' } }}><DeleteIcon fontSize="small" /></IconButton>}
+                    </Box> */}
                   </Box>
                 </Box>
               ))}
-
               {breakers.length > 0 && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
                   <Box sx={{ flex: 0.3, display: 'flex', justifyContent: 'flex-start' }}>
-                    <Button
-                      startIcon={<AddCircleIcon />}
-                      onClick={addBreaker}
-                      size="small"
-                      disabled={breakers.length >= 5}
-                      sx={{
-                        textTransform: 'none',
-                        fontFamily: 'Nunito Sans, sans-serif',
-                        fontSize: '0.75rem',
-                        '&:focus': {
-                          outline: 'none',
-                        }
-                      }}
-                    >
+                    <Button startIcon={<AddCircleIcon />} onClick={addBreaker} size="small" disabled={breakers.length >= 5} sx={{ textTransform: 'none', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', '&:focus': { outline: 'none' } }}>
                       Add Another Breaker
                     </Button>
                   </Box>
                   <Box sx={{ flex: 0.448, display: 'flex', justifyContent: 'flex-end' }}>
-                    <IconButton
-                      onClick={() => removeBreaker(breakers.length - 1)}
-                      size="small"
-                      disabled={breakers.length === 1}
-                      sx={{ 
-                        '&:focus': {
-                          outline: 'none',
-                        } 
-                      }}
-                    >
+                    <IconButton onClick={() => removeBreaker(breakers.length - 1)} size="small" disabled={breakers.length === 1} sx={{ '&:focus': { outline: 'none' } }}>
                       <DeleteIcon fontSize="medium" />
                     </IconButton>
                   </Box>

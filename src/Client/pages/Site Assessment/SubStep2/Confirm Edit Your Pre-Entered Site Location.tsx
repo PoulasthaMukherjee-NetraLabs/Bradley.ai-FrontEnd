@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Box, Typography, TextField, Button, Tooltip } from '@mui/material';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { useSiteLocation } from '../../../../Context/Site Assessment/SubStep2/Confirm Edit Your Pre-Entered Site Location Context';
 
 const createCustomIcon = (IconComponent: React.ElementType) => {
   const iconMarkup = renderToStaticMarkup(
@@ -18,32 +19,26 @@ const createCustomIcon = (IconComponent: React.ElementType) => {
   });
 };
 
-const MapMarker = ({ position, setPosition }: { position: L.LatLng | null, setPosition: React.Dispatch<React.SetStateAction<L.LatLng | null>> }) => {
+const MapMarker = ({ position, onPositionChange }: { position: L.LatLng | null; onPositionChange: (pos: L.LatLng) => void; }) => {
   const customIcon = createCustomIcon(FaMapMarkerAlt);
 
   useMapEvents({
     click(e) {
-      setPosition(e.latlng);
+      onPositionChange(e.latlng);
     },
   });
 
   if (!position) {
-      const defaultPosition = new L.LatLng(51.505, -0.09);
-      setPosition(defaultPosition);
+    const defaultPosition = new L.LatLng(51.505, -0.09);
+    onPositionChange(defaultPosition);
   }
 
   return position ? <Marker position={position} icon={customIcon} /> : null;
 };
 
 const SubStep2 = () => {
-  const [position, setPosition] = useState<L.LatLng | null>(null);
-  const [address, setAddress] = useState({
-      streetAddress: 'Southwark Bridge Road',
-      city: 'London',
-      state: 'England',
-      zipCode: 'SE1 1UN',
-      otherAddress: '',
-    });
+  const { siteLocationState, updateSiteLocation, updateAddressField } = useSiteLocation();
+  const { position, address } = siteLocationState;
   const mapRef = useRef<L.Map | null>(null);
 
   const handleSavePinnedLocation = () => {
@@ -52,12 +47,14 @@ const SubStep2 = () => {
       fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
         .then(response => response.json())
         .then(data => {
-          setAddress({
-            streetAddress: data.address.road || '',
-            city: data.address.city || data.address.town || '',
-            state: data.address.state || '',
-            zipCode: data.address.postcode || '',
-            otherAddress: '',
+          updateSiteLocation({
+            address: {
+              streetAddress: data.address.road || '',
+              city: data.address.city || data.address.town || '',
+              state: data.address.state || '',
+              zipCode: data.address.postcode || '',
+              otherAddress: address.otherAddress,
+            }
           });
         })
         .catch(error => console.error('Error fetching address:', error));
@@ -82,9 +79,9 @@ const SubStep2 = () => {
       <Box sx={{ display: 'flex', gap: 2, p: '10px', pl: '160px', pr: '160px' }}>
         <Tooltip title="Click on any desired location on the map to place the pin" placement="top" arrow>
           <Box sx={{ flex: 1, height: '268.5px', border: '1px solid lightgrey', borderRadius: 1 }}>
-            <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100%', width: '100%' }} ref={mapRef}>
+            <MapContainer center={position || [51.505, -0.09]} zoom={13} style={{ height: '100%', width: '100%' }} ref={mapRef}>
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <MapMarker position={position} setPosition={setPosition} />
+              <MapMarker position={position} onPositionChange={(newPos) => updateSiteLocation({ position: newPos })} />
             </MapContainer>
           </Box>
         </Tooltip>
@@ -92,21 +89,10 @@ const SubStep2 = () => {
         <Box sx={{ flex: 1, border: '1px solid lightgrey', p: 1, borderRadius: 1, height: '253px', pl: 2, pr: 2 }}>
           <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
             <Tooltip title="Click to autofill below based on the pin." placement='left' arrow>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={handleSavePinnedLocation}
-                sx={{
-                  fontFamily: 'Nunito Sans, sans-serif',
-                  fontSize: '0.7rem',
-                  minWidth: '60px',
-                  padding: '2px 4px',
-                  textTransform: 'none',
-                  '&:focus': { outline: 'none' }
-                }}
-              >
+              <Button variant="outlined" size="small" onClick={handleSavePinnedLocation} sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', minWidth: '60px', padding: '2px 4px', textTransform: 'none', '&:focus': { outline: 'none' } }}>
                 Confirm Location
-              </Button></Tooltip>
+              </Button>
+            </Tooltip>
           </Typography><br />
           <Box sx={{ fontFamily: 'Nunito Sans, sans-serif', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             {[
@@ -117,40 +103,13 @@ const SubStep2 = () => {
             ].map(({ label, key }) => (
               <Box key={key} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}><b>{label}</b></Typography>
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  type="text"
-                  value={address[key]}
-                  onChange={(e) => setAddress({ ...address, [key]: e.target.value })}
-                  sx={{
-                    flex: 1,
-                    fontSize: '0.7rem',
-                    fontFamily: 'Nunito Sans, sans-serif',
-                    '& .MuiInputBase-root': { height: '30px', padding: '0 6px' },
-                    '& input': { padding: 0, fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }
-                  }}
-                />
+                <TextField variant="outlined" size="small" type="text" value={address[key]} onChange={(e) => updateAddressField(key, e.target.value)} sx={{ flex: 1, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '30px', padding: '0 6px' }, '& input': { padding: 0, fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' } }} />
               </Box>
             ))}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}><b>Other Addresses:</b></Typography>
-                          <TextField
-                            variant="outlined"
-                            size="small"
-                            type="text"
-                            value={address.otherAddress}
-                            placeholder='Address 1; Address 2; Address 3, ...'
-                            onChange={(e) => setAddress({ ...address, otherAddress: e.target.value })}
-                            sx={{
-                              flex: 1,
-                              fontSize: '0.7rem',
-                              fontFamily: 'Nunito Sans, sans-serif',
-                              '& .MuiInputBase-root': { height: '30px', padding: '0 6px' },
-                              '& input': { padding: 0, fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }
-                            }}
-                          />
-                        </Box>
+              <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', width: '150px', flex: 0.5 }}><b>Other Addresses:</b></Typography>
+              <TextField variant="outlined" size="small" type="text" value={address.otherAddress} placeholder='Address 1; Address 2; Address 3, ...' onChange={(e) => updateAddressField('otherAddress', e.target.value)} sx={{ flex: 1, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '30px', padding: '0 6px' }, '& input': { padding: 0, fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' } }} />
+            </Box>
           </Box>
         </Box>
       </Box>
