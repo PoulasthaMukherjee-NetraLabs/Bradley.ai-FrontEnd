@@ -12,11 +12,19 @@ import {
   // Button
 } from '@mui/material';
 import { StyledTitle, StyledRecommendation, StyledKeyBenefitsTitle, EnhancedBenefitCard, /* StyledBenefitValue, StyledBenefitDescription, */ StyledTabPanelBox, StyledTabPanelTitle, StyledExpandButton, ExpandableModal, TabPanel, ExpandablePanelInfo, benefitDataTop, benefitDataBottom, EnergyProductionBreakdown, EnergyFlowDiagram, mockExpandedContent, /* IndicativeFinanceDetails, FinancialIncentives, FinanceOptions, */ Resources, GeneralArrangement, SystemDiagram, InvestmentSummary, ProjectSchedule, AnnualEnergyCostAsIsComparedToDEROvertime, EnergySpecifications, FinancingOptionsAnalysis } from '../../../../components/RecommendationUI';
+import { useOrganizationDetails } from '../../../../Context/Organizational Profile/SubStep2/Organization Details Context';
 
 const SubStep1: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentExpandedPanel, setCurrentExpandedPanel] = useState<ExpandablePanelInfo | null>(null);
+
+  const { organizationDetails } = useOrganizationDetails();
+  const { userName, organizationName } = organizationDetails;
+
+  const recommendationTitle = (userName && organizationName) 
+    ? `Bradley's Recommendation For ${userName}, ${organizationName}` 
+    : `Bradley's Recommendation For ${userName || organizationName || 'Your Facility'}`;
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -48,12 +56,12 @@ const SubStep1: React.FC = () => {
         `}
       </style>
       <StyledTitle variant="h6">
-        <h2>Bradley's Recommendation For Acme Manufacturing</h2>
+        <h2>{recommendationTitle}</h2>
       </StyledTitle>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', px: { xs: '20px', md: '80px' } }}>
         <StyledRecommendation>
-          <b>Bradley.ai</b> recommends a hybrid system for Acme Manufacturing.<br /><br />This system combines solar panels, battery storage, and a natural gas generator to optimize energy costs, reduce emissions, and provide reliable backup power.
+          <b>Bradley.ai</b> recommends a hybrid system for {userName}, {organizationName}.<br /><br />This system combines solar panels, battery storage, and a natural gas generator to optimize energy costs, reduce emissions, and provide reliable backup power.
         </StyledRecommendation>
 
         <StyledKeyBenefitsTitle variant="h1">

@@ -4,19 +4,12 @@ import Cookies from 'js-cookie';
 interface LOATextFields {
   day: string;
   month: string;
-  customerName: string;
-  address: string;
   contactName: string;
 }
 
 interface LOAContactDetails {
-  name: string;
   serviceAddress: string;
-  fullAddress: string;
-  cityState: string;
   phoneNo: string;
-  zip: string;
-  email: string;
   serviceAccountNo: string;
 }
 
@@ -42,16 +35,14 @@ const LOAContext = createContext<LOAContextType | undefined>(undefined);
 
 export const useLOA = () => {
   const context = useContext(LOAContext);
-  if (!context) {
-    throw new Error('useLOA must be used within an LOAProvider');
-  }
+  if (!context) { throw new Error('useLOA must be used within an LOAProvider'); }
   return context;
 };
 
 const defaultState: LOAState = {
   utilityCompanyName: '',
-  textFields: { day: '', month: '', customerName: '', address: '', contactName: '' },
-  contactDetails: { name: '', serviceAddress: '', fullAddress: '', cityState: '', phoneNo: '', zip: '', email: '', serviceAccountNo: '' },
+  textFields: { day: '', month: '', contactName: '' },
+  contactDetails: { serviceAddress: '', phoneNo: '', serviceAccountNo: '' },
   signature: '',
   agreed: false,
 };
@@ -59,7 +50,7 @@ const defaultState: LOAState = {
 export const LOAProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [loaState, setLoaState] = useState<LOAState>(() => {
     const savedState = Cookies.get('loaState');
-    return savedState ? JSON.parse(savedState) : defaultState;
+    return savedState ? { ...defaultState, ...JSON.parse(savedState) } : defaultState;
   });
 
   useEffect(() => {

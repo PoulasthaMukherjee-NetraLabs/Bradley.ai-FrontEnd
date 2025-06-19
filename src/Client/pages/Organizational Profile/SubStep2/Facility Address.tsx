@@ -24,11 +24,10 @@ const MapMarker = ({ position, onPositionChange }: { position: L.LatLng | null; 
 
   useMapEvents({
     click(e) {
-      onPositionChange(e.latlng); // Call the provided handler to update context
+      onPositionChange(e.latlng);
     },
   });
   
-  // Set a default position only if it's null initially
   if (!position) {
     const defaultPosition = new L.LatLng(51.505, -0.09);
     onPositionChange(defaultPosition);
@@ -41,7 +40,6 @@ const SubStep2 = () => {
   const { facilityAddress, updateFacilityAddress, updateAddressField } = useFacilityAddress();
   const { position, address } = facilityAddress;
   
-  // mapRef can remain a local ref as it's for direct DOM interaction.
   const mapRef = useRef<L.Map | null>(null);
 
   const handleSavePinnedLocation = () => {
@@ -50,14 +48,13 @@ const SubStep2 = () => {
       fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
         .then(response => response.json())
         .then(data => {
-          // 3. Update the context state with the fetched address.
           updateFacilityAddress({
             address: {
               streetAddress: data.address.road || '',
               city: data.address.city || data.address.town || '',
               state: data.address.state || '',
               zipCode: data.address.postcode || '',
-              otherAddress: address.otherAddress, // Preserve existing 'otherAddress'
+              otherAddress: address.otherAddress,
             }
           });
         })
