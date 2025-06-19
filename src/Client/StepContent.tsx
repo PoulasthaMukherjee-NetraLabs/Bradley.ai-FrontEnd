@@ -108,7 +108,7 @@ const stepSubStepMapping: StepSubStepMapping = {
   },
   7: {
     0: {
-      0: lazy(() => import("./pages/Onboarding/SubStep1/Bradley's Recommendation For Acme Manufacturing")),
+      0: lazy(() => import("./pages/Onboarding/SubStep1/Bradley's Recommendation For User")),
     },
   },
 };

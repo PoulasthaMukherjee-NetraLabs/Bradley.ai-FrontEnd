@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box, Button, Checkbox, TextField, Typography } from '@mui/material';
 import { useLOA } from '../../../../Context/Energy Profile/SubStep3/Letter Of Authorization Context';
 import { useOrganizationDetails } from '../../../../Context/Organizational Profile/SubStep2/Organization Details Context';
@@ -8,44 +8,15 @@ const SubStep3: React.FC = () => {
   const { loaState, updateField, updateNestedField } = useLOA();
   const { utilityCompanyName, textFields, contactDetails, signature, agreed } = loaState;
 
-  const { organizationDetails } = useOrganizationDetails();
-  const { userEmail } = organizationDetails;
+  const { organizationDetails, updateOrganizationDetails } = useOrganizationDetails();
+  const { userName, organizationName, userEmail } = organizationDetails;
 
-  const { facilityAddress } = useFacilityAddress();
+  const { facilityAddress, updateAddressField } = useFacilityAddress();
+  const { address } = facilityAddress;
 
-  useEffect(() => {
-    if (/* !contactDetails.email && */ userEmail) {
-      updateNestedField('contactDetails', 'email', userEmail);
-    }
-    console.log("useeffectCondition:", /* !contactDetails.email && */ userEmail)
-  }, [userEmail, contactDetails.email/* , updateNestedField */]);
-
-  console.log("Email: ", userEmail)
-
-  // remove all textfield conditions and others in && //
-
-  useEffect(() => {
-
-    if (facilityAddress.address.streetAddress && !textFields.address) {
-      updateNestedField('textFields', 'address', facilityAddress.address.streetAddress);
-    }
-    
-    if (facilityAddress.address.streetAddress && !contactDetails.fullAddress) {
-      const full = `${facilityAddress.address.streetAddress}, ${facilityAddress.address.city}, ${facilityAddress.address.state} ${facilityAddress.address.zipCode}`;
-      updateNestedField('contactDetails', 'fullAddress', full.replace(/, ,/g, ',').replace(/,  /g, ', ').trim()); // Clean up potential empty parts
-    }
-    
-    if (facilityAddress.address.city && !contactDetails.cityState) {
-        const cityState = `${facilityAddress.address.city}, ${facilityAddress.address.state}`;
-        updateNestedField('contactDetails', 'cityState', cityState.replace(/, $/,'').trim());
-    }
-
-    if (facilityAddress.address.zipCode && !contactDetails.zip) {
-      const zip = facilityAddress.address.zipCode;
-      updateNestedField('contactDetails', 'zip', zip);
-    }
-
-  }, [facilityAddress, textFields, contactDetails, updateNestedField]);
+  const customerNameDisplay = (userName && organizationName) ? `${userName}, ${organizationName}` : (userName || organizationName || '');
+  const fullAddressDisplay = [address.streetAddress, address.city, address.state, address.zipCode].filter(Boolean).join(', ');
+  const cityStateDisplay = [address.city, address.state].filter(Boolean).join(', ');
 
   const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -95,34 +66,34 @@ const SubStep3: React.FC = () => {
             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', mt: 3, textAlign: 'justify', lineHeight: 1.8 }}>
               On this <TextField variant="standard" type="text" placeholder="(DAY)" value={textFields.day} onChange={handleDayChange} inputProps={{ maxLength: 2 }} sx={{ width: '50px', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { padding: 0, marginBottom: '-2px' }, '& input': { textAlign: 'center', fontSize: '0.8rem', padding: 0 }, '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' } }} />
               {' '}day of{' '}<TextField variant="standard" type="text" placeholder="(MONTH)" value={textFields.month} onChange={handleMonthChange} sx={{ width: '80px', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { padding: 0, marginBottom: '-2px' }, '& input': { textAlign: 'center', fontSize: '0.8rem', padding: 0 }, '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' } }} />
-              , 2025, the{' '}<TextField variant="standard" type="text" placeholder="(CUSTOMER NAME)" value={textFields.customerName} onChange={(e) => updateNestedField('textFields', 'customerName', e.target.value)} sx={{ width: '150px', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { padding: 0, marginBottom: '-2px' }, '& input': { textAlign: 'center', fontSize: '0.8rem', padding: 0 }, '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' } }} />
+              , 2025, the{' '}<TextField variant="standard" type="text" placeholder="(CUSTOMER NAME)" value={customerNameDisplay} onChange={(e) => updateOrganizationDetails({ organizationName: e.target.value.split(',')[1]?.trim(), userName: e.target.value.split(',')[0]?.trim() })} sx={{ width: '150px', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { padding: 0, marginBottom: '-2px' }, '& input': { textAlign: 'center', fontSize: '0.8rem', padding: 0 }, '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' } }} />
               {' '} (Customer) appoints Bradley.ai as its Agent to obtain any and all usage information Bradley deems necessary to EVALUATE the Customer electricity, gas, or all steam supply at our location in{' '}
-              <TextField variant="standard" type="text" placeholder="(ADDRESS)" value={contactDetails.fullAddress} onChange={(e) => updateNestedField('contactDetails', 'fullAddress', e.target.value)} sx={{ width: '200px', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { padding: 0, marginBottom: '-2px' }, '& input': { textAlign: 'center', fontSize: '0.8rem', padding: 0 }, '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' } }} />
+              <TextField variant="standard" type="text" placeholder="(ADDRESS)" /* value={address.streetAddress} onChange={(e) => updateAddressField('streetAddress', e.target.value)} */ value={fullAddressDisplay} sx={{ width: '200px', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { padding: 0, marginBottom: '-2px' }, '& input': { textAlign: 'center', fontSize: '0.8rem', padding: 0 }, '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' } }} />
               . Customer Point of Contact is Mr./Mrs.{' '}<TextField variant="standard" type="text" placeholder="(NAME)" value={textFields.contactName} onChange={(e) => updateNestedField('textFields', 'contactName', e.target.value)} sx={{ width: '120px', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { padding: 0, marginBottom: '-2px' }, '& input': { textAlign: 'center', fontSize: '0.8rem', padding: 0 }, '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' } }} />
               {' '} listed below with their contact information and the information identifying our accounts.
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, justifyContent: 'center', mt: 3 }}>
             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Name:</b></Typography>
-            <TextField fullWidth variant="outlined" size="small" type="text" placeholder='Customer / Company Name Here' value={contactDetails.name} onChange={(e) => updateNestedField('contactDetails', 'name', e.target.value)} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
+            <TextField fullWidth variant="outlined" size="small" type="text" placeholder='Customer / Company Name Here' value={customerNameDisplay} onChange={(e) => updateOrganizationDetails({ userName: e.target.value.split(',')[0]?.trim(), organizationName: e.target.value.split(',')[1]?.trim() || '' })} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Service Address:</b></Typography>
             <TextField fullWidth variant="outlined" size="small" type="text" placeholder='1212 USA Lane' value={contactDetails.serviceAddress} onChange={(e) => updateNestedField('contactDetails', 'serviceAddress', e.target.value)} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, justifyContent: 'center' }}>
             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Full Address:</b></Typography>
-            <TextField fullWidth variant="outlined" size="small" placeholder='Full Address with City, State, Zip' type="text" value={contactDetails.fullAddress} onChange={(e) => updateNestedField('contactDetails', 'fullAddress', e.target.value)} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
+            <TextField fullWidth variant="outlined" size="small" placeholder='Full Address with City, State, Zip' type="text" value={fullAddressDisplay} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>City/State:</b></Typography>
-            <TextField fullWidth variant="outlined" size="small" placeholder='Springfield, IL' type="text" value={contactDetails.cityState} onChange={(e) => updateNestedField('contactDetails', 'cityState', e.target.value)} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
+            <TextField fullWidth variant="outlined" size="small" placeholder='Springfield, IL' type="text" value={cityStateDisplay} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, justifyContent: 'center' }}>
             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Ph. No.:</b></Typography>
             <TextField fullWidth variant="outlined" size="small" type="tel" placeholder='Enter Contact No. Here' value={contactDetails.phoneNo} onChange={(e) => updateNestedField('contactDetails', 'phoneNo', e.target.value)} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Zip:</b></Typography>
-            <TextField fullWidth variant="outlined" size="small" placeholder='07036' value={contactDetails.zip} onChange={(e) => updateNestedField('contactDetails', 'zip', e.target.value)} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
+            <TextField fullWidth variant="outlined" size="small" placeholder='07036' value={address.zipCode} onChange={(e) => updateAddressField('zipCode', e.target.value)} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, justifyContent: 'center' }}>
             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Email Address:</b></Typography>
-            <TextField fullWidth variant="outlined" size="small" placeholder='Enter Email Here' type="email" value={contactDetails.email} onChange={(e) => updateNestedField('contactDetails', 'email', e.target.value)} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
+            <TextField fullWidth variant="outlined" size="small" placeholder='Enter Email Here' type="email" value={userEmail} onChange={(e) => updateOrganizationDetails({ userEmail: e.target.value })} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Service Acc. No.:</b></Typography>
             <TextField fullWidth variant="outlined" size="small" type="number" placeholder='12345678910111213' value={contactDetails.serviceAccountNo} onChange={(e) => updateNestedField('contactDetails', 'serviceAccountNo', e.target.value)} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
           </Box>

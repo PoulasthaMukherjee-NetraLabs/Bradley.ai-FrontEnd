@@ -25,7 +25,7 @@ import { PrioritizationIIProvider } from '../Context/Goals & Priorities/SubStep2
 import { FinancialsIProvider } from '../Context/Goals & Priorities/SubStep3/Financials & Investment Information - I Context';
 import { FinancialsIIProvider } from '../Context/Goals & Priorities/SubStep3/Financials & Investment Information - II Context';
 import { OwnershipPreferenceProvider, useOwnershipPreference } from '../Context/Financial Info/SubStep1/Ownership Preference Context';
-import { SiteLocationProvider } from '../Context/Site Assessment/SubStep2/Confirm Edit Your Pre-Entered Site Location Context';
+// import { SiteLocationProvider } from '../Context/Site Assessment/SubStep2/Confirm Edit Your Pre-Entered Site Location Context';
 import { SiteCharacteristicsIProvider } from '../Context/Site Assessment/SubStep2/Site Characteristics - I Context';
 import { SiteCharacteristicsIIProvider } from '../Context/Site Assessment/SubStep2/Site Characteristics - II Context';
 import { OtherSiteCharacteristicsProvider } from '../Context/Site Assessment/SubStep2/Other Site Characteristics Context';
@@ -77,7 +77,7 @@ const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   <FinancialsIProvider>
   <FinancialsIIProvider>
   <OwnershipPreferenceProvider>
-  <SiteLocationProvider>
+  {/* <SiteLocationProvider> */}
   <SiteCharacteristicsIProvider>
   <SiteCharacteristicsIIProvider>
   <OtherSiteCharacteristicsProvider>
@@ -121,7 +121,7 @@ const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   </OtherSiteCharacteristicsProvider>
   </SiteCharacteristicsIIProvider>
   </SiteCharacteristicsIProvider>
-  </SiteLocationProvider>
+  {/* </SiteLocationProvider> */}
   </OwnershipPreferenceProvider>
   </FinancialsIIProvider>
   </FinancialsIProvider>

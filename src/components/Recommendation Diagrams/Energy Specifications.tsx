@@ -8,10 +8,9 @@ import {
   useTheme,
   Chip,
   Divider,
-  Collapse,
   IconButton,
-  styled,
-  IconButtonProps,
+  Modal,
+  Paper,
 } from '@mui/material';
 import {
   Memory,
@@ -29,8 +28,8 @@ import {
   HeatPump,
   EvStation,
   Hvac,
+  Close,
 } from '@mui/icons-material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 interface ComponentSpecPro {
   id: number;
@@ -176,17 +175,6 @@ export const componentDataPro: ComponentSpecPro[] = [
   },
 ];
 
-const ExpandMore = styled((props: IconButtonProps & { expand: boolean }) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
-
 const SummaryDetailItem: React.FC<{
   icon?: React.ReactNode;
   label: string;
@@ -248,6 +236,145 @@ const ProDetailItem: React.FC<{
   );
 };
 
+const DetailModal: React.FC<{
+  open: boolean;
+  onClose: () => void;
+  spec: ComponentSpecPro;
+  isLarge: boolean;
+}> = ({ open, onClose, spec, isLarge }) => {
+  const theme = useTheme();
+
+  const getProDetailIcon = (label: string) => {
+    const iconFontSize = (isLarge ? 'small' : 'small') as 'small' | 'medium';
+    const iconProps = { fontSize: iconFontSize, sx: { opacity: 0.8 } };
+    const lowerLabel = label.toLowerCase();
+    if (lowerLabel.includes('model')) return <Factory {...iconProps} />;
+    if (lowerLabel.includes('serial')) return <SettingsPower {...iconProps} />;
+    if (lowerLabel.includes('rating') || lowerLabel.includes('capacity') || lowerLabel.includes('output') || lowerLabel.includes('thermal')) return <SolarPower {...iconProps} />;
+    if (lowerLabel.includes('fuel')) return <LocalGasStation {...iconProps} />;
+    if (lowerLabel.includes('round trip') || lowerLabel.includes('heat rate') || lowerLabel.includes('cop') || lowerLabel.includes('eer')) return <TrendingUp {...iconProps} />;
+    if (lowerLabel.includes('warranty')) return <VerifiedUser {...iconProps} />;
+    if (lowerLabel.includes('date') || lowerLabel.includes('maintenance')) return <Schedule {...iconProps} />;
+    if (lowerLabel.includes('cost') || lowerLabel.includes('saving') || lowerLabel.includes('roi')) return <AttachMoney {...iconProps} />;
+    if (lowerLabel.includes('notes')) return <Notes {...iconProps} />;
+    if (lowerLabel.includes('unit') || lowerLabel.includes('level')) return <EvStation {...iconProps}/>;
+    return null;
+  };
+
+  const getSummaryIcon = (componentType: string) => {
+    const iconProps = { fontSize: 'medium' as const, sx: { mr: 0.75 } };
+    const type = componentType.toLowerCase();
+    if (type.includes('pv') || type.includes('solar')) return <SolarPower {...iconProps} />;
+    if (type.includes('battery') || type.includes('storage')) return <BatterySaver {...iconProps} />;
+    if (type.includes('generator')) return <LocalGasStation {...iconProps} />;
+    if (type.includes('chp') || type.includes('combined heat')) return <Hvac {...iconProps} />;
+    if (type.includes('geothermal') || type.includes('heat pump')) return <HeatPump {...iconProps} />;
+    if (type.includes('ev') || type.includes('charging')) return <EvStation {...iconProps} />;
+    return <SettingsPower {...iconProps} />;
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      aria-labelledby="modal-title"
+      aria-describedby="modal-description"
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: 2,
+      }}
+    >
+      <Paper
+        sx={{
+          width: '90%',
+          maxWidth: 600,
+          maxHeight: '90vh',
+          overflow: 'hidden',
+          borderRadius: 3,
+          background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.grey[100]} 100%)`,
+          boxShadow: theme.shadows[24],
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Box sx={{ 
+          flex: 1, 
+          overflow: 'auto',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          '-ms-overflow-style': 'none',
+          'scrollbar-width': 'none',
+        }}>
+          <Box sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+              <Chip
+                icon={getSummaryIcon(spec.component)}
+                label={spec.component}
+                color="primary"
+                variant="filled"
+                size="medium"
+                sx={{ fontWeight: 'bold', fontSize: '1rem' }}
+              />
+              <IconButton onClick={onClose} size="small">
+                <Close />
+              </IconButton>
+            </Box>
+
+            <Divider sx={{ mb: 2 }} />
+
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+              Detailed Specifications
+            </Typography>
+
+            <ProDetailItem icon={getProDetailIcon('Technology')} label="Technology" value={spec.technology} isLarge={true} />
+            <ProDetailItem icon={getProDetailIcon('Manufacturer')} label="Manufacturer" value={spec.manufacturer} isLarge={true} />
+            {spec.efficiency && <ProDetailItem icon={getProDetailIcon('Efficiency')} label="Efficiency" value={spec.efficiency} isLarge={true} />}
+            <ProDetailItem icon={getProDetailIcon('Model')} label="Model" value={spec.equipmentModel} isLarge={true} />
+            <ProDetailItem icon={getProDetailIcon('Serial')} label="Serial #" value={spec.serialNumber} isLarge={true} />
+            <ProDetailItem icon={getProDetailIcon('Power Rating')} label="Power Rating" value={spec.powerRating} isLarge={true} />
+            {spec.capacity && <ProDetailItem icon={getProDetailIcon('Capacity')} label="Capacity" value={spec.capacity} isLarge={true} />}
+            {spec.fuelType && <ProDetailItem icon={getProDetailIcon('Fuel Type')} label="Fuel Type" value={spec.fuelType} isLarge={true} />}
+            {spec.heatRate && <ProDetailItem icon={getProDetailIcon('Heat Rate')} label="Heat Rate" value={spec.heatRate} isLarge={true} />}
+            {spec.roundTripEfficiency && <ProDetailItem icon={getProDetailIcon('RTE')} label="Round Trip Eff." value={spec.roundTripEfficiency} isLarge={true} />}
+            {spec.thermalOutput && <ProDetailItem icon={getProDetailIcon('Thermal Output')} label="Thermal Output" value={spec.thermalOutput} isLarge={true} />}
+            {spec.copOrEer && <ProDetailItem icon={getProDetailIcon('COP/EER')} label="COP / EER" value={spec.copOrEer} isLarge={true} />}
+            {spec.numberOfUnits && <ProDetailItem icon={getProDetailIcon('Units')} label="Number of Units" value={spec.numberOfUnits} isLarge={true} />}
+            {spec.chargingLevels && <ProDetailItem icon={getProDetailIcon('Charging Levels')} label="Charging Levels" value={spec.chargingLevels} isLarge={true} />}
+            <ProDetailItem icon={getProDetailIcon('Warranty')} label="Warranty" value={spec.warranty} isLarge={true} />
+            <ProDetailItem icon={getProDetailIcon('Install Date')} label="Install Date" value={spec.installationDate} isLarge={true} />
+            {spec.lastMaintenance && <ProDetailItem icon={getProDetailIcon('Maintenance')} label="Last Maintenance" value={spec.lastMaintenance} isLarge={true} />}
+
+            {(spec.estimatedUpfrontCost || spec.annualSavings || spec.roiYears) && (
+              <>
+                <Divider sx={{ my: 2, mt: 2.5 }} />
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                  Financials
+                </Typography>
+                <ProDetailItem icon={getProDetailIcon('Upfront Cost')} label="Upfront Cost" value={spec.estimatedUpfrontCost} isLarge={true} />
+                <ProDetailItem icon={getProDetailIcon('Annual Savings')} label="Annual Savings" value={spec.annualSavings} isLarge={true} />
+                <ProDetailItem icon={getProDetailIcon('ROI')} label="ROI" value={spec.roiYears} isLarge={true} />
+              </>
+            )}
+            
+            {spec.notes && (
+              <>
+                <Divider sx={{ my: 2, mt: 2.5 }} />
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                  Notes
+                </Typography>
+                <ProDetailItem icon={getProDetailIcon('Notes')} label="" value={spec.notes} isLarge={true} />
+              </>
+            )}
+          </Box>
+        </Box>
+      </Paper>
+    </Modal>
+  );
+};
+
 interface EnergySpecificationsProps {
   size: 'small' | 'large';
   data?: ComponentSpecPro[];
@@ -256,10 +383,14 @@ interface EnergySpecificationsProps {
 export const EnergySpecifications: React.FC<EnergySpecificationsProps> = ({ size, data = componentDataPro }) => {
   const isLarge = size === 'large';
   const theme = useTheme();
-  const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
+  const [selectedSpec, setSelectedSpec] = useState<ComponentSpecPro | null>(null);
 
-  const handleExpandClick = (cardId: number) => {
-    setExpandedCardId(expandedCardId === cardId ? null : cardId);
+  const handleCardClick = (spec: ComponentSpecPro) => {
+    setSelectedSpec(spec);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedSpec(null);
   };
 
   const getGridItemProps = (index: number, totalCount: number) => {
@@ -311,23 +442,6 @@ export const EnergySpecifications: React.FC<EnergySpecificationsProps> = ({ size
     return null;
   };
 
-  const getProDetailIcon = (label: string) => {
-    const iconFontSize = (isLarge ? 'small' : 'small') as 'small' | 'medium';
-    const iconProps = { fontSize: iconFontSize, sx: { opacity: 0.8 } };
-    const lowerLabel = label.toLowerCase();
-    if (lowerLabel.includes('model')) return <Factory {...iconProps} />;
-    if (lowerLabel.includes('serial')) return <SettingsPower {...iconProps} />;
-    if (lowerLabel.includes('rating') || lowerLabel.includes('capacity') || lowerLabel.includes('output') || lowerLabel.includes('thermal')) return <SolarPower {...iconProps} />;
-    if (lowerLabel.includes('fuel')) return <LocalGasStation {...iconProps} />;
-    if (lowerLabel.includes('round trip') || lowerLabel.includes('heat rate') || lowerLabel.includes('cop') || lowerLabel.includes('eer')) return <TrendingUp {...iconProps} />;
-    if (lowerLabel.includes('warranty')) return <VerifiedUser {...iconProps} />;
-    if (lowerLabel.includes('date') || lowerLabel.includes('maintenance')) return <Schedule {...iconProps} />;
-    if (lowerLabel.includes('cost') || lowerLabel.includes('saving') || lowerLabel.includes('roi')) return <AttachMoney {...iconProps} />;
-    if (lowerLabel.includes('notes')) return <Notes {...iconProps} />;
-    if (lowerLabel.includes('unit') || lowerLabel.includes('level')) return <EvStation {...iconProps}/>;
-    return null;
-  };
-
   return (
     <Box sx={{ width: '100%', p: isLarge ? 2 : 1 }}>
       <Grid container spacing={spacing}>
@@ -336,7 +450,7 @@ export const EnergySpecifications: React.FC<EnergySpecificationsProps> = ({ size
           return (
             <Grid item xs={gridProps.xs} sm={gridProps.sm} md={gridProps.md} key={spec.id}>
               <Card
-                elevation={expandedCardId === spec.id ? 8 : 3}
+                elevation={3}
                 sx={{
                   borderRadius: 3,
                   background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.grey[100]} 100%)`,
@@ -347,9 +461,11 @@ export const EnergySpecifications: React.FC<EnergySpecificationsProps> = ({ size
                   },
                   display: 'flex',
                   flexDirection: 'column',
+                  cursor: 'pointer',
                 }}
+                onClick={() => handleCardClick(spec)}
               >
-                <CardContent sx={{ p: cardPadding, cursor: 'pointer' }} onClick={() => handleExpandClick(spec.id)}>
+                <CardContent sx={{ p: cardPadding }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: isLarge ? 1.5 : 1 }}>
                     <Chip
                       icon={getSummaryIcon(spec.component)}
@@ -359,14 +475,12 @@ export const EnergySpecifications: React.FC<EnergySpecificationsProps> = ({ size
                       size={chipSize}
                       sx={{ fontWeight: 'bold', fontSize: isLarge ? '0.9rem' : '0.8rem' }}
                     />
-                    <ExpandMore
-                      expand={expandedCardId === spec.id}
-                      aria-expanded={expandedCardId === spec.id}
-                      aria-label="show more"
+                    <IconButton
                       size={isLarge ? 'medium' : 'small'}
+                      sx={{ ml: 'auto', fontSize: isLarge ? '1.2rem' : '1rem' }}
                     >
-                      <ExpandMoreIcon />
-                    </ExpandMore>
+                      ⛶
+                    </IconButton>
                   </Box>
 
                   <Divider sx={{ mb: isLarge ? 1.5 : 1 }} />
@@ -375,56 +489,20 @@ export const EnergySpecifications: React.FC<EnergySpecificationsProps> = ({ size
                   <SummaryDetailItem icon={getSummaryDetailIcon('Manufacturer')} label="Manufacturer" value={spec.manufacturer} isLarge={isLarge} />
                   {spec.efficiency && <SummaryDetailItem icon={getSummaryDetailIcon('Efficiency')} label="Efficiency" value={spec.efficiency} isLarge={isLarge} />}
                 </CardContent>
-
-                <Collapse in={expandedCardId === spec.id} timeout="auto" unmountOnExit>
-                  <CardContent sx={{ pt: 0, pb: cardPadding, px: cardPadding }}>
-                    <Divider sx={{ mb: isLarge ? 1.5 : 1 }} />
-                    <Typography variant={isLarge ? "h6" : "subtitle1"} sx={{ mb: isLarge ? 1.5: 1, fontWeight: 'bold', fontSize: isLarge ? '1rem' : '0.9rem', mt: isLarge ? 1: 0.5 }}>
-                      Detailed Specifications
-                    </Typography>
-                    <ProDetailItem icon={getProDetailIcon('Model')} label="Model" value={spec.equipmentModel} isLarge={isLarge} />
-                    <ProDetailItem icon={getProDetailIcon('Serial')} label="Serial #" value={spec.serialNumber} isLarge={isLarge} />
-                    <ProDetailItem icon={getProDetailIcon('Power Rating')} label="Power Rating" value={spec.powerRating} isLarge={isLarge} />
-                    {spec.capacity && <ProDetailItem icon={getProDetailIcon('Capacity')} label="Capacity" value={spec.capacity} isLarge={isLarge} />}
-                    {spec.fuelType && <ProDetailItem icon={getProDetailIcon('Fuel Type')} label="Fuel Type" value={spec.fuelType} isLarge={isLarge} />}
-                    {spec.heatRate && <ProDetailItem icon={getProDetailIcon('Heat Rate')} label="Heat Rate" value={spec.heatRate} isLarge={isLarge} />}
-                    {spec.roundTripEfficiency && <ProDetailItem icon={getProDetailIcon('RTE')} label="Round Trip Eff." value={spec.roundTripEfficiency} isLarge={isLarge} />}
-                    {spec.thermalOutput && <ProDetailItem icon={getProDetailIcon('Thermal Output')} label="Thermal Output" value={spec.thermalOutput} isLarge={isLarge} />}
-                    {spec.copOrEer && <ProDetailItem icon={getProDetailIcon('COP/EER')} label="COP / EER" value={spec.copOrEer} isLarge={isLarge} />}
-                    {spec.numberOfUnits && <ProDetailItem icon={getProDetailIcon('Units')} label="Number of Units" value={spec.numberOfUnits} isLarge={isLarge} />}
-                    {spec.chargingLevels && <ProDetailItem icon={getProDetailIcon('Charging Levels')} label="Charging Levels" value={spec.chargingLevels} isLarge={isLarge} />}
-                    <ProDetailItem icon={getProDetailIcon('Warranty')} label="Warranty" value={spec.warranty} isLarge={isLarge} />
-                    <ProDetailItem icon={getProDetailIcon('Install Date')} label="Install Date" value={spec.installationDate} isLarge={isLarge} />
-                    {spec.lastMaintenance && <ProDetailItem icon={getProDetailIcon('Maintenance')} label="Last Maintenance" value={spec.lastMaintenance} isLarge={isLarge} />}
-
-                    { (spec.estimatedUpfrontCost || spec.annualSavings || spec.roiYears) && (
-                      <>
-                        <Divider sx={{ my: isLarge ? 2 : 1.5, mt: isLarge ? 2.5 : 2 }} />
-                        <Typography variant={isLarge ? "h6" : "subtitle1"} sx={{ mb: isLarge ? 1.5: 1, fontWeight: 'bold', fontSize: isLarge ? '1rem' : '0.9rem', mt: isLarge ? 0.5 : 0.25 }}>
-                           Financials
-                        </Typography>
-                        <ProDetailItem icon={getProDetailIcon('Upfront Cost')} label="Upfront Cost" value={spec.estimatedUpfrontCost} isLarge={isLarge} />
-                        <ProDetailItem icon={getProDetailIcon('Annual Savings')} label="Annual Savings" value={spec.annualSavings} isLarge={isLarge} />
-                        <ProDetailItem icon={getProDetailIcon('ROI')} label="ROI" value={spec.roiYears} isLarge={isLarge} />
-                      </>
-                    )}
-                    
-                    {spec.notes && (
-                       <>
-                        <Divider sx={{ my: isLarge ? 2 : 1.5, mt: isLarge ? 2.5 : 2 }} />
-                         <Typography variant={isLarge ? "h6" : "subtitle1"} sx={{ mb: isLarge ? 1.5: 1, fontWeight: 'bold', fontSize: isLarge ? '1rem' : '0.9rem', mt: isLarge ? 0.5 : 0.25 }}>
-                           Notes
-                        </Typography>
-                        <ProDetailItem icon={getProDetailIcon('Notes')} label="" value={spec.notes} isLarge={isLarge} />
-                       </>
-                    )}
-                  </CardContent>
-                </Collapse>
               </Card>
             </Grid>
           );
         })}
       </Grid>
+
+      {selectedSpec && (
+        <DetailModal
+          open={!!selectedSpec}
+          onClose={handleCloseModal}
+          spec={selectedSpec}
+          isLarge={isLarge}
+        />
+      )}
     </Box>
   );
 };
