@@ -9,7 +9,7 @@ import {
   Paper,
   // styled,
   // Modal,
-  // Button
+  // Button 
 } from '@mui/material';
 import { StyledTitle, StyledRecommendation, StyledKeyBenefitsTitle, EnhancedBenefitCard, /* StyledBenefitValue, StyledBenefitDescription, */ StyledTabPanelBox, StyledTabPanelTitle, StyledExpandButton, ExpandableModal, TabPanel, ExpandablePanelInfo, benefitDataTop, benefitDataBottom, EnergyProductionBreakdown, EnergyFlowDiagram, mockExpandedContent, /* IndicativeFinanceDetails, FinancialIncentives, FinanceOptions, */ Resources, GeneralArrangement, SystemDiagram, InvestmentSummary, ProjectSchedule, AnnualEnergyCostAsIsComparedToDEROvertime, EnergySpecifications, FinancingOptionsAnalysis } from '../../../../components/RecommendationUI';
 import { useOrganizationDetails } from '../../../../Context/Organizational Profile/SubStep2/Organization Details Context';
