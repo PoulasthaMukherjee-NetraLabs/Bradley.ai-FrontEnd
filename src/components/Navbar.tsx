@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
           </Typography>
         </Typography> */}
         <Box sx={{ flexGrow: 1, display: 'inline-flex', alignItems: 'center' }}>
-          <img src="public\bradley_dynamic_horizontal.svg" alt="Logo" style={{ height: '64px', marginRight: '4px', marginLeft: '-6px' }} />
+          <img src="/bradley_dynamic_horizontal.svg" alt="Logo" style={{ height: '64px', marginRight: '4px', marginLeft: '-6px' }} />
         </Box>
 
         
