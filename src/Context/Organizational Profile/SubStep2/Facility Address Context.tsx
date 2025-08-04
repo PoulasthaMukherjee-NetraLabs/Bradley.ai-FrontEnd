@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import Cookies from 'js-cookie';
 import L from 'leaflet';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Interface defining the address fields.
@@ -64,7 +65,7 @@ const defaultState: FacilityAddressState = {
   selectedAddressId: null,
 };
 
-const generateId = (): string => Math.random().toString(36).substr(2, 9);
+const generateId = (): string => uuidv4();;
 
 export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = ({ children }) => {
   const [facilityAddressState, setFacilityAddressState] = useState<FacilityAddressState>(() => {

@@ -51,6 +51,8 @@ export const updateOrganizationDetails = async (data: OrganizationDetails): Prom
   }
 };
 
+let globalResponse: any = null;
+
 // Facility Address
 export const updateFacilityAddresses = async (data: AddressData[]): Promise<void> => {
   try {
@@ -64,7 +66,9 @@ export const updateFacilityAddresses = async (data: AddressData[]): Promise<void
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    console.log('Facility addresses updated successfully');
+
+    globalResponse = await response.json();
+    console.log('Facility addresses updated successfully', globalResponse);
   } catch (error) {
     console.error('Error updating facility addresses:', error);
   }
@@ -73,10 +77,15 @@ export const updateFacilityAddresses = async (data: AddressData[]): Promise<void
 // Bill Upload
 export const uploadBillData = async (Files: File[]/* , electricBillMetadataList: BillMetadata[], */ /* gasFiles: File[], */ /* gasBillMetadataList: BillMetadata[] */): Promise<void> => {
   try {
+    const uuids = globalResponse.mapping
     const formData = new FormData();
     Files.forEach(file => {
       formData.append('files', file);
     });
+    uuids.forEach(uuid => {
+      formData.append('uuids', uuid);
+    });
+    // formData.append('uuids', uuids);
     // formData.append('electric_bill_metadata_list_json', JSON.stringify(electricBillMetadataList));
     // gasFiles.forEach(file => {
     //   formData.append('files', file);
