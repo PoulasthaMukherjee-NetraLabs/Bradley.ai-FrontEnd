@@ -1,789 +1,234 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Box, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Slider, Select, MenuItem, FormControl, Grid, Container, styled, createTheme, ThemeProvider, CssBaseline, Modal, Fade, IconButton
+    Box, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Slider, Select, MenuItem, FormControl, Grid, Container, styled, createTheme, ThemeProvider, CssBaseline, Modal, Fade, IconButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line, ComposedChart } from 'recharts';
-// Import your useBillAddress context hook as needed
-import { useBillAddress } from '../../../../Context/Energy Profile/BillAddressContext';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart } from 'recharts';
 
-const nunitoSansUrl = 'https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap';
-
-const theme = createTheme({
-  typography: {
-    fontFamily: '"Nunito Sans", "Roboto", "Helvetica", "Arial", sans-serif',
-    h4: { fontWeight: 700 },
-    h5: { fontWeight: 700 },
-    subtitle2: { fontWeight: 600 }
-  },
-});
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  boxShadow: theme.shadows[2],
-  width: '100%',
-}));
-
-const FilterCard = styled(Card)(({ theme }) => ({
-  width: '100%',
-  '& .MuiCardHeader-root': {
-    backgroundColor: theme.palette.primary.light,
-    color: theme.palette.primary.contrastText,
-    '& .MuiTypography-root': { fontWeight: 'bold', fontSize: '0.875rem' }
-  }
-}));
-
-const SummaryCard = styled(Card)(() => ({
-  width: '100%',
-  '& .MuiCardHeader-root': {
-    backgroundColor: '#fff3cd',
-    '& .MuiTypography-root': { fontWeight: 'bold', fontSize: '0.875rem' }
-  }
-}));
-
-const RedCell = styled(TableCell)(() => ({
-  backgroundColor: '#ffebee',
-  color: '#c62828',
-  fontWeight: 'bold',
-  textAlign: 'center',
-  fontSize: '0.75rem',
-}));
-const LabelCell = styled(TableCell)(() => ({
-  backgroundColor: '#f5f5f5',
-  fontWeight: 600,
-  textAlign: 'left',
-  fontSize: '0.75rem',
-  width: '40%'
-}));
-const StyledTableCell = styled(TableCell)({
-  fontSize: '0.75rem',
-  textAlign: 'center',
-  padding: '8px',
-});
-const SubHeaderCell = styled(TableCell)(() => ({
-  backgroundColor: '#e0e0e0',
-  fontWeight: 600,
-  textAlign: 'center',
-  fontSize: '0.75rem',
-  padding: '8px',
-}));
-const HeaderCell = styled(TableCell)(() => ({
-  backgroundColor: '#bdbdbd',
-  fontWeight: 'bold',
-  textAlign: 'center',
-  fontSize: '0.875rem',
-  padding: '8px',
-}));
-
-interface DashboardState {
-  location: string;
-  source: string;
-  co2eGoal: number;
-  derAllocation: { [key: string]: number; };
+// --- TYPE DEFINITIONS (Matching your JSON structure) ---
+interface MonthlyEmission {
+    month: string;
+    year: number;
+    total_emissions: number;
+    energy_consumption: number;
+}
+interface TargetGoals {
+    "Baseline CO2 (Metric Tons)": { YTD: number | null, Forecast: number | null, "Previous Year": number | null };
+    "Reduction Amount": { YTD: number | null, Forecast: number | null, "Previous Year": number | null };
+    "Reduction %": { county: number | null, state: number | null, corp: number | null };
+    "Target (ON/OFF)": { county: boolean | null, state: boolean | null, corp: boolean | null };
+    "Action Needed": { county: boolean | null, state: boolean | null, corp: boolean | null };
+    "Penalty": { county: number | null, state: number |null, corp: number | null };
+}
+interface CurrentYearSummary {
+    ytd_emissions: number | null;
+    total_energy_consumption: number | null;
+    energy_type: string;
+    current_month: string;
+    difference_from_last_month: number | null;
+    up_down: string;
+    emission_reduction_goal: number | null;
+}
+interface Penalty {
+    location: { county: string; state: string; corp: string; };
+    penalty_rule: { county: string; state: string; corp: string; };
+}
+interface LocationData {
+    location: string;
+    source: 'electric' | 'gas';
+    monthly_emissions: MonthlyEmission[];
+    target_goals: TargetGoals;
+    current_year_summary: CurrentYearSummary;
+    penalty: Penalty;
 }
 
-const EmissionsDashboard: React.FC = () => {
-  const { addresses, bills } = useBillAddress();
-  const [dashboardState, setDashboardState] = useState<DashboardState>({
-    location: addresses.length > 0 ? addresses[0].id : '',
-    source: '',
-    co2eGoal: 10,
-    derAllocation: {
-      PLANT: 100, 'Solar PV': 0, CHP: 0, 'Simple Cycle Turbines': 0, 'Fuel Cells': 0, 'Linear Generation': 0, 'Battery Storage': 0,
-    },
-  });
+// --- STYLING ---
+const nunitoSansUrl = 'https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap';
+const theme = createTheme({ typography: { fontFamily: '"Nunito Sans", "Roboto", "Helvetica", "Arial", sans-serif', h4: { fontWeight: 700 }, h5: { fontWeight: 700 }, subtitle2: { fontWeight: 600 } } });
+const StyledCard = styled(Card)(({ theme }) => ({ boxShadow: theme.shadows[2], width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }));
+const FilterCard = styled(Card)(({ theme }) => ({ width: '100%', '& .MuiCardHeader-root': { backgroundColor: theme.palette.primary.light, color: theme.palette.primary.contrastText, '& .MuiTypography-root': { fontWeight: 'bold', fontSize: '0.875rem' } } }));
+const SummaryCard = styled(Card)(() => ({ width: '100%', height: '100%', '& .MuiCardHeader-root': { backgroundColor: '#fff3cd', '& .MuiTypography-root': { fontWeight: 'bold', fontSize: '0.875rem' } } }));
+const RedCell = styled(TableCell)(() => ({ backgroundColor: '#ffebee', color: '#c62828', fontWeight: 'bold', textAlign: 'center', fontSize: '0.75rem' }));
+const LabelCell = styled(TableCell)(() => ({ backgroundColor: '#f5f5f5', fontWeight: 600, textAlign: 'left', fontSize: '0.75rem', width: '40%' }));
+const StyledTableCell = styled(TableCell)({ fontSize: '0.75rem', textAlign: 'center', padding: '8px' });
+const SubHeaderCell = styled(TableCell)(() => ({ backgroundColor: '#e0e0e0', fontWeight: 600, textAlign: 'center', fontSize: '0.75rem', padding: '8px' }));
+const HeaderCell = styled(TableCell)(() => ({ backgroundColor: '#bdbdbd', fontWeight: 'bold', textAlign: 'center', fontSize: '0.875rem', padding: '8px' }));
 
-  useEffect(() => {
-    const selectedBill = bills.find(b => b.addressId === dashboardState.location);
-    if (selectedBill) {
-      setDashboardState(prev => ({ ...prev, source: selectedBill.type }));
-    }
-  }, [dashboardState.location, bills]);
+// --- COMPONENT INTERFACE ---
+interface EmissionsDashboardProps {
+    data: LocationData[];
+}
+interface DashboardState {
+    selectedLocationName: string;
+    co2eGoal: number;
+    derAllocation: { [key: string]: number; };
+}
 
-  const [summary, setSummary] = useState<any>({});
-  const [chartData, setChartData] = useState<any>({});
-  const [expandedChart, setExpandedChart] = useState<{ key: string, title: string } | null>(null);
-
-  useEffect(() => {
-    // Simulated calculations (same as in your template)
-    const baselineCO2 = 4129.26;
-    const derReductionFactor = Object.values(dashboardState.derAllocation).reduce((sum, val) => sum + val, 0) / 100 * 0.3;
-    const annualForecast = baselineCO2 * (1 - derReductionFactor);
-    const ytdCO2e = 2571.73;
-    const reductionGoalAmount = baselineCO2 * (dashboardState.co2eGoal / 100);
-    const exceedsAmount = annualForecast - (baselineCO2 - reductionGoalAmount);
-
-    setSummary({
-      ytdCO2e: ytdCO2e,
-      annualForecast: annualForecast,
-      upDown: -5.5,
-      reductionGoalAmount: reductionGoalAmount,
-      exceedsAmount: exceedsAmount > 0 ? exceedsAmount : 0,
-      isExceeding: exceedsAmount > 0,
-      baselineCO2: baselineCO2,
-      previousYear: 4028.54,
+// --- MAIN COMPONENT ---
+const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({ data }) => {
+    // --- STATE MANAGEMENT ---
+    const [dashboardState, setDashboardState] = useState<DashboardState>({
+        // Initialize with the first location name from the data prop
+        selectedLocationName: data?.[0]?.location || '',
+        co2eGoal: 10,
+        derAllocation: { 'PLANT': 100, 'Solar PV': 0, 'CHP': 0, 'Simple Cycle Turbines': 0, 'Fuel Cells': 0, 'Linear Generation': 0, 'Battery Storage': 0 },
     });
+    const [expandedChart, setExpandedChart] = useState<{ key: string, title: string } | null>(null);
 
-    // Chart data (same as in your template)
-    const months = [
-      { month: '1', 'LOC1-S1': 325, 'DER': 275, 'LOC2-S1': 220, 'LOC2-S2': 150, 'County Target': 260, 'State Target': 228, 'Corp Target': 293 },
-      { month: '2', 'LOC1-S1': 315, 'DER': 265, 'LOC2-S1': 215, 'LOC2-S2': 140, 'County Target': 252, 'State Target': 221, 'Corp Target': 284 },
-      { month: '3', 'LOC1-S1': 350, 'DER': 295, 'LOC2-S1': 225, 'LOC2-S2': 160, 'County Target': 280, 'State Target': 245, 'Corp Target': 315 },
-      { month: '4', 'LOC1-S1': 380, 'DER': 320, 'LOC2-S1': 280, 'LOC2-S2': 165, 'County Target': 304, 'State Target': 266, 'Corp Target': 342 },
-      { month: '5', 'LOC1-S1': 405, 'DER': 340, 'LOC2-S1': 280, 'LOC2-S2': 180, 'County Target': 324, 'State Target': 284, 'Corp Target': 365 },
-      { month: '6', 'LOC1-S1': 395, 'DER': 332, 'LOC2-S1': 275, 'LOC2-S2': 175, 'County Target': 316, 'State Target': 277, 'Corp Target': 356 },
-      { month: '7', 'LOC1-S1': 370, 'DER': 311, 'LOC2-S1': 230, 'LOC2-S2': 165, 'County Target': 296, 'State Target': 259, 'Corp Target': 333 },
-    ];
-    setChartData({
-      combo: months,
-      electricity: months,
-      allLocations: months,
-      naturalGas: months.map(m => ({ month: m.month, 'LOC2-S2': m['LOC2-S2'] })),
-    });
-  }, [dashboardState]);
+    // --- DATA DERIVATION & TRANSFORMATION ---
+
+    // When the data prop changes, ensure a valid location is selected
+    useEffect(() => {
+        if (data && data.length > 0 && !dashboardState.selectedLocationName) {
+            setDashboardState(prev => ({ ...prev, selectedLocationName: data[0].location }));
+        }
+    }, [data, dashboardState.selectedLocationName]);
+
+    // Find the full data object for the selected location.
+    // This hook is the core of the dashboard's reactivity.
+    const selectedLocationData = useMemo(() => {
+        return data?.find(d => d.location === dashboardState.selectedLocationName) || null;
+    }, [data, dashboardState.selectedLocationName]);
+
+    const chartData = useMemo(() => {
+        const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthData: { [key: string]: any }[] = allMonths.map(m => ({ month: m }));
+
+        const electricLocations = data?.filter(d => d.source === 'electric') ?? [];
+        const gasLocations = data?.filter(d => d.source === 'gas') ?? [];
+
+        const processEmissions = (locations: LocationData[] | undefined) => {
+            if (!locations) return;
+            locations.forEach(loc => {
+                loc.monthly_emissions.forEach(em => {
+                    const monthName = em.month.substring(0, 3);
+                    const entry = monthData.find(m => m.month === monthName);
+                    if (entry) entry[loc.location] = (entry[loc.location] || 0) + em.total_emissions;
+                });
+            });
+        };
+        
+        processEmissions(data);
+        
+        const derFactor = 1 - (Object.values(dashboardState.derAllocation).filter((_, i) => i > 0).reduce((acc, v) => acc + v, 0) / 100);
+        const finalData = monthData.map(d => ({
+            ...d,
+            'DER': (d[dashboardState.selectedLocationName] || 0) * derFactor,
+        }));
+        return { all: finalData, electric: electricLocations, gas: gasLocations };
+    }, [data, dashboardState.selectedLocationName, dashboardState.derAllocation]);
 
 
-  const handleLocationChange = (event: any) => {
-    setDashboardState(prev => ({ ...prev, location: event.target.value }));
-  };
+    // --- EVENT HANDLERS ---
+    const handleLocationChange = (event: any) => {
+        setDashboardState(prev => ({ ...prev, selectedLocationName: event.target.value }));
+    };
 
-  const handleCO2GoalChange = (_event: Event, newValue: number | number[]) => {
-    setDashboardState(prev => ({ ...prev, co2eGoal: newValue as number }));
-  };
+    const handleDERAllocationChange = (name: string) => (_event: Event, newValue: number | number[]) => {
+        const value = newValue as number;
+        const oldValue = dashboardState.derAllocation[name];
+        const difference = value - oldValue;
+        const currentPlantValue = dashboardState.derAllocation.PLANT;
+        if (difference > 0 && currentPlantValue < difference) return;
+        setDashboardState(prev => ({ ...prev, derAllocation: { ...prev.derAllocation, [name]: value, PLANT: currentPlantValue - difference } }));
+    };
 
-  const handleDERAllocationChange = (name: string) => (_event: Event, newValue: number | number[]) => {
-    const value = newValue as number;
-    const oldValue = dashboardState.derAllocation[name];
-    const difference = value - oldValue;
-    const currentPlantValue = dashboardState.derAllocation.PLANT;
+    // --- ROBUST FORMATTING HELPERS ---
+    const formatNumber = (num?: number | null, digits = 2) => num?.toLocaleString('en-US', { maximumFractionDigits: digits, minimumFractionDigits: digits }) ?? 'N/A';
+    const formatString = (str?: string | null) => str?.toString() || 'N/A';
+    const formatPercent = (val?: number | null) => (val === null || val === undefined) ? 'N/A' : `${val.toFixed(1)}%`;
+    const formatBoolean = (b?: boolean | null, yesNo = false) => b === null || b === undefined ? 'N/A' : (yesNo ? (b ? 'YES' : 'NO') : (b ? 'ON' : 'OFF'));
 
-    if (difference > 0) {
-      if (currentPlantValue < difference) {
-        return; 
-      }
-    }
-    setDashboardState(prev => ({
-      ...prev,
-      derAllocation: {
-        ...prev.derAllocation,
-        [name]: value,
-        PLANT: currentPlantValue - difference,
-      }
-    }));
-  };
+    // --- RENDER LOGIC ---
+    const { target_goals, current_year_summary, penalty } = selectedLocationData ?? {};
 
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <link href={nunitoSansUrl} rel="stylesheet" />
-      <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', p: 3 }}>
-        <Container maxWidth="xl">
-          <Typography variant="h4" component="h1" textAlign="center" fontWeight="bold" mb={4} color="text.primary">
-            EMISSIONS MONITORING DASHBOARD
-          </Typography>
-          <Grid container spacing={3} mb={4}>
-            {/* LEFT COLUMN */}
-            <Grid item xs={12} lg={7}>
-              <Grid container spacing={3}>
-                {/* Filters */}
-                <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
-                  <FilterCard>
-                    <CardHeader
-                      title={<Typography variant="subtitle2" fontWeight="bold">FILTERS</Typography>}
-                      sx={{ textAlign: 'center', py: 1 }}
-                    />
-                    <CardContent>
-                      <TableContainer component={Paper} elevation={0}>
-                        <Table size="small" sx={{ tableLayout: 'fixed' }}>
-                          <TableBody>
-                            <TableRow>
-                              <LabelCell>Location</LabelCell>
-                              <StyledTableCell>
-                                <FormControl size="small" fullWidth>
-                                  <Select
-                                    value={dashboardState.location}
-                                    onChange={handleLocationChange}
-                                    sx={{ fontSize: '0.75rem' }}
-                                  >
-                                    {addresses.map(address => (
-                                      <MenuItem key={address.id} value={address.id}>{address.address}</MenuItem>
-                                    ))}
-                                  </Select>
-                                </FormControl>
-                              </StyledTableCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>Source</LabelCell>
-                              <StyledTableCell>
-                                <FormControl size="small" fullWidth>
-                                  <Box sx={{ p: 1, border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f5f5f5' }}>
-                                    <Typography sx={{ fontSize: '0.75rem' }}>{dashboardState.source}</Typography>
-                                  </Box>
-                                </FormControl>
-                              </StyledTableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                      <Box mt={2}>
-                        <Typography variant="caption" fontWeight="medium" gutterBottom display="block">
-                          Current Year CO2e Reduction Goal %
-                        </Typography>
-                        <Box display="flex" alignItems="center" gap={2}>
-                          <Slider
-                            disabled
-                            value={dashboardState.co2eGoal}
-                            onChange={handleCO2GoalChange}
-                            min={0}
-                            max={100}
-                            size="small"
-                            sx={{ flexGrow: 1 }}
-                          />
-                          <Typography variant="caption" color="text.secondary" minWidth="35px">
-                            {dashboardState.co2eGoal}%
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </CardContent>
-                  </FilterCard>
-                </Grid>
-                {/* 2030 Targets */}
-                <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
-                  <StyledCard>
-                    <CardHeader
-                      title={<Typography variant="subtitle2" fontWeight="bold">2030 TARGETS</Typography>}
-                      sx={{ textAlign: 'center', py: 1 }}
-                    />
-                    <CardContent sx={{ p: '0 !important' }}>
-                      <TableContainer>
-                        <Table size="small" sx={{ tableLayout: 'fixed' }}>
-                          <TableHead>
-                            <TableRow>
-                              <SubHeaderCell></SubHeaderCell>
-                              <SubHeaderCell>COUNTY</SubHeaderCell>
-                              <SubHeaderCell>STATE</SubHeaderCell>
-                              <SubHeaderCell>CORP</SubHeaderCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            <TableRow>
-                              <LabelCell>Location</LabelCell>
-                              <StyledTableCell>Montgomery</StyledTableCell>
-                              <StyledTableCell>MD</StyledTableCell>
-                              <RedCell>50%</RedCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>Penalty Rule ($/kg CO2e)</LabelCell>
-                              <StyledTableCell>None</StyledTableCell>
-                              <StyledTableCell>($200k/ 10M)</StyledTableCell>
-                              <StyledTableCell>None</StyledTableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </CardContent>
-                  </StyledCard>
-                </Grid>
-                {/* Target Goals */}
-                <Grid item xs={12}>
-                  <StyledCard>
-                    <CardHeader
-                      title={<Typography variant="subtitle2" fontWeight="bold">TARGET GOALS</Typography>}
-                      sx={{ textAlign: 'center', py: 1 }}
-                    />
-                    <CardContent sx={{ p: '0 !important' }}>
-                      <TableContainer>
-                        <Table size="small">
-                          <TableBody>
-                            <TableRow>
-                              <StyledTableCell colSpan={4} sx={{ fontSize: '0.75rem', p: 1 }}>
-                                2030 Reduction kg CO2e goals by sector
-                              </StyledTableCell>
-                            </TableRow>
-                            <TableRow>
-                              <SubHeaderCell>Baseline CO2 (Metric Tons)</SubHeaderCell>
-                              <SubHeaderCell>YTD</SubHeaderCell>
-                              <SubHeaderCell>Forecast</SubHeaderCell>
-                              <SubHeaderCell>Previous Year</SubHeaderCell>
-                            </TableRow>
-                            <TableRow>
-                              <StyledTableCell>2,571.73</StyledTableCell>
-                              <RedCell>2,571.73</RedCell>
-                              <RedCell>4,129.26</RedCell>
-                              <StyledTableCell>4,028.54</StyledTableCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>Reduction Amount</LabelCell>
-                              <StyledTableCell>825.85</StyledTableCell>
-                              <StyledTableCell>1,238.78</StyledTableCell>
-                              <StyledTableCell>2,064.63</StyledTableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell colSpan={4} sx={{ p: 0.5, border: 0, borderTop: 1, borderColor: 'divider' }}></TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <SubHeaderCell></SubHeaderCell>
-                              <SubHeaderCell>COUNTY</SubHeaderCell>
-                              <SubHeaderCell>STATE</SubHeaderCell>
-                              <SubHeaderCell>CORP</SubHeaderCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>Reduction %</LabelCell>
-                              <StyledTableCell>20%</StyledTableCell>
-                              <StyledTableCell>30%</StyledTableCell>
-                              <RedCell>50%</RedCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>Target (ON/OFF)</LabelCell>
-                              <StyledTableCell>OFF</StyledTableCell>
-                              <StyledTableCell>OFF</StyledTableCell>
-                              <StyledTableCell>OFF</StyledTableCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>Action Needed</LabelCell>
-                              <RedCell>YES</RedCell>
-                              <RedCell>YES</RedCell>
-                              <RedCell>YES</RedCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>Penalty</LabelCell>
-                              <StyledTableCell>$ -</StyledTableCell>
-                              <RedCell>$ 247,755.49</RedCell>
-                              <StyledTableCell>$ -</StyledTableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </CardContent>
-                  </StyledCard>
-                </Grid>
-              </Grid>
-            </Grid>
-            {/* RIGHT COLUMN */}
-            <Grid item xs={12} lg={5}>
-              <Grid container spacing={3} direction="column">
-                {/* PLANT ALLOCATION */}
-                <Grid item xs>
-                  <StyledCard>
-                    <CardHeader
-                      title={<Typography variant="subtitle2" fontWeight="bold">PLANT ALLOCATION</Typography>}
-                      sx={{ textAlign: 'center', py: 1 }}
-                    />
-                    <CardContent sx={{ p: '0 !important' }}>
-                      <TableContainer>
-                        <Table size="small" sx={{ tableLayout: 'fixed' }}>
-                          <TableHead>
-                            <TableRow>
-                              <HeaderCell>System</HeaderCell>
-                              <HeaderCell>Allocation%</HeaderCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            <TableRow>
-                              <LabelCell>PLANT</LabelCell>
-                              <StyledTableCell>
-                                <Box display="flex" alignItems="center" gap={1} px={1}>
-                                  <Slider
-                                    value={dashboardState.derAllocation.PLANT}
-                                    min={0}
-                                    max={100}
-                                    size="small"
-                                    sx={{ flexGrow: 1 }}
-                                    disabled
-                                  />
-                                  <Typography variant="caption" fontWeight="medium" minWidth="35px">
-                                    {dashboardState.derAllocation.PLANT}%
-                                  </Typography>
-                                </Box>
-                              </StyledTableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </CardContent>
-                  </StyledCard>
-                </Grid>
-                {/* DER System */}
-                <Grid item xs>
-                  <StyledCard>
-                    <CardHeader
-                      title={<Typography variant="subtitle2" fontWeight="bold">DER SYSTEM</Typography>}
-                      sx={{ textAlign: 'center', py: 1 }}
-                    />
-                    <CardContent sx={{ p: '0 !important' }}>
-                      <TableContainer>
-                        <Table size="small" sx={{ tableLayout: 'fixed' }}>
-                          <TableHead>
-                            <TableRow>
-                              <HeaderCell>DER System</HeaderCell>
-                              <HeaderCell>Allocation%</HeaderCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {Object.entries(dashboardState.derAllocation).filter(([name]) => name !== 'PLANT').map(([name, value]) => (
-                              <TableRow key={name}>
-                                <LabelCell>{name}</LabelCell>
-                                <StyledTableCell>
-                                  <Box display="flex" alignItems="center" gap={1} px={1}>
-                                    <Slider
-                                      value={value}
-                                      onChange={handleDERAllocationChange(name)}
-                                      min={0}
-                                      max={100}
-                                      size="small"
-                                      sx={{ flexGrow: 1 }}
-                                    />
-                                    <Typography variant="caption" fontWeight="medium" minWidth="35px">
-                                      {value}%
-                                    </Typography>
-                                  </Box>
-                                </StyledTableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </CardContent>
-                  </StyledCard>
-                </Grid>
-                {/* Current Year Summary */}
-                <Grid item xs>
-                  <SummaryCard>
-                    <CardHeader
-                      title={<Typography variant="subtitle2" fontWeight="bold">CURRENT YEAR SUMMARY</Typography>}
-                      sx={{ textAlign: 'center', py: 1 }}
-                    />
-                    <CardContent sx={{ p: '0 !important' }}>
-                      <TableContainer>
-                        <Table size="small" sx={{ tableLayout: 'fixed' }}>
-                          <TableBody>
-                            <TableRow>
-                              <StyledTableCell colSpan={3} sx={{ textAlign: 'right', py: 0.5 }}>
-                                YTD: Jan - Jul 2015
-                              </StyledTableCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>YTD CO2e</LabelCell>
-                              <RedCell>{summary.ytdCO2e?.toLocaleString('en-US', { maximumFractionDigits: 2 })}</RedCell>
-                              <StyledTableCell>Metric Tons</StyledTableCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>Annual Forecast</LabelCell>
-                              <RedCell>{summary.annualForecast?.toLocaleString('en-US', { maximumFractionDigits: 2 })}</RedCell>
-                              <StyledTableCell>Metric Tons</StyledTableCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>Current Month</LabelCell>
-                              <StyledTableCell>Jul</StyledTableCell>
-                              <StyledTableCell></StyledTableCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>Up/Down from previous month</LabelCell>
-                              <RedCell>{summary.upDown?.toFixed(1)}% (DOWN)</RedCell>
-                              <StyledTableCell></StyledTableCell>
-                            </TableRow>
-                            <TableRow>
-                              <LabelCell>Current Year CO2e Reduction Goal Amount</LabelCell>
-                              <StyledTableCell>{summary.reductionGoalAmount?.toLocaleString('en-US', { maximumFractionDigits: 2 })}</StyledTableCell>
-                              <StyledTableCell>Metric Tons</StyledTableCell>
-                            </TableRow>
-                            {summary.isExceeding && (
-                              <TableRow>
-                                <TableCell colSpan={3} sx={{
-                                  backgroundColor: '#ffebee',
-                                  color: '#c62828',
-                                  textAlign: 'center',
-                                  fontSize: '0.75rem',
-                                  p: 1
-                                }}>
-                                  Current forecast of {summary.annualForecast?.toLocaleString('en-US', { maximumFractionDigits: 2 })} EXCEEDS annual target by {summary.exceedsAmount?.toLocaleString('en-US', { maximumFractionDigits: 2 })}
-                                </TableCell>
-                              </TableRow>
-                            )}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </CardContent>
-                  </SummaryCard>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <link href={nunitoSansUrl} rel="stylesheet" />
+            <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', p: 3 }}>
+                <Container maxWidth="xl">
+                    <Typography variant="h4" component="h1" textAlign="center" fontWeight="bold" mb={4} color="text.primary">
+                        EMISSIONS MONITORING DASHBOARD
+                    </Typography>
+                    
+                    <Grid container spacing={3} mb={4}>
+                        {/* LEFT COLUMN */}
+                        <Grid item xs={12} lg={7}>
+                            <Grid container spacing={3}>
+                                <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+                                    <FilterCard>
+                                        <CardHeader title={<Typography variant="subtitle2" fontWeight="bold">FILTERS</Typography>} sx={{ textAlign: 'center', py: 1 }} />
+                                        <CardContent>
+                                            <TableContainer component={Paper} elevation={0}>
+                                                <Table size="small" sx={{ tableLayout: 'fixed' }}>
+                                                    <TableBody>
+                                                        <TableRow>
+                                                            <LabelCell>Location</LabelCell>
+                                                            <StyledTableCell>
+                                                                <FormControl size="small" fullWidth>
+                                                                    {/* REQUIREMENT FULFILLED: Dropdown now maps over the `data` prop */}
+                                                                    <Select value={dashboardState.selectedLocationName} onChange={handleLocationChange} sx={{ fontSize: '0.75rem' }}>
+                                                                        {data?.map(loc => (<MenuItem key={loc.location} value={loc.location}>{loc.location}</MenuItem>))}
+                                                                    </Select>
+                                                                </FormControl>
+                                                            </StyledTableCell>
+                                                        </TableRow>
+                                                        <TableRow>
+                                                            <LabelCell>Source</LabelCell>
+                                                            <StyledTableCell>
+                                                                <Box sx={{ p: 1, border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f5f5f5' }}>
+                                                                    {/* REQUIREMENT FULFILLED: Source is now taken directly from the selected data */}
+                                                                    <Typography sx={{ fontSize: '0.75rem', textTransform: 'capitalize' }}>
+                                                                        {selectedLocationData?.source ?? 'N/A'}
+                                                                    </Typography>
+                                                                </Box>
+                                                            </StyledTableCell>
+                                                        </TableRow>
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
+                                            <Box mt={2}>
+                                                <Typography variant="caption" fontWeight="medium" gutterBottom display="block">Current Year CO2e Reduction Goal %</Typography>
+                                                <Box display="flex" alignItems="center" gap={2}>
+                                                    <Slider disabled value={dashboardState.co2eGoal} min={0} max={100} size="small" sx={{ flexGrow: 1 }} />
+                                                    <Typography variant="caption" color="text.secondary" minWidth="35px">{dashboardState.co2eGoal}%</Typography>
+                                                </Box>
+                                            </Box>
+                                        </CardContent>
+                                    </FilterCard>
+                                </Grid>
+                                <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+                                    <StyledCard>
+                                        <CardHeader title={<Typography variant="subtitle2" fontWeight="bold">2030 TARGETS</Typography>} sx={{ textAlign: 'center', py: 1 }} />
+                                        <CardContent sx={{ p: '0 !important' }}>
+                                            <TableContainer><Table size="small" sx={{ tableLayout: 'fixed' }}><TableHead><TableRow><SubHeaderCell></SubHeaderCell><SubHeaderCell>COUNTY</SubHeaderCell><SubHeaderCell>STATE</SubHeaderCell><SubHeaderCell>CORP</SubHeaderCell></TableRow></TableHead><TableBody><TableRow><LabelCell>Location</LabelCell><StyledTableCell>{formatString(penalty?.location?.county)}</StyledTableCell><StyledTableCell>{formatString(penalty?.location?.state)}</StyledTableCell><RedCell>{formatString(penalty?.location?.corp)}</RedCell></TableRow><TableRow><LabelCell>Penalty Rule ($/kg CO2e)</LabelCell><StyledTableCell>{formatString(penalty?.penalty_rule?.county)}</StyledTableCell><StyledTableCell>{formatString(penalty?.penalty_rule?.state)}</StyledTableCell><StyledTableCell>{formatString(penalty?.penalty_rule?.corp)}</StyledTableCell></TableRow></TableBody></Table></TableContainer>
+                                        </CardContent>
+                                    </StyledCard>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <StyledCard>
+                                        <CardHeader title={<Typography variant="subtitle2" fontWeight="bold">TARGET GOALS</Typography>} sx={{ textAlign: 'center', py: 1 }} />
+                                        <CardContent sx={{ p: '0 !important' }}>
+                                            <TableContainer><Table size="small"><TableBody><TableRow><StyledTableCell colSpan={4} sx={{ fontSize: '0.75rem', p: 1 }}>2030 Reduction kg CO2e goals by sector</StyledTableCell></TableRow><TableRow><SubHeaderCell>Baseline CO2 (Tons)</SubHeaderCell><SubHeaderCell>YTD</SubHeaderCell><SubHeaderCell>Forecast</SubHeaderCell><SubHeaderCell>Previous Year</SubHeaderCell></TableRow><TableRow><StyledTableCell>{formatNumber(target_goals?.["Baseline CO2 (Metric Tons)"]?.YTD)}</StyledTableCell><RedCell>{formatNumber(current_year_summary?.ytd_emissions)}</RedCell><RedCell>{formatNumber(target_goals?.["Baseline CO2 (Metric Tons)"]?.Forecast)}</RedCell><StyledTableCell>{formatNumber(target_goals?.["Baseline CO2 (Metric Tons)"]?.["Previous Year"])}</StyledTableCell></TableRow><TableRow><LabelCell>Reduction Amount</LabelCell><StyledTableCell>{formatNumber(target_goals?.["Reduction Amount"]?.YTD)}</StyledTableCell><StyledTableCell>{formatNumber(target_goals?.["Reduction Amount"]?.Forecast)}</StyledTableCell><StyledTableCell>{formatNumber(target_goals?.["Reduction Amount"]?.["Previous Year"])}</StyledTableCell></TableRow><TableRow><TableCell colSpan={4} sx={{ p: 0.5, border: 0, borderTop: 1, borderColor: 'divider' }}></TableCell></TableRow><TableRow><SubHeaderCell></SubHeaderCell><SubHeaderCell>COUNTY</SubHeaderCell><SubHeaderCell>STATE</SubHeaderCell><SubHeaderCell>CORP</SubHeaderCell></TableRow><TableRow><LabelCell>Reduction %</LabelCell><StyledTableCell>{formatPercent(target_goals?.["Reduction %"]?.county)}</StyledTableCell><StyledTableCell>{formatPercent(target_goals?.["Reduction %"]?.state)}</StyledTableCell><RedCell>{formatPercent(target_goals?.["Reduction %"]?.corp)}</RedCell></TableRow><TableRow><LabelCell>Target (ON/OFF)</LabelCell><StyledTableCell>{formatBoolean(target_goals?.["Target (ON/OFF)"]?.county)}</StyledTableCell><StyledTableCell>{formatBoolean(target_goals?.["Target (ON/OFF)"]?.state)}</StyledTableCell><StyledTableCell>{formatBoolean(target_goals?.["Target (ON/OFF)"]?.corp)}</StyledTableCell></TableRow><TableRow><LabelCell>Action Needed</LabelCell><RedCell>{formatBoolean(target_goals?.["Action Needed"]?.county, true)}</RedCell><RedCell>{formatBoolean(target_goals?.["Action Needed"]?.state, true)}</RedCell><RedCell>{formatBoolean(target_goals?.["Action Needed"]?.corp, true)}</RedCell></TableRow><TableRow><LabelCell>Penalty</LabelCell><StyledTableCell>${formatNumber(target_goals?.Penalty?.county)}</StyledTableCell><RedCell>${formatNumber(target_goals?.Penalty?.state)}</RedCell><StyledTableCell>${formatNumber(target_goals?.Penalty?.corp)}</StyledTableCell></TableRow></TableBody></Table></TableContainer>
+                                        </CardContent>
+                                    </StyledCard>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        {/* RIGHT COLUMN */}
+                        <Grid item xs={12} lg={5}><Grid container spacing={3} direction="column"><Grid item xs><StyledCard><CardHeader title={<Typography variant="subtitle2" fontWeight="bold">PLANT ALLOCATION</Typography>} sx={{ textAlign: 'center', py: 1 }} /><CardContent sx={{ p: '0 !important' }}><TableContainer><Table size="small" sx={{ tableLayout: 'fixed' }}><TableHead><TableRow><HeaderCell>System</HeaderCell><HeaderCell>Allocation%</HeaderCell></TableRow></TableHead><TableBody><TableRow><LabelCell>PLANT</LabelCell><StyledTableCell><Box display="flex" alignItems="center" gap={1} px={1}><Slider value={dashboardState.derAllocation.PLANT} disabled size="small" sx={{ flexGrow: 1 }} /><Typography variant="caption" fontWeight="medium" minWidth="35px">{dashboardState.derAllocation.PLANT}%</Typography></Box></StyledTableCell></TableRow></TableBody></Table></TableContainer></CardContent></StyledCard></Grid><Grid item xs><StyledCard><CardHeader title={<Typography variant="subtitle2" fontWeight="bold">DER SYSTEM</Typography>} sx={{ textAlign: 'center', py: 1 }} /><CardContent sx={{ p: '0 !important' }}><TableContainer><Table size="small" sx={{ tableLayout: 'fixed' }}><TableHead><TableRow><HeaderCell>DER System</HeaderCell><HeaderCell>Allocation%</HeaderCell></TableRow></TableHead><TableBody>{Object.entries(dashboardState.derAllocation).filter(([name]) => name !== 'PLANT').map(([name, value]) => (<TableRow key={name}><LabelCell>{name}</LabelCell><StyledTableCell><Box display="flex" alignItems="center" gap={1} px={1}><Slider value={value} onChange={handleDERAllocationChange(name)} size="small" sx={{ flexGrow: 1 }} /><Typography variant="caption" fontWeight="medium" minWidth="35px">{value}%</Typography></Box></StyledTableCell></TableRow>))}</TableBody></Table></TableContainer></CardContent></StyledCard></Grid><Grid item xs><SummaryCard><CardHeader title={<Typography variant="subtitle2" fontWeight="bold">CURRENT YEAR SUMMARY</Typography>} sx={{ textAlign: 'center', py: 1 }} /><CardContent sx={{ p: '0 !important' }}><TableContainer><Table size="small" sx={{ tableLayout: 'fixed' }}><TableBody><TableRow><StyledTableCell colSpan={3} sx={{ textAlign: 'right', py: 0.5 }}>YTD: {formatString(current_year_summary?.current_month)}</StyledTableCell></TableRow><TableRow><LabelCell>YTD CO2e</LabelCell><RedCell>{formatNumber(current_year_summary?.ytd_emissions)}</RedCell><StyledTableCell>Metric Tons</StyledTableCell></TableRow><TableRow><LabelCell>Current Month</LabelCell><StyledTableCell>{formatString(current_year_summary?.current_month)}</StyledTableCell><StyledTableCell></StyledTableCell></TableRow><TableRow><LabelCell>Up/Down from previous month</LabelCell><RedCell>{formatNumber(current_year_summary?.difference_from_last_month, 1)}% ({formatString(current_year_summary?.up_down)})</RedCell><StyledTableCell></StyledTableCell></TableRow><TableRow><LabelCell>Current Year CO2e Reduction Goal Amount</LabelCell><StyledTableCell>{formatNumber(current_year_summary?.emission_reduction_goal)}</StyledTableCell><StyledTableCell>Metric Tons</StyledTableCell></TableRow></TableBody></Table></TableContainer></CardContent></SummaryCard></Grid></Grid></Grid>
+                    </Grid>
 
-          {/* Charts Section */}
-          <Box mb={4}>
-            <Typography variant="h5" component="h2" textAlign="center" fontWeight="bold" mb={3} color="text.primary">
-              EMISSIONS MONITORING
-            </Typography>
-            <Grid container spacing={3}>
-              {/* CO2e - LOC1 - Electricity */}
-              <Grid item xs={12} lg={6}>
-                <StyledCard>
-                  <CardHeader
-                    title={
-                      <Box display="flex" alignItems="center" justifyContent="center">
-                        <Typography variant="subtitle2" fontWeight="bold" sx={{ flexGrow: 1 }}>
-                          CO2e - LOC1 - Electricity
-                        </Typography>
-                        <IconButton
-                          size="small"
-                          onClick={() => setExpandedChart({ key: 'combo', title: 'CO2e - LOC1 - Electricity' })}
-                          sx={{ ml: 1, p: 0.5 }}
-                          aria-label="Expand chart"
-                        >
-                          <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>⛶</Typography>
-                        </IconButton>
-                      </Box>
-                    }
-                    sx={{ textAlign: 'center', py: 1 }}
-                  />
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <ComposedChart data={chartData.combo}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="LOC1-S1" fill="#FF9F40" />
-                        <Bar dataKey="DER" fill="#4BC0C0" />
-                        <Line type="monotone" dataKey="County Target" stroke="#36A2EB" strokeWidth={2} />
-                        <Line type="monotone" dataKey="State Target" stroke="#9966FF" strokeWidth={2} />
-                        <Line type="monotone" dataKey="Corp Target" stroke="#4BC0C0" strokeWidth={2} />
-                      </ComposedChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </StyledCard>
-              </Grid>
-              {/* CO2e - Electricity Only */}
-              <Grid item xs={12} lg={6}>
-                <StyledCard>
-                  <CardHeader
-                    title={
-                      <Box display="flex" alignItems="center" justifyContent="center">
-                        <Typography variant="subtitle2" fontWeight="bold" sx={{ flexGrow: 1 }}>
-                          CO2e - Electricity Only
-                        </Typography>
-                        <IconButton
-                          size="small"
-                          onClick={() => setExpandedChart({ key: 'electricity', title: 'CO2e - Electricity Only' })}
-                          sx={{ ml: 1, p: 0.5 }}
-                          aria-label="Expand chart"
-                        >
-                          <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>⛶</Typography>
-                        </IconButton>
-                      </Box>
-                    }
-                    sx={{ textAlign: 'center', py: 1 }}
-                  />
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <BarChart data={chartData.electricity}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="LOC2-S1" stackId="a" fill="#36A2EB" />
-                        <Bar dataKey="LOC1-S1" stackId="a" fill="#FF9F40" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </StyledCard>
-              </Grid>
-              {/* CO2e - All Locations */}
-              <Grid item xs={12} lg={6}>
-                <StyledCard>
-                  <CardHeader
-                    title={
-                      <Box display="flex" alignItems="center" justifyContent="center">
-                        <Typography variant="subtitle2" fontWeight="bold" sx={{ flexGrow: 1 }}>
-                          CO2e - All Locations
-                        </Typography>
-                        <IconButton
-                          size="small"
-                          onClick={() => setExpandedChart({ key: 'allLocations', title: 'CO2e - All Locations' })}
-                          sx={{ ml: 1, p: 0.5 }}
-                          aria-label="Expand chart"
-                        >
-                          <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>⛶</Typography>
-                        </IconButton>
-                      </Box>
-                    }
-                    sx={{ textAlign: 'center', py: 1 }}
-                  />
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <BarChart data={chartData.allLocations}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="LOC1-S1" stackId="a" fill="#FF9F40" />
-                        <Bar dataKey="LOC2-S1" stackId="a" fill="#36A2EB" />
-                        <Bar dataKey="LOC2-S2" stackId="a" fill="#9966FF" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </StyledCard>
-              </Grid>
-              {/* CO2e - Natural Gas */}
-              <Grid item xs={12} lg={6}>
-                <StyledCard>
-                  <CardHeader
-                    title={
-                      <Box display="flex" alignItems="center" justifyContent="center">
-                        <Typography variant="subtitle2" fontWeight="bold" sx={{ flexGrow: 1 }}>
-                          CO2e - Natural Gas
-                        </Typography>
-                        <IconButton
-                          size="small"
-                          onClick={() => setExpandedChart({ key: 'naturalGas', title: 'CO2e - Natural Gas' })}
-                          sx={{ ml: 1, p: 0.5 }}
-                          aria-label="Expand chart"
-                        >
-                          <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>⛶</Typography>
-                        </IconButton>
-                      </Box>
-                    }
-                    sx={{ textAlign: 'center', py: 1 }}
-                  />
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <BarChart data={chartData.naturalGas}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="LOC2-S2" fill="#9966FF" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </StyledCard>
-              </Grid>
-            </Grid>
-          </Box>
+                    <Box mb={4}><Typography variant="h5" component="h2" textAlign="center" fontWeight="bold" mb={3} color="text.primary">EMISSIONS MONITORING</Typography><Grid container spacing={3}><Grid item xs={12} lg={6}><StyledCard><CardHeader title={<Box display="flex" justifyContent="center" alignItems="center"><Typography noWrap variant="subtitle2" fontWeight="bold" sx={{flexGrow:1}}>{`CO2e - ${dashboardState.selectedLocationName || 'Location'} (${selectedLocationData?.source ?? 'Source'})`}</Typography><IconButton size="small" onClick={() => setExpandedChart({ key: 'combo', title: 'Composite View' })}><Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>⛶</Typography></IconButton></Box>} sx={{ textAlign: 'center', py: 1 }}/><CardContent><ResponsiveContainer width="100%" height={250}><ComposedChart data={chartData.all}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Legend /><Bar dataKey={dashboardState.selectedLocationName} fill="#FF9F40" /><Bar dataKey="DER" fill="#4BC0C0" /></ComposedChart></ResponsiveContainer></CardContent></StyledCard></Grid><Grid item xs={12} lg={6}><StyledCard><CardHeader title={<Box display="flex" justifyContent="center" alignItems="center"><Typography noWrap variant="subtitle2" fontWeight="bold" sx={{flexGrow:1}}>CO2e - Electricity Only</Typography><IconButton size="small" onClick={() => setExpandedChart({ key: 'electricity', title: 'CO2e - Electricity Only' })}><Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>⛶</Typography></IconButton></Box>} sx={{ textAlign: 'center', py: 1 }}/><CardContent><ResponsiveContainer width="100%" height={250}><BarChart data={chartData.all}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Legend />{chartData.electric.map((loc, i) => <Bar key={loc.location} dataKey={loc.location} stackId="a" fill={`hsl(${i * 60}, 70%, 50%)`} />)}</BarChart></ResponsiveContainer></CardContent></StyledCard></Grid><Grid item xs={12} lg={6}><StyledCard><CardHeader title={<Box display="flex" justifyContent="center" alignItems="center"><Typography noWrap variant="subtitle2" fontWeight="bold" sx={{flexGrow:1}}>CO2e - All Locations</Typography><IconButton size="small" onClick={() => setExpandedChart({ key: 'allLocations', title: 'CO2e - All Locations' })}><Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>⛶</Typography></IconButton></Box>} sx={{ textAlign: 'center', py: 1 }}/><CardContent><ResponsiveContainer width="100%" height={250}><BarChart data={chartData.all}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Legend />{(data ?? []).map((loc, i) => <Bar key={loc.location} dataKey={loc.location} stackId="a" fill={`hsl(${i * 60}, 70%, 50%)`} />)}</BarChart></ResponsiveContainer></CardContent></StyledCard></Grid><Grid item xs={12} lg={6}><StyledCard><CardHeader title={<Box display="flex" justifyContent="center" alignItems="center"><Typography noWrap variant="subtitle2" fontWeight="bold" sx={{flexGrow:1}}>CO2e - Natural Gas Only</Typography><IconButton size="small" onClick={() => setExpandedChart({ key: 'naturalGas', title: 'CO2e - Natural Gas Only' })}><Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>⛶</Typography></IconButton></Box>} sx={{ textAlign: 'center', py: 1 }}/><CardContent><ResponsiveContainer width="100%" height={250}><BarChart data={chartData.all}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Legend />{chartData.gas.map((loc, i) => <Bar key={loc.location} dataKey={loc.location} stackId="a" fill={`hsl(${180 + i * 60}, 70%, 50%)`} />)}</BarChart></ResponsiveContainer></CardContent></StyledCard></Grid></Grid></Box>
 
-          {/* Expanded Chart Modal */}
-          <Modal
-            open={!!expandedChart}
-            onClose={() => setExpandedChart(null)}
-            closeAfterTransition
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Fade in={!!expandedChart}>
-              <Paper sx={{ width: '90vw', height: '90vh', p: 3, display: 'flex', flexDirection: 'column', borderRadius: '12px' }}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                  <Typography variant="h6" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>
-                    {expandedChart?.title}
-                  </Typography>
-                  <IconButton onClick={() => setExpandedChart(null)} aria-label="Close expanded chart">
-                    <CloseIcon />
-                  </IconButton>
-                </Box>
-                <Box sx={{ flexGrow: 1, height: 'calc(100% - 48px)' }}>
-                  {expandedChart?.key === 'combo' && (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <ComposedChart data={chartData.combo}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="LOC1-S1" fill="#FF9F40" />
-                        <Bar dataKey="DER" fill="#4BC0C0" />
-                        <Line type="monotone" dataKey="County Target" stroke="#36A2EB" strokeWidth={2} />
-                        <Line type="monotone" dataKey="State Target" stroke="#9966FF" strokeWidth={2} />
-                        <Line type="monotone" dataKey="Corp Target" stroke="#4BC0C0" strokeWidth={2} />
-                      </ComposedChart>
-                    </ResponsiveContainer>
-                  )}
-                  {expandedChart?.key === 'electricity' && (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={chartData.electricity}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="LOC2-S1" stackId="a" fill="#36A2EB" />
-                        <Bar dataKey="LOC1-S1" stackId="a" fill="#FF9F40" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  )}
-                  {expandedChart?.key === 'allLocations' && (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={chartData.allLocations}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="LOC1-S1" stackId="a" fill="#FF9F40" />
-                        <Bar dataKey="LOC2-S1" stackId="a" fill="#36A2EB" />
-                        <Bar dataKey="LOC2-S2" stackId="a" fill="#9966FF" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  )}
-                  {expandedChart?.key === 'naturalGas' && (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={chartData.naturalGas}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="LOC2-S2" fill="#9966FF" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  )}
-                </Box>
-              </Paper>
-            </Fade>
-          </Modal>
+                    <Modal open={!!expandedChart} onClose={() => setExpandedChart(null)} closeAfterTransition sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Fade in={!!expandedChart}><Paper sx={{ width: '90vw', height: '90vh', p: 3, display: 'flex', flexDirection: 'column', borderRadius: '12px' }}><Box display="flex" justifyContent="space-between" alignItems="center" mb={2}><Typography variant="h6" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>{expandedChart?.title}</Typography><IconButton onClick={() => setExpandedChart(null)} aria-label="Close expanded chart"><CloseIcon /></IconButton></Box><Box sx={{ flexGrow: 1, height: 'calc(100% - 48px)' }}>{expandedChart?.key === 'combo' && <ResponsiveContainer width="100%" height="100%"><ComposedChart data={chartData.all}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Legend /><Bar dataKey={dashboardState.selectedLocationName} fill="#FF9F40" /><Bar dataKey="DER" fill="#4BC0C0" /></ComposedChart></ResponsiveContainer>}{expandedChart?.key === 'electricity' && <ResponsiveContainer width="100%" height="100%"><BarChart data={chartData.all}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Legend />{chartData.electric.map((loc, i) => <Bar key={loc.location} dataKey={loc.location} stackId="a" fill={`hsl(${i * 60}, 70%, 50%)`} />)}</BarChart></ResponsiveContainer>}{expandedChart?.key === 'allLocations' && <ResponsiveContainer width="100%" height="100%"><BarChart data={chartData.all}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Legend />{(data ?? []).map((loc, i) => <Bar key={loc.location} dataKey={loc.location} stackId="a" fill={`hsl(${i * 60}, 70%, 50%)`} />)}</BarChart></ResponsiveContainer>}{expandedChart?.key === 'naturalGas' && <ResponsiveContainer width="100%" height="100%"><BarChart data={chartData.all}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Legend />{chartData.gas.map((loc, i) => <Bar key={loc.location} dataKey={loc.location} stackId="a" fill={`hsl(${180 + i * 60}, 70%, 50%)`} />)}</BarChart></ResponsiveContainer>}</Box></Paper></Fade></Modal>
 
-          {/* Emissions By Scope */}
-          <StyledCard>
-            <CardHeader
-              title={<Typography variant="subtitle2" fontWeight="bold">EMISSIONS BY SCOPE</Typography>}
-              sx={{ textAlign: 'center', py: 1 }}
-            />
-            <CardContent sx={{ p: '0 !important' }}>
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <HeaderCell>SCOPE 1</HeaderCell>
-                      <HeaderCell>SCOPE 2</HeaderCell>
-                      <HeaderCell>SCOPE 3</HeaderCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <StyledTableCell>TBD</StyledTableCell>
-                      <RedCell>2,571.73</RedCell>
-                      <StyledTableCell>TBD</StyledTableCell>
-                    </TableRow>
-                    <TableRow>
-                      <StyledTableCell sx={{ fontSize: '0.75rem', p: 1, textAlign: 'left' }}>
-                        Direct Emissions that are owned or controlled by you. Ex. Company fleet vehicles
-                      </StyledTableCell>
-                      <StyledTableCell sx={{ fontSize: '0.75rem', p: 1, textAlign: 'left' }}>
-                        Emissions that you directly caused. Ex. Emissions from the purchase of electricity
-                      </StyledTableCell>
-                      <StyledTableCell sx={{ fontSize: '0.75rem', p: 1, textAlign: 'left' }}>
-                        Emissions products purchased by you, uses and disposes of.
-                      </StyledTableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </StyledCard>
-        </Container>
-      </Box>
-    </ThemeProvider>
-  );
+                    <StyledCard><CardHeader title={<Typography variant="subtitle2" fontWeight="bold">EMISSIONS BY SCOPE</Typography>} sx={{ textAlign: 'center', py: 1 }}/><CardContent sx={{ p: '0 !important' }}><TableContainer><Table size="small"><TableHead><TableRow><HeaderCell>SCOPE 1</HeaderCell><HeaderCell>SCOPE 2</HeaderCell><HeaderCell>SCOPE 3</HeaderCell></TableRow></TableHead><TableBody><TableRow><StyledTableCell>{selectedLocationData?.source === 'gas' ? <RedCell>{formatNumber(current_year_summary?.ytd_emissions)}</RedCell> : 'N/A'}</StyledTableCell><StyledTableCell>{selectedLocationData?.source === 'electric' ? <RedCell>{formatNumber(current_year_summary?.ytd_emissions)}</RedCell> : 'N/A'}</StyledTableCell><StyledTableCell>N/A</StyledTableCell></TableRow><TableRow><StyledTableCell sx={{ fontSize: '0.75rem', p: 1, textAlign: 'left' }}>Direct Emissions that are owned or controlled by you. Ex. Company fleet vehicles</StyledTableCell><StyledTableCell sx={{ fontSize: '0.75rem', p: 1, textAlign: 'left' }}>Emissions that you directly caused. Ex. Emissions from the purchase of electricity</StyledTableCell><StyledTableCell sx={{ fontSize: '0.75rem', p: 1, textAlign: 'left' }}>Emissions products purchased by you, uses and disposes of.</StyledTableCell></TableRow></TableBody></Table></TableContainer></CardContent></StyledCard>
+                </Container>
+            </Box>
+        </ThemeProvider>
+    );
 };
 
 export default EmissionsDashboard;
