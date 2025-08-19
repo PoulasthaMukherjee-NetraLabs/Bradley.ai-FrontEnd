@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Button, LinearProgress, Tooltip, Backdrop, CircularProgress } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, LinearProgress, Tooltip, Backdrop, CircularProgress, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 // App and Stepper contexts
@@ -216,17 +216,51 @@ const AppContent: React.FC = () => {
         navigate('/login');
     };
 
+    const loadingMessages = [
+    "Analyzing your energy consumption patterns...",
+    "Did you know? Switching to LED bulbs can reduce energy use by 75%.",
+    "Calculating your carbon footprint based on utility data...",
+    "Compiling your emissions report...",
+    "Renewable energy sources like solar and wind are key to a sustainable future.",
+    "Optimizing recommendations for Distributed Energy Resources (DERs)..."
+];
+
+const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+useEffect(() => {
+    if (isLoading) {
+        const timer = setInterval(() => {
+            setLoadingMessageIndex(prevIndex => 
+                (prevIndex + 1) % loadingMessages.length
+            );
+        }, 3000); // Change message every 3 seconds
+
+        return () => clearInterval(timer); // Cleanup the timer
+    }
+}, [isLoading]);
+
     // Check if we should show the dashboard instead of the stepper
     // const shouldShowDashboard = dashboardData && dashboardData.length > 0;
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row', height: '100vh', zIndex: 500 }}>
             <Backdrop
-                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1, position: 'absolute', backdropFilter: 'blur(3px)' }}
-                open={isLoading}
-            >
-                <CircularProgress color="inherit" />
-            </Backdrop>
+    sx={{ 
+        color: '#fff', 
+        zIndex: (theme) => theme.zIndex.drawer + 1, 
+        position: 'absolute', 
+        backdropFilter: 'blur(3px)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2
+    }}
+    open={isLoading}
+>
+    <CircularProgress color="inherit" />
+    <Typography variant="h6" sx={{ fontFamily: 'Nunito Sans, sans-serif' }}>
+        {loadingMessages[loadingMessageIndex]}
+    </Typography>
+</Backdrop>
             <Navbar />
             <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px', width: '100vw' }}>
                 <Box sx={{ width: '210px', flexShrink: 0 }}>

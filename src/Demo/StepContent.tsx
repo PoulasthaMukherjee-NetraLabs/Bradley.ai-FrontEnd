@@ -21,7 +21,6 @@ const stepSubStepMapping: StepSubStepMapping = {
       6: lazy(() => import('../Client/pages/Energy Profile/SubStep2/Natural Gas Bill Upload')),
     },
     1: {
-      // Change this line to point to your new wrapper component
       0: lazy(() => import('./pages/Demo/SubStep1/EmissionsDashboardWrapper')),
     },
   },
