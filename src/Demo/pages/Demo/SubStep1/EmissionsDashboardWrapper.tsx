@@ -33,16 +33,26 @@ const EmissionsDashboardWrapper: React.FC = () => {
                 selectedSource: firstSource,
                 selectedYear: latestYear,
                 co2eGoal: 10,
-                derAllocation: { 'PLANT': 100, 'Solar PV': 0, 'CHP': 0, 'Simple Cycle Turbines': 0, 'Fuel Cells': 0, 'Linear Generation': 0, 'Battery Storage': 0 },
+                derAllocation: {
+                    'PLANT': 100,
+                    'Solar PV': 0,
+                    'CHP': 0,
+                    'Simple Cycle Turbines': 0,
+                    'Fuel Cells': 0,
+                    'Linear Generation': 0,
+                    'Battery Storage': 0
+                },
             });
         }
     }, [dashboardData, dashboardState]);
 
     const connect = () => {
         if (socketRef.current && socketRef.current.readyState !== WebSocket.CLOSED) {
+            console.log("WebSocket already connected or connecting. Current state:", socketRef.current.readyState);
             return;
         }
 
+        console.log("Attempting WebSocket connection...");
         const socketInstance = new WebSocket('ws://127.0.0.1:8000/ws');
         socketRef.current = socketInstance;
 
@@ -52,30 +62,36 @@ const EmissionsDashboardWrapper: React.FC = () => {
         };
 
         socketInstance.onmessage = (event) => {
+            console.log('WebSocket received raw message:', event.data);
             setIsUpdating(false);
             try {
                 const receivedData = JSON.parse(event.data);
+                console.log('Parsed WebSocket data:', receivedData);
+
                 if (Array.isArray(receivedData)) {
+                    console.log('Updating dashboard data from WebSocket...');
                     setDashboardData(receivedData as DashboardData);
                 } else {
-                    console.log('Received non-data message, ignoring:', receivedData);
+                    console.warn('Received non-dashboard data message:', receivedData);
                 }
             } catch (error) {
-                console.error("Failed to parse incoming WebSocket message:", error);
+                console.error("Failed to parse incoming WebSocket message:", error, "Raw data:", event.data);
             }
         };
 
-        socketInstance.onclose = () => {
-            console.log('WebSocket disconnected. Reconnecting...');
+        socketInstance.onclose = (event) => {
+            console.error(`WebSocket disconnected. Code: ${event.code}, Reason: ${event.reason}, WasClean: ${event.wasClean}`);
             socketRef.current = null;
             setSocket(null);
             setIsUpdating(false);
-            connect();
+            console.log("Attempting to reconnect WebSocket in 3 seconds...");
+            setTimeout(connect, 3000);
         };
 
         socketInstance.onerror = (error) => {
-            console.error("WebSocket error:", error);
+            console.error("WebSocket encountered an error:", error);
             if (socketRef.current) {
+                console.log("Closing socket due to error...");
                 socketRef.current.close();
             }
         };
@@ -88,7 +104,8 @@ const EmissionsDashboardWrapper: React.FC = () => {
 
         return () => {
             if (socketRef.current) {
-                socketRef.current.onclose = null; 
+                console.log("Cleaning up WebSocket on unmount...");
+                socketRef.current.onclose = null;
                 socketRef.current.close();
                 socketRef.current = null;
             }
@@ -106,6 +123,7 @@ const EmissionsDashboardWrapper: React.FC = () => {
 
     const handleDashboardUpdate = (payload: DashboardState) => {
         if (socket && socket.readyState === WebSocket.OPEN) {
+            console.log("Sending dashboard update via WebSocket:", payload);
             socket.send(JSON.stringify(payload));
             setIsUpdating(true);
         } else {
@@ -134,10 +152,10 @@ const EmissionsDashboardWrapper: React.FC = () => {
     return (
         <Box>
             <Backdrop
-                sx={{ 
-                    color: '#fff', 
-                    zIndex: (theme) => theme.zIndex.drawer + 1, 
-                    position: 'absolute', 
+                sx={{
+                    color: '#fff',
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                    position: 'absolute',
                     backdropFilter: 'blur(3px)',
                     display: 'flex',
                     flexDirection: 'column',
