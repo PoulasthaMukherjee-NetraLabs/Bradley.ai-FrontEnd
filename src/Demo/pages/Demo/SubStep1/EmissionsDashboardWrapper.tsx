@@ -33,78 +33,43 @@ const EmissionsDashboardWrapper: React.FC = () => {
                 selectedSource: firstSource,
                 selectedYear: latestYear,
                 co2eGoal: 10,
-                derAllocation: {
-                    'PLANT': 100,
-                    'Solar PV': 0,
-                    'CHP': 0,
-                    'Simple Cycle Turbines': 0,
-                    'Fuel Cells': 0,
-                    'Linear Generation': 0,
-                    'Battery Storage': 0
-                },
+                derAllocation: { 'PLANT': 100, 'Solar PV': 0, 'CHP': 0, 'Simple Cycle Turbines': 0, 'Fuel Cells': 0, 'Linear Generation': 0, 'Battery Storage': 0 },
+            });
+        } else if (!dashboardData && !dashboardState) {
+            // If there's no data at all, initialize with an empty state
+            setDashboardState({
+                selectedLocationName: '', selectedSource: '', selectedYear: '', co2eGoal: 10,
+                derAllocation: { 'PLANT': 100, 'Solar PV': 0, 'CHP': 0, 'Simple Cycle Turbines': 0, 'Fuel Cells': 0, 'Linear Generation': 0, 'Battery Storage': 0 },
             });
         }
     }, [dashboardData, dashboardState]);
 
     const connect = () => {
-        if (socketRef.current && socketRef.current.readyState !== WebSocket.CLOSED) {
-            console.log("WebSocket already connected or connecting. Current state:", socketRef.current.readyState);
-            return;
-        }
-
-        console.log("Attempting WebSocket connection...");
+        if (socketRef.current && socketRef.current.readyState !== WebSocket.CLOSED) return;
         const socketInstance = new WebSocket('ws://127.0.0.1:8000/ws');
         socketRef.current = socketInstance;
-
-        socketInstance.onopen = () => {
-            console.log('WebSocket connected successfully.');
-            setSocket(socketInstance);
-        };
-
+        socketInstance.onopen = () => setSocket(socketInstance);
         socketInstance.onmessage = (event) => {
-            console.log('WebSocket received raw message:', event.data);
             setIsUpdating(false);
             try {
                 const receivedData = JSON.parse(event.data);
-                console.log('Parsed WebSocket data:', receivedData);
-
-                if (Array.isArray(receivedData)) {
-                    console.log('Updating dashboard data from WebSocket...');
-                    setDashboardData(receivedData as DashboardData);
-                } else {
-                    console.warn('Received non-dashboard data message:', receivedData);
-                }
-            } catch (error) {
-                console.error("Failed to parse incoming WebSocket message:", error, "Raw data:", event.data);
-            }
+                if (Array.isArray(receivedData)) setDashboardData(receivedData as DashboardData);
+            } catch (error) { console.error("Failed to parse incoming WebSocket message:", error); }
         };
-
-        socketInstance.onclose = (event) => {
-            console.error(`WebSocket disconnected. Code: ${event.code}, Reason: ${event.reason}, WasClean: ${event.wasClean}`);
-            socketRef.current = null;
-            setSocket(null);
-            setIsUpdating(false);
-            console.log("Attempting to reconnect WebSocket in 3 seconds...");
+        socketInstance.onclose = () => {
+            socketRef.current = null; setSocket(null); setIsUpdating(false);
             setTimeout(connect, 3000);
         };
-
         socketInstance.onerror = (error) => {
-            console.error("WebSocket encountered an error:", error);
-            if (socketRef.current) {
-                console.log("Closing socket due to error...");
-                socketRef.current.close();
-            }
+            console.error("WebSocket error:", error);
+            if (socketRef.current) socketRef.current.close();
         };
     };
 
     useEffect(() => {
-        if (dashboardData) {
-            connect();
-        }
-
+        if (dashboardData) connect();
         return () => {
             if (socketRef.current) {
-                console.log("Cleaning up WebSocket on unmount...");
                 socketRef.current.onclose = null;
                 socketRef.current.close();
                 socketRef.current = null;
@@ -123,15 +88,12 @@ const EmissionsDashboardWrapper: React.FC = () => {
 
     const handleDashboardUpdate = (payload: DashboardState) => {
         if (socket && socket.readyState === WebSocket.OPEN) {
-            console.log("Sending dashboard update via WebSocket:", payload);
             socket.send(JSON.stringify(payload));
             setIsUpdating(true);
-        } else {
-            console.error('Socket is not connected or available.');
-        }
+        } else { console.error('Socket is not connected or available.'); }
     };
 
-    if (isInitialLoading) {
+    if (isInitialLoading || !dashboardState) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
                 <CircularProgress />
@@ -139,38 +101,17 @@ const EmissionsDashboardWrapper: React.FC = () => {
         );
     }
 
-    if (!Array.isArray(dashboardData) || dashboardData.length === 0 || !dashboardState) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
-                <Typography color="error">
-                    Dashboard data is not available or in the wrong format.
-                </Typography>
-            </Box>
-        );
-    }
-
     return (
         <Box>
             <Backdrop
-                sx={{
-                    color: '#fff',
-                    zIndex: (theme) => theme.zIndex.drawer + 1,
-                    position: 'absolute',
-                    backdropFilter: 'blur(3px)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 2
-                }}
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1, position: 'absolute', backdropFilter: 'blur(3px)', display: 'flex', flexDirection: 'column', gap: 2 }}
                 open={isUpdating}
             >
                 <CircularProgress color="inherit" />
-                <Typography variant="h6" sx={{ fontFamily: 'Nunito Sans, sans-serif' }}>
-                    {loadingMessages[loadingMessageIndex]}
-                </Typography>
+                <Typography variant="h6" sx={{ fontFamily: 'Nunito Sans, sans-serif' }}>{loadingMessages[loadingMessageIndex]}</Typography>
             </Backdrop>
-
             <EmissionsDashboard
-                data={dashboardData}
+                data={Array.isArray(dashboardData) ? dashboardData : []}
                 onUpdate={handleDashboardUpdate}
                 dashboardState={dashboardState}
                 setDashboardState={setDashboardState}

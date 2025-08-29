@@ -14,12 +14,17 @@ export interface OrganizationDetails {
     employeeCount: string;
 }
 
-export interface AddressData {
-    id: string;
-    streetAddress: string;
-    city: string;
-    state: string;
-    zipCode: string;
+export interface OrgDetailsResponse {
+  message: string;
+  organization_id: string;
+}
+
+export interface AddressPayload {
+  streetAddress: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  organizationId: string;
 }
 
 export interface BillMetadata {
@@ -34,7 +39,7 @@ export interface BillMetadata {
 // --- API Service Functions ---
 
 // Organization Details
-export const updateOrganizationDetails = async (data: OrganizationDetails): Promise<void> => {
+export const updateOrganizationDetails = async (data: OrganizationDetails): Promise<string | null> => {
     try {
         const response = await fetch(ORGANIZATION_DATA, {
             method: 'POST',
@@ -44,16 +49,19 @@ export const updateOrganizationDetails = async (data: OrganizationDetails): Prom
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const responseData: OrgDetailsResponse = await response.json();
         console.log('Organization details updated successfully');
+        return responseData.organization_id; // Return the organization ID
     } catch (error) {
         console.error('Error updating organization details:', error);
+        return null; // Return null on error
     }
 };
 
 let globalResponse: any = null;
 
 // Facility Address
-export const updateFacilityAddresses = async (data: AddressData[]): Promise<void> => {
+export const updateFacilityAddresses = async (data: AddressPayload[]): Promise<void> => {
     try {
         const response = await fetch(ADDRESS_DATA, {
             method: 'POST',

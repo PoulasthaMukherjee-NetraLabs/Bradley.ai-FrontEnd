@@ -57,6 +57,8 @@ const AppContent: React.FC = () => {
 
     const navigate = useNavigate();
 
+    const [organizationId, setOrganizationId] = useState<string | null>(null);
+
     const markVisited = (step: number, subStep: number) => {
         setVisitedSteps((prev) => {
             const newVisited = [...prev];
@@ -97,13 +99,30 @@ const AppContent: React.FC = () => {
 
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 0) {
             setIsLoading(true);
-            await updateOrganizationDetails(organizationDetailsState);
+            const orgId = await updateOrganizationDetails(organizationDetailsState);
+            if (orgId) {
+                setOrganizationId(orgId); // Store the returned ID
+            } else {
+                console.error("Failed to retrieve organization ID.");
+                // Optionally handle the error, e.g., show a user notification
+            }
             setIsLoading(false);
         }
 
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 1) {
+            if (!organizationId) {
+                console.error("Organization ID not found. Cannot update addresses.");
+                return; // Prevent proceeding without the ID
+            }
+            
+            // Map addresses to the new payload, adding organizationId and removing the client-side id
+            const addressesPayload = facilityAddressState.addresses.map(({ id, ...address }) => ({
+                ...address,
+                organizationId: organizationId,
+            }));
+
             setIsLoading(true);
-            await updateFacilityAddresses(facilityAddressState.addresses);
+            await updateFacilityAddresses(addressesPayload);
             setIsLoading(false);
         }
 
