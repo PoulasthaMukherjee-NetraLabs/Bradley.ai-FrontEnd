@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { Box, Typography, TextField, Button, Tooltip, IconButton, Paper } from '@mui/material';
-// CHANGED: Added LayersControl
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap, LayersControl } from 'react-leaflet'; 
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-geosearch/dist/geosearch.css';
@@ -11,7 +10,7 @@ import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import { useFacilityAddress } from '../../../../Context/Organizational Profile/SubStep2/Facility Address Context';
 import { useBillAddress } from '../../../../Context/Energy Profile/BillAddressContext';
 
-// Helper component for the search bar (no changes needed here)
+// --- Map Search Component ---
 const MapSearch = () => {
   const map = useMap();
   useEffect(() => {
@@ -31,6 +30,7 @@ const MapSearch = () => {
   return null;
 };
 
+// --- Custom Icon Creator ---
 const createCustomIcon = (IconComponent: React.ElementType, color: string = '#e74c3c') => {
   const iconMarkup = renderToStaticMarkup(
     <IconComponent style={{ fontSize: '30px', color }} />
@@ -43,6 +43,7 @@ const createCustomIcon = (IconComponent: React.ElementType, color: string = '#e7
   });
 };
 
+// --- Map Markers Component ---
 const MapMarkers = ({ 
   addresses, 
   onAddLocation, 
@@ -74,6 +75,7 @@ const MapMarkers = ({
   );
 };
 
+// --- Main Component ---
 const SubStep2 = () => {
   const { 
     facilityAddressState, 
@@ -85,23 +87,40 @@ const SubStep2 = () => {
   } = useFacilityAddress();
   const { setAddresses: setBillAddresses } = useBillAddress();
   
+  const mapRef = useRef<L.Map | null>(null);
+
   useEffect(() => {
     setBillAddresses(facilityAddressState.addresses.map(a => ({ id: a.id, address: `${a.streetAddress}, ${a.city}, ${a.state} ${a.zipCode}` })));
   }, [facilityAddressState.addresses, setBillAddresses]);
   
   const { addresses, selectedAddressId } = facilityAddressState;
-  const mapRef = useRef<L.Map | null>(null);
 
+  const defaultUSACenter: L.LatLngExpression = [39.8283, -98.5795];
+
+  const initialCenter: L.LatLngExpression = selectedAddressId
+    ? getAddressById(selectedAddressId)?.position || defaultUSACenter
+    : (addresses.length > 0 ? addresses[0].position : defaultUSACenter);
+
+  // --- Add Location Handler ---
   const handleAddLocation = (position: L.LatLng) => {
-    const newAddressId = addAddress({
-      streetAddress: '', city: '', state: '', zipCode: '', position
-    });
-    handleFetchAddress(newAddressId, position);
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position.lat}&lon=${position.lng}`)
+      .then(res => res.json())
+      .then(data => {
+        const country = data.address?.country_code?.toLowerCase();
+        if (country !== 'us') {
+          alert('Only locations within the USA are allowed.');
+          return;
+        }
+        const newAddressId = addAddress({
+          streetAddress: '', city: '', state: '', zipCode: '', position
+        });
+        handleFetchAddress(newAddressId, position);
+      })
+      .catch(err => console.error('Error checking country:', err));
   };
 
   const handleFetchAddress = (addressId: string, position: L.LatLng) => {
-    const { lat, lng } = position;
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position.lat}&lon=${position.lng}`)
       .then(response => response.json())
       .then(data => {
         updateAddressField(addressId, 'streetAddress', data.address.road || '');
@@ -123,37 +142,28 @@ const SubStep2 = () => {
     }
   };
 
+  // --- Select Address and Pan Map ---
+  const handleSelectAddress = (addressId: string) => {
+    const address = getAddressById(addressId);
+    if (address && mapRef.current) {
+      mapRef.current.setView(address.position, 13, { animate: true });
+    }
+    setSelectedAddress(addressId);
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
-          .leaflet-div-icon {
-            background: transparent;
-            border: none;
-          }
-          /* --- Style overrides for leaflet-geosearch --- */
-          .leaflet-control-geosearch.bar {
-            border: 2px solid rgba(0,0,0,0.2);
-            border-radius: 4px;
-          }
-          .leaflet-control-geosearch.bar form input {
-            font-family: 'Nunito Sans', sans-serif;
-            font-size: 0.8rem;
-            height: 30px;
-          }
-          .leaflet-control-geosearch .results > * {
-            font-family: 'Nunito Sans', sans-serif;
-            font-size: 0.75rem;
-          }
-          .leaflet-bar a, .leaflet-bar a:hover {
-            height: 30px;
-            width: 30px;
-            line-height: 30px;
-          }
+          .leaflet-div-icon { background: transparent; border: none; }
+          .leaflet-control-geosearch.bar { border: 2px solid rgba(0,0,0,0.2); border-radius: 4px; }
+          .leaflet-control-geosearch.bar form input { font-family: 'Nunito Sans', sans-serif; font-size: 0.8rem; height: 30px; }
+          .leaflet-control-geosearch .results > * { font-family: 'Nunito Sans', sans-serif; font-size: 0.75rem; }
+          .leaflet-bar a, .leaflet-bar a:hover { height: 30px; width: 30px; line-height: 30px; }
         `}
       </style>
-      
+
       <Typography variant="h6" sx={{ mb: 1, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center' }}>
         <h2>Facility Addresses</h2>
       </Typography>
@@ -163,23 +173,22 @@ const SubStep2 = () => {
         <Tooltip title="Search for an address or click the map to add a new location pin" placement="top" arrow>
           <Box sx={{ flex: 1, height: '100%', border: '1px solid lightgrey', borderRadius: 1 }}>
             <MapContainer 
-              center={[51.505, -0.09]} 
-              zoom={13} 
+              center={initialCenter} 
+              zoom={5} 
               style={{ height: '100%', width: '100%' }} 
               ref={mapRef}
             >
-              {/* CHANGED: Added LayersControl for map types */}
               <LayersControl position="topright">
                 <LayersControl.BaseLayer checked name="Street View">
                   <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    attribution='&copy; OpenStreetMap contributors'
                   />
                 </LayersControl.BaseLayer>
                 <LayersControl.BaseLayer name="Satellite View">
                   <TileLayer
                     url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                    attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                    attribution='Tiles &copy; Esri'
                   />
                 </LayersControl.BaseLayer>
               </LayersControl>
@@ -194,11 +203,8 @@ const SubStep2 = () => {
           </Box>
         </Tooltip>
 
-        {/* Addresses List Section (no changes here) */}
-        <Box sx={{ 
-          flex: 1, border: '1px solid lightgrey', borderRadius: 1, height: '100%', 
-          display: 'flex', flexDirection: 'column' 
-        }}>
+        {/* Addresses List Section */}
+        <Box sx={{ flex: 1, border: '1px solid lightgrey', borderRadius: 1, height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0', bgcolor: '#f5f5f5' }}>
             <Typography variant="subtitle2" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 'bold' }}>
               Facility Locations ({addresses.length})
@@ -207,11 +213,7 @@ const SubStep2 = () => {
               Click on the map to add new locations
             </Typography>
           </Box>
-          <Box sx={{
-            flex: 1, overflow: 'auto',
-            '&::-webkit-scrollbar': { display: 'none' },
-            '-ms-overflow-style': 'none', 'scrollbar-width': 'none'
-          }}>
+          <Box sx={{ flex: 1, overflow: 'auto', '&::-webkit-scrollbar': { display: 'none' }, '-ms-overflow-style': 'none', 'scrollbar-width': 'none' }}>
             {addresses.length === 0 ? (
               <Box sx={{ p: 3, textAlign: 'center', color: '#666' }}>
                 <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }}>
@@ -224,7 +226,7 @@ const SubStep2 = () => {
                   <Paper 
                     key={address.id} 
                     sx={{ mb: 2, p: 2, border: address.id === selectedAddressId ? '2px solid #2196f3' : '1px solid #e0e0e0', cursor: 'pointer', '&:hover': { bgcolor: '#f9f9f9' } }}
-                    onClick={() => setSelectedAddress(address.id)}
+                    onClick={() => handleSelectAddress(address.id)}
                   >
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 'bold' }}>
