@@ -3,6 +3,7 @@ import React, { createContext, useState, useContext, ReactNode } from 'react';
 // --- Interfaces matching the FINAL API Response Structure ---
 
 export interface Verdict {
+    compliance_status: string;
     status_banner: string;
     severity: string;
     penalty_risk_usd: number;
@@ -34,15 +35,19 @@ export interface DERControlPanel {
     impact_by_der: { [key: string]: number };
 }
 
+export interface MonthlyEmission {
+    month: number; 
+    year: number | string;
+    actual: number | null;
+    projected: number | null;
+    TOTALS: number | null;
+    emissions: number | null;
+}
+
 export interface MonthlyTracking {
     target_per_month: number;
     with_bradley_der_per_month: number;
-    monthly_emissions: { 
-        month: string; 
-        year: number | string; 
-        actual: number | null; 
-        projected: number | null; 
-    }[];
+    monthly_emissions: MonthlyEmission[];
 }
 
 export interface ActionCenter {
@@ -63,6 +68,24 @@ export interface ActionCenter {
     }[];
 }
 
+export interface RegulatoryContext {
+    targets_2030: {
+        location: {
+            county: string;
+            state: string;
+            corp: number;
+        };
+        penalty_rule: {
+            county: string;
+            state: string;
+            corp: string;
+        };
+    };
+    penalty_details: {
+        expected_annual_penalty_usd: number;
+    };
+}
+
 export interface DashboardDataObject {
     file_id: string; // Added as required
     source: string;
@@ -73,6 +96,7 @@ export interface DashboardDataObject {
     der_control_panel: DERControlPanel;
     monthly_tracking: MonthlyTracking;
     action_center: ActionCenter;
+    regulatory_context: RegulatoryContext;
 }
 
 export type DashboardData = DashboardDataObject[];

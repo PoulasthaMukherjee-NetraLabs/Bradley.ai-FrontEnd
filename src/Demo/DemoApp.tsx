@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, LinearProgress, Tooltip, Backdrop, CircularProgress, Typography } from '@mui/material';
+import { Box, Button, LinearProgress, Tooltip, Backdrop, CircularProgress, Typography, Modal, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 
-// App and Stepper contexts
+// Contexts & Components
 import { AppProvider, useAppContext } from '../Context/AppContext';
 import { steps } from './components/steps';
-
-// UI Components
 import HorizontalStepper from '../components/HorizontalStepper';
 import StepContent from './StepContent';
 import Navbar from '../components/Navbar';
@@ -30,10 +29,9 @@ import { BoilerCogenerationProvider } from '../Context/Energy Profile/SubStep2/E
 import { BillAddressProvider, useBillAddress } from '../Context/Energy Profile/BillAddressContext';
 import { updateOrganizationDetails, updateFacilityAddresses, uploadBillData, BillMetadata } from '../services/APIServices';
 
-// Import the updated Dashboard Context
+// Dashboard Context
 import { DashboardDataProvider, useDashboardData } from '../Context/DashboardDataContext';
 
-// The main content of the app, which can now use all the contexts
 const AppContent: React.FC = () => {
     const {
         currentStep, setCurrentStep,
@@ -43,7 +41,7 @@ const AppContent: React.FC = () => {
         completedSubSteps, setCompletedSubSteps,
         logout,
     } = useAppContext();
-    
+
     const { setDashboardData, isLoading, setIsLoading } = useDashboardData();
 
     const { organizationDetailsState } = useOrganizationDetails();
@@ -55,6 +53,11 @@ const AppContent: React.FC = () => {
     const navigate = useNavigate();
     const [organizationId, setOrganizationId] = useState<string | null>(null);
     const [addressUuidMap, setAddressUuidMap] = useState<{ [key: string]: string }>({});
+
+    // Error Modal
+    const [errorModalOpen, setErrorModalOpen] = useState(false);
+    const [errorTitle, setErrorTitle] = useState('Error');
+    const [errorMsg, setErrorMsg] = useState('');
 
     const markVisited = (step: number, subStep: number) => {
         setVisitedSteps((prev) => {
@@ -94,23 +97,28 @@ const AppContent: React.FC = () => {
         const isLastSubStep = currentSubStep === steps[currentStep].subSteps - 1;
         const isLastStep = currentStep === steps.length - 1;
 
+        // Step 0: Save Org Details
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 0) {
             setIsLoading(true);
             try {
                 const orgId = await updateOrganizationDetails(organizationDetailsState);
                 setOrganizationId(orgId);
             } catch (error: any) {
-                console.error("Failed to update organization details:", error);
-                window.alert(`Failed to save organization details. Server responded with: "${error.message}". Please try again.`);
+                setErrorTitle('Save Organization Failed');
+                setErrorMsg(`Failed to save organization details. Server responded with: "${error.message}". Please try again.`);
+                setErrorModalOpen(true);
                 setIsLoading(false);
                 return; 
             }
             setIsLoading(false);
         }
 
+        // Step 0: Facility Addresses
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 1) {
             if (!organizationId) {
-                console.error("Organization ID not found. Cannot update addresses.");
+                setErrorTitle('Facility Address Save Failed');
+                setErrorMsg("Organization ID not found. Cannot update addresses.");
+                setErrorModalOpen(true);
                 return;
             }
             const addressesPayload = facilityAddressState.addresses.map(({ id, ...address }) => ({
@@ -126,15 +134,16 @@ const AppContent: React.FC = () => {
                 });
                 setAddressUuidMap(newMap);
             } catch (error: any) {
-                console.error("Failed to update facility addresses:", error);
-                window.alert(`Failed to save facility addresses. Server responded with: "${error.message}". Please try again.`);
+                setErrorTitle('Save Facility Addresses Failed');
+                setErrorMsg(`Failed to save facility addresses. Server responded with: "${error.message}". Please try again.`);
+                setErrorModalOpen(true);
                 setIsLoading(false);
                 return;
             }
             setIsLoading(false);
         }
 
-        // CORRECT: Added error handling for the bill upload API call
+        // Step 0: Bill Uploads
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 6) {
             const billsWithAddress = bills.filter(bill => bill.addressId);
             const electricBillMetadataList: BillMetadata[] = billsWithAddress.filter(bill => bill.type === 'electric').map(bill => ({ ...bill, size: bill.size.toString(), addressId: bill.addressId! }));
@@ -157,8 +166,9 @@ const AppContent: React.FC = () => {
             }).filter((uuid): uuid is string => uuid !== null);
 
             if (uuidsForUpload.length !== Files.length) {
-                console.error("Could not map a UUID to every file. Aborting upload.");
-                window.alert("An internal error occurred: Could not map a facility to every file. Please review your uploads.");
+                setErrorTitle('Facility Mapping Error');
+                setErrorMsg("An internal error occurred: Could not map a facility to every file. Please review your uploads.");
+                setErrorModalOpen(true);
                 setIsLoading(false);
                 return;
             }
@@ -169,14 +179,14 @@ const AppContent: React.FC = () => {
                 if (apiResponse && Array.isArray(apiResponse) && apiResponse.length > 0) {
                     setDashboardData(apiResponse);
                 } else {
-                    // Throw an error if the response is not what we expect
                     throw new Error("API returned invalid or empty dashboard data.");
                 }
             } catch (error: any) {
-                console.error("Failed to upload bill data:", error);
-                window.alert(`Failed to process your energy bills. Server responded with: "${error.message}". Please try again.`);
+                setErrorTitle('Bill Upload Failed');
+                setErrorMsg(`Failed to process your energy bills. Server responded with: "${error.message}". Please try again.`);
+                setErrorModalOpen(true);
                 setIsLoading(false);
-                return; // Stay on the current step
+                return;
             }
             setIsLoading(false);
         }
@@ -225,7 +235,6 @@ const AppContent: React.FC = () => {
                 return;
             }
         }
-        
         if (currentFurtherSubStep > 0) {
             setCurrentFurtherSubStep(currentFurtherSubStep - 1);
         } else if (currentSubStep > 0) {
@@ -271,6 +280,23 @@ const AppContent: React.FC = () => {
         }
     }, [isLoading]);
 
+    // Sleek, minimal modal style
+    const modalStyle = {
+        position: 'absolute' as 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        minWidth: 270,
+        maxWidth: 340,
+        bgcolor: '#f9f9fb',
+        borderRadius: 2.5,
+        boxShadow: '0 4px 20px rgba(60,60,60,0.10)',
+        outline: 'none',
+        p: 0,
+        fontFamily: "'Nunito Sans', sans-serif",
+        overflow: 'hidden'
+    };
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row', height: '100vh', zIndex: 500 }}>
             <Backdrop
@@ -280,6 +306,70 @@ const AppContent: React.FC = () => {
                 <CircularProgress color="inherit" />
                 <Typography variant="h6" sx={{ fontFamily: 'Nunito Sans, sans-serif' }}>{loadingMessages[loadingMessageIndex]}</Typography>
             </Backdrop>
+
+            {/* Sleek Error Modal */}
+            <Modal
+                open={errorModalOpen}
+                onClose={() => setErrorModalOpen(false)}
+                aria-labelledby="error-modal-title"
+                aria-describedby="error-modal-description"
+                closeAfterTransition
+            >
+                <Box sx={modalStyle}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            px: 2,
+                            py: 1.3,
+                            borderBottom: '1px solid #eeecec',
+                            fontFamily: "'Nunito Sans',sans-serif",
+                            fontWeight: 500,
+                            fontSize: '0.98rem',
+                            color: '#555',
+                            background: '#f6f6fa',
+                            position: 'relative'
+                        }}
+                    >
+                        {errorTitle}
+                        <IconButton
+                            aria-label="close"
+                            onClick={() => setErrorModalOpen(false)}
+                            sx={{
+                                position: 'absolute',
+                                right: 8,
+                                top: 7,
+                                padding: 0.3,
+                                color: '#8a8a8a'
+                            }}
+                            size="small"
+                        >
+                            <CloseIcon fontSize="small" />
+                        </IconButton>
+                    </Box>
+                    <Box sx={{
+                        px: 2,
+                        pb: 2.2,
+                        pt: 1.3,
+                        fontFamily: "'Nunito Sans',sans-serif",
+                        bgcolor: '#f9f9fb'
+                    }}>
+                        <Typography
+                            sx={{
+                                fontFamily: "'Nunito Sans',sans-serif",
+                                color: '#666',
+                                fontSize: '0.88rem',
+                                fontWeight: 400,
+                                letterSpacing: '0.01em',
+                                marginBottom: '0.2em'
+                            }}
+                            id="error-modal-description"
+                        >
+                            {errorMsg}
+                        </Typography>
+                    </Box>
+                </Box>
+            </Modal>
 
             <Navbar />
             <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px', width: '100vw' }}>
@@ -317,8 +407,8 @@ const AppContent: React.FC = () => {
                                 </Box>
                             </Box>
                         </Box>
+                        <ChatBot />
                     </Box>
-                    <ChatBot />
                 </Box>
             </Box>
             <Footer />
