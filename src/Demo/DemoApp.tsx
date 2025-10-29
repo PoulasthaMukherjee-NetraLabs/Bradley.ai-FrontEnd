@@ -157,13 +157,19 @@ const AppContent: React.FC = () => {
             const allBillMetadata = [...electricBillMetadataList, ...gasBillMetadataList];
             const fileToMetadataMap = new Map<string, BillMetadata>();
             allBillMetadata.forEach(meta => fileToMetadataMap.set(meta.name, meta));
-            const uuidsForUpload = Files.map(file => {
-                const metadata = fileToMetadataMap.get(file.name);
-                if (metadata && metadata.addressId) {
-                    return addressUuidMap[metadata.addressId]; 
-                }
-                return null;
-            }).filter((uuid): uuid is string => uuid !== null);
+            const electricUuids = electricBillMetadataList.map(meta => {
+                    if (meta.addressId) {
+                        return addressUuidMap[meta.addressId];
+                    }
+                    return null;
+                });
+            const gasUuids = gasBillMetadataList.map(meta => {
+                    if (meta.addressId) {
+                        return addressUuidMap[meta.addressId];
+                    }
+                    return null;
+                });
+            const uuidsForUpload = [...electricUuids, ...gasUuids].filter((uuid): uuid is string => uuid !== null);
 
             if (uuidsForUpload.length !== Files.length) {
                 setErrorTitle('Facility Mapping Error');

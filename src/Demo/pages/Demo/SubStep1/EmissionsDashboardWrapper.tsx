@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Box, CircularProgress, Typography, Backdrop } from '@mui/material';
-import { useDashboardData, type DashboardData, type DERControlPanel } from '../../../../Context/DashboardDataContext';
+import { useDashboardData, type DashboardData, type DashboardDataObject } from '../../../../Context/DashboardDataContext';
 import EmissionsDashboard from './EmissionsDashboard';
 
 const loadingMessages = [
@@ -11,35 +11,81 @@ const loadingMessages = [
 
 const EmissionsDashboardWrapper: React.FC = () => {
     const { dashboardData, setDashboardData, isLoading: isInitialLoading } = useDashboardData();
-   
+
     const socketRef = useRef<WebSocket | null>(null);
     const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const [isUpdating, setIsUpdating] = useState(false);
+    
+    const [isFiltering, setIsFiltering] = useState(false); 
+    
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
     const [selectedLocation, setSelectedLocation] = useState<string>('');
     const [selectedSource, setSelectedSource] = useState<string>('');
+    const [selectedYear, setSelectedYear] = useState<number | string>('');
+
+    const [activeData, setActiveData] = useState<DashboardDataObject | null>(null);
+
 
     const uniqueLocations = useMemo(() => {
         if (!dashboardData) return [];
         return Array.from(new Set(dashboardData.map(d => d.location)));
     }, [dashboardData]);
 
-    useEffect(() => {
-        if (dashboardData && uniqueLocations.length > 0 && !selectedLocation) {
-            const firstLocation = uniqueLocations[0];
-            setSelectedLocation(firstLocation);
-            const firstSource = dashboardData.find(d => d.location === firstLocation)?.source || '';
-            setSelectedSource(firstSource);
-        }
-    }, [dashboardData, uniqueLocations, selectedLocation]);
+    const availableSources = useMemo(() => {
+        if (!dashboardData || !selectedLocation) return [];
+        return Array.from(new Set(
+            dashboardData.filter(d => d.location === selectedLocation).map(d => d.source)
+        ));
+    }, [dashboardData, selectedLocation]);
 
-    const activeDashboardData = useMemo(() => {
+    const nextData = useMemo(() => {
         if (!dashboardData || !selectedLocation || !selectedSource) return null;
         return dashboardData.find(d => d.location === selectedLocation && d.source === selectedSource) || null;
     }, [dashboardData, selectedLocation, selectedSource]);
+
+
+    const availableYears = useMemo(() => {
+        if (!nextData) return []; 
+        const years = new Set(nextData.monthly_tracking.monthly_emissions.map(em => em.year as number));
+        return Array.from(years).sort((a, b) => b - a);
+    }, [nextData]);
+
+    useEffect(() => {
+        if (uniqueLocations.length > 0 && !selectedLocation) {
+            setSelectedLocation(uniqueLocations[0]);
+        }
+    }, [uniqueLocations, selectedLocation]);
+
+    useEffect(() => {
+        if (selectedLocation) {
+            setIsFiltering(true); 
+            if (availableSources.length > 0) {
+                if (!availableSources.includes(selectedSource)) {
+                    setSelectedSource(availableSources[0]);
+                }
+            } else {
+                setSelectedSource('');
+            }
+        }
+    }, [selectedLocation, availableSources, selectedSource]);
+
+    useEffect(() => {
+        if (availableYears.length > 0 && !availableYears.includes(Number(selectedYear))) {
+            setSelectedYear(availableYears[0]);
+        } else if (availableYears.length === 0) {
+            setSelectedYear('');
+        }
+        
+        if (nextData) {
+            setActiveData(nextData);
+            setIsFiltering(false); 
+        }
+
+    }, [availableYears, selectedYear, nextData]);
+
 
     useEffect(() => {
         let connectAttempts = 0;
@@ -56,34 +102,70 @@ const EmissionsDashboardWrapper: React.FC = () => {
                 console.log("WebSocket connected.");
                 connectAttempts = 0;
             };
-           
+
             socketInstance.onmessage = (event) => {
                 setIsUpdating(false);
                 try {
                     const receivedData = JSON.parse(event.data);
-                   
+                    
                     setDashboardData((prevDashboardData) => {
+                        if (!prevDashboardData) {
+                            if (Array.isArray(receivedData)) {
+                                return receivedData as DashboardData;
+                            }
+                            return null;
+                        }
+
                         if (Array.isArray(receivedData)) {
                             return receivedData as DashboardData;
                         }
-                        // Handle partial DER updates - use the currently active dashboard data for identification
-                        else if (receivedData.der_control_panel && prevDashboardData && activeDashboardData) {
+                        
+                        // --- FIX: Handle partial 'der_control_panel' update ---
+                        // Case 2: Response is a partial object with NO file_id, but HAS der_control_panel
+                        // We assume this update is for the *currently active* dashboard data
+                        if (receivedData.der_control_panel && !receivedData.file_id && activeData) {
+                            console.log(`WS: Received partial 'der_control_panel' update for active file_id: ${activeData.file_id}`);
+
+                            const updatedObject = {
+                                ...activeData, // Get the full object for the active dashboard
+                                der_control_panel: receivedData.der_control_panel // Overwrite just the der_control_panel part
+                            };
+
+                            // Update the activeData state immediately to re-render the dashboard
+                            setActiveData(updatedObject);
+                            
+                            // Update the main dashboardData array
                             return prevDashboardData.map(item => {
-                                // Update the item that matches the currently active dashboard data
-                                if (String(item.file_id) === String(activeDashboardData.file_id)) {
-                                    return { 
-                                        ...item, 
-                                        der_control_panel: receivedData.der_control_panel as DERControlPanel 
-                                    };
+                                if (String(item.file_id) === String(activeData.file_id)) {
+                                    return updatedObject; 
                                 }
                                 return item;
                             });
                         }
+                        // --- END FIX ---
+
+                        // Case 3: Response is a full object (as originally expected)
+                        if (receivedData.file_id && typeof receivedData === 'object' && !Array.isArray(receivedData)) {
+                            console.log(`WS: Received full object update for file_id: ${receivedData.file_id}`);
+
+                            if (String(activeData?.file_id) === String(receivedData.file_id)) {
+                                setActiveData(receivedData as DashboardDataObject);
+                            }
+                            
+                            return prevDashboardData.map(item => {
+                                if (String(item.file_id) === String(receivedData.file_id)) {
+                                    return receivedData as DashboardDataObject; 
+                                }
+                                return item;
+                            });
+                        }
+                        
+                        console.warn("Received unexpected data format from WebSocket:", receivedData);
                         return prevDashboardData;
                     });
 
-                } catch (error) { 
-                    console.error("Failed to parse WebSocket message:", error); 
+                } catch (error) {
+                    console.error("Failed to parse WebSocket message:", error);
                 }
             };
 
@@ -104,12 +186,12 @@ const EmissionsDashboardWrapper: React.FC = () => {
                 socketInstance.close();
             };
         };
-       
+
         connect();
 
         return () => {
-            if (retryTimeoutRef.current) { 
-                clearTimeout(retryTimeoutRef.current); 
+            if (retryTimeoutRef.current) {
+                clearTimeout(retryTimeoutRef.current);
             }
             if (socketRef.current) {
                 socketRef.current.onclose = null;
@@ -117,24 +199,25 @@ const EmissionsDashboardWrapper: React.FC = () => {
                 socketRef.current = null;
             }
         };
-    }, [setDashboardData, activeDashboardData]); // Added activeDashboardData as dependency
+    }, [setDashboardData, activeData]); // Added activeData
 
     useEffect(() => {
-        if (isUpdating) {
+        if (isUpdating || isFiltering) { 
             const timer = setInterval(() => {
                 setLoadingMessageIndex(prev => (prev + 1) % loadingMessages.length);
             }, 3000);
             return () => clearInterval(timer);
         }
-    }, [isUpdating]);
+    }, [isUpdating, isFiltering]);
 
-    const handleConfirmChanges = (newUserMix: { [key: string]: number }) => {
-        if (socketRef.current?.readyState === WebSocket.OPEN && activeDashboardData) {
+    const handleConfirmChanges = (newUserMix: { [key: string]: number }, location: string, source: string) => {
+        const dataForPayload = dashboardData?.find(d => d.location === location && d.source === source);
+        if (socketRef.current?.readyState === WebSocket.OPEN && dataForPayload) {
             const payload = {
-                source: activeDashboardData.source,
-                zipcode: activeDashboardData.zipcode,
-                location: activeDashboardData.location,
-                file_id: String(activeDashboardData.file_id),
+                source: dataForPayload.source,
+                zipcode: (dataForPayload as any).zipcode, 
+                location: dataForPayload.location,
+                file_id: String(dataForPayload.file_id),
                 current_mix_pct: newUserMix
             };
             socketRef.current.send(JSON.stringify(payload));
@@ -146,63 +229,71 @@ const EmissionsDashboardWrapper: React.FC = () => {
     };
 
     if (isInitialLoading) {
-    return (
-        <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-            <CircularProgress />
-        </Box>
-    );
-}
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
 
-if (!dashboardData || dashboardData.length === 0) {
-    return (
-        <Box 
-            display="flex" 
-            justifyContent="center" 
-            alignItems="center" 
-            height="80vh" 
-            flexDirection="column"
-        >
-            <Typography variant="h6" color="textSecondary">
-                No dashboard data available.
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-                Please ensure that you have uploaded the necessary data files.
-            </Typography>
-        </Box>
-    );
-}
+    if (!dashboardData || dashboardData.length === 0) {
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="80vh"
+                flexDirection="column"
+            >
+                <Typography variant="h6" color="textSecondary">
+                    No dashboard data available.
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                    Please ensure that you have uploaded the necessary data files.
+                </Typography>
+            </Box>
+        );
+    }
 
-if (!activeDashboardData) {
-    return (
-        <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-            <Typography variant="h6" color="textSecondary">
-                No data for the selected location and source.
-            </Typography>
-        </Box>
-    );
-}
+    if (!activeData) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="80vh" flexDirection="column" gap={2}>
+                <CircularProgress />
+                <Typography variant="h6" color="textSecondary">
+                    Loading dashboard...
+                </Typography>
+            </Box>
+        );
+    }
 
     return (
         <Box>
-            <Backdrop 
-                sx={{ 
-                    color: '#fff', 
-                    zIndex: (theme) => theme.zIndex.drawer + 1, 
-                    backdropFilter: 'blur(3px)', 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    gap: 2 
-                }} 
-                open={isUpdating}
+            <Backdrop
+                sx={{
+                    color: '#fff',
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                    backdropFilter: 'blur(3px)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2
+                }}
+                open={isUpdating || isFiltering}
             >
                 <CircularProgress color="inherit" />
                 <Typography variant="h6">{loadingMessages[loadingMessageIndex]}</Typography>
             </Backdrop>
+            
             <EmissionsDashboard
-                allData={dashboardData}
+                allData={dashboardData} 
                 onConfirmChanges={handleConfirmChanges}
                 hasUnsavedChanges={hasUnsavedChanges}
                 setHasUnsavedChanges={setHasUnsavedChanges}
+                selectedLocation={selectedLocation}
+                onLocationChange={setSelectedLocation}
+                selectedSource={selectedSource}
+                onSourceChange={setSelectedSource}
+                selectedYear={selectedYear}
+                onYearChange={setSelectedYear}
             />
         </Box>
     );

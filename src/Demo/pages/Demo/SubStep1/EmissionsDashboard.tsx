@@ -15,7 +15,7 @@ interface DashboardDataObject {
     verdict: { status_banner: string; severity: string; penalty_risk_usd: number; time_left_months: number; limit_utilization_pct: number; };
     evidence: { metrics: { actual_emissions: number; actual_yoy_pct: number | string; compliance_target: number; compliance_jurisdiction: string; required_reduction_pct: number; bradley_solution?: number; bradley_reduction_pct?: number; over_by: number; estimated_penalty_cost_usd_per_year: number; bradley_savings?: number; bradley_roi_years?: number; } };
     der_control_panel: { current_mix_pct: { [key: string]: number }; recommended_mix_pct: { [key: string]: number }; impact_by_der: { [key: string]: number }; };
-    monthly_tracking: { target_per_month: number; with_bradley_der_per_month: number; monthly_emissions: { month: string | number; year: number | string; actual: number | null; projected: number | null; }[]; };
+    monthly_tracking: { target_per_month: number | string | null; with_bradley_der_per_month: number | string | null; monthly_emissions: { month: string | number; year: number | string; actual: number | null; projected: number | null; }[]; };
     action_center: {
         recommended_solution: { title: string; components: { type: string; size: string; }[]; investment_usd: number; payback_years: number; eliminates_penalties: boolean; };
         alternatives?: { title: string; investment_usd: number; reduction_pct: number; estimated_penalties_remaining_usd_per_year?: number; carbon_negative_by_year?: number; }[];
@@ -90,16 +90,24 @@ const EnhancedBenefitCard: React.FC<{ benefit: BenefitData }> = ({ benefit }) =>
 // --- MAIN DASHBOARD COMPONENT ---
 interface EmissionsDashboardProps { 
     allData: DashboardDataObject[]; 
-    onConfirmChanges: (userMix: {[key: string]: number}) => void;
+    onConfirmChanges: (userMix: {[key: string]: number}, location: string, source: string) => void;
     hasUnsavedChanges: boolean;
     setHasUnsavedChanges: (changed: boolean) => void;
+    selectedLocation: string;
+    onLocationChange: (location: string) => void;
+    selectedSource: string;
+    onSourceChange: (source: string) => void;
+    selectedYear: number | string;
+    onYearChange: (year: number | string) => void;
 }
 
-const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({ allData, onConfirmChanges, setHasUnsavedChanges }) => {
+const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({ 
+    allData, onConfirmChanges, setHasUnsavedChanges,
+    selectedLocation, onLocationChange,
+    selectedSource, onSourceChange,
+    selectedYear, onYearChange
+}) => {
     const [tabValue, setTabValue] = useState(0);
-    const [selectedLocation, setSelectedLocation] = useState<string>('');
-    const [selectedSource, setSelectedSource] = useState<string>('');
-    const [selectedYear, setSelectedYear] = useState<number | string>('');
     const [userDerAllocation, setUserDerAllocation] = useState({});
     const [modalOpen, setModalOpen] = useState(false);
     const [modalContentId, setModalContentId] = useState<number | null>(null);
@@ -167,7 +175,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({ allData, onConf
             fuel_cells: (userDerAllocation as any)['Fuel Cells'] ?? 0, simple_turbines: (userDerAllocation as any)['Simple Turbines'] ?? 0,
             linear_generation: (userDerAllocation as any)['Linear Generation'] ?? 0,
         };
-        onConfirmChanges(payloadMix);
+        onConfirmChanges(payloadMix, selectedLocation, selectedSource);
     };
     
     const availableYears = useMemo(() => {
@@ -175,23 +183,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({ allData, onConf
         return Array.from(years).sort((a, b) => b - a);
     }, [data]);
 
-    useEffect(() => {
-        if (availableYears.length > 0 && !selectedYear) { setSelectedYear(availableYears[0]); }
-    }, [availableYears, selectedYear]);
 
-    useEffect(() => {
-        if (availableLocations.length > 0 && !selectedLocation) {
-            const defaultLocation = availableLocations[0];
-            setSelectedLocation(defaultLocation);
-
-            const sourcesForDefaultLocation = Array.from(new Set(
-                allData.filter(d => d.location === defaultLocation).map(d => d.source)
-            ));
-            if (sourcesForDefaultLocation.length > 0) {
-                setSelectedSource(sourcesForDefaultLocation[0]);
-            }
-        }
-    }, [allData, availableLocations, selectedLocation]);
     
     const filteredAndSortedChartData = useMemo(() => {
         if (!data || !selectedYear) return [];
@@ -214,6 +206,33 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({ allData, onConf
         
         return processed.sort((a, b) => monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
     }, [data, selectedYear]);
+
+    // --- NEW: Calculate the Y-Axis maximum value manually ---
+    const yAxisMax = useMemo(() => {
+        if (!data || !filteredAndSortedChartData || filteredAndSortedChartData.length === 0) {
+            return 'auto'; // Fallback to automatic scaling
+        }
+
+        // 1. Find the max value from the bars
+        const maxBarValue = Math.max(...filteredAndSortedChartData.map(entry => entry.emissions ?? 0));
+        
+        // 2. Get the target value, ensuring it's a valid number
+        const targetValue = (data.monthly_tracking?.target_per_month !== null && 
+                             data.monthly_tracking?.target_per_month !== undefined &&
+                             isFinite(Number(data.monthly_tracking.target_per_month)))
+                             ? Number(data.monthly_tracking.target_per_month)
+                             : 0; // Use 0 if invalid
+
+        // 3. The max domain should be the larger of the two
+        const dataMax = Math.max(maxBarValue, targetValue);
+
+        if (dataMax === 0) return 100; // Handle case with no data, show a 0-100 chart
+
+        // 4. Return a formatted domain max with 10% padding, rounded up to the nearest 10
+        return Math.ceil((dataMax * 1.1) / 10) * 10; 
+    
+    }, [data, filteredAndSortedChartData]);
+    // --- END NEW ---
 
     const evidenceCards: BenefitData[] = [
         { value: `${formatValue(data?.evidence?.metrics?.actual_emissions)} MT`, title: 'Actual Emissions', description: <><b>+{formatValue(data?.evidence?.metrics?.actual_yoy_pct, 'percent')}</b> YoY<br/>Over by: <b>{formatValue(data?.evidence?.metrics?.over_by)} MT</b><br/>Est. Penalty: <b>{formatValue(data?.evidence?.metrics?.estimated_penalty_cost_usd_per_year, 'currency')}/yr</b></>, watermark: '🔥' },
@@ -339,26 +358,26 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({ allData, onConf
                 <Paper variant="outlined" sx={{ p: 2, position: 'relative' }}>
                     <Box sx={{ position: 'absolute', top: 16, right: 24, display: 'flex', gap: 2 }}>
                         <FormControl size="small">
-                        <Select
-                            value={selectedLocation}
-                            onChange={(e) => setSelectedLocation(e.target.value)}
-                            sx={{ fontSize: '0.8rem' }}
-                        >
-                            {availableLocations.map(loc => <MenuItem key={loc} value={loc}>{loc}</MenuItem>)}
-                        </Select>
-                    </FormControl>
+                            <Select
+                                value={selectedLocation}
+                                onChange={(e) => onLocationChange(e.target.value)}
+                                sx={{ fontSize: '0.8rem' }}
+                            >
+                                {availableLocations.map(loc => <MenuItem key={loc} value={loc}>{loc}</MenuItem>)}
+                            </Select>
+                        </FormControl>
 
                     {/* --- FIXED SOURCE FILTER --- */}
                     <FormControl size="small">
                         <Select
                             value={selectedSource}
-                            onChange={(e) => setSelectedSource(e.target.value)}
+                            onChange={(e) => onSourceChange(e.target.value)}
                             sx={{ fontSize: '0.8rem' }}
                         >
                             {availableSources.map(src => <MenuItem key={src} value={src}>{src.charAt(0).toUpperCase() + src.slice(1)}</MenuItem>)}
                         </Select>
                     </FormControl>
-                        <FormControl size="small"><Select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }}>{availableYears.map(year => <MenuItem key={year} value={year}>{year}</MenuItem>)}</Select></FormControl>
+                        <FormControl size="small"><Select value={selectedYear} onChange={(e) => onYearChange(e.target.value)} sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }}>{availableYears.map(year => <MenuItem key={year} value={year}>{year}</MenuItem>)}</Select></FormControl>
                     </Box>
                     <Typography sx={{ textAlign: 'left', fontWeight: 'bold', fontSize: '1rem' }}>COMPLIANCE STATUS</Typography>
                     <Paper variant="outlined" sx={{ mt: 3, backgroundColor: '#fff3e0', textAlign: 'center', p:1, borderColor: '#ff9800' }}><Typography sx={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#e65100' }}>⚠️ {data?.verdict?.status_banner}</Typography></Paper>
@@ -413,7 +432,12 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({ allData, onConf
                                         <BarChart data={filteredAndSortedChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis dataKey="month" tick={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }} />
-                                            <YAxis tick={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }} />
+                                            {/* --- NEW: Apply the manual domain to the YAxis --- */}
+                                            <YAxis 
+                                                tick={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }} 
+                                                domain={[0, yAxisMax]}
+                                            />
+                                            {/* --- END NEW --- */}
                                             <Tooltip cursor={{fill: 'rgba(230, 230, 230, 0.4)'}} contentStyle={{ fontFamily: 'Nunito Sans, sans-serif' }}/>
                                             
                                             <Legend
@@ -432,36 +456,49 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({ allData, onConf
                                                 ))}
                                             </Bar>
                                             
-                                            <ReferenceLine
-                                                ifOverflow="extendDomain"
-                                                y={data?.monthly_tracking?.target_per_month}
-                                                stroke={colorPalette.target}
-                                                strokeDasharray="3 3"
-                                                strokeWidth={1.5}
-                                                label={{
-                                                    value: `Target: ${formatValue(data?.monthly_tracking?.target_per_month)}`,
-                                                    position: 'insideBottomRight',
-                                                    fill: colorPalette.target,
-                                                    fontFamily: 'Nunito Sans, sans-serif',
-                                                    fontSize: 12,
-                                                }}
-                                                className="ref-line-target"
-                                            />
-                                            <ReferenceLine
-                                                ifOverflow="extendDomain"
-                                                y={data?.monthly_tracking?.with_bradley_der_per_month}
-                                                stroke={colorPalette.withBradley}
-                                                strokeDasharray="3 3"
-                                                strokeWidth={1.5}
-                                                label={{
-                                                    value: `With Bradley: ${formatValue(data?.monthly_tracking?.with_bradley_der_per_month)}`,
-                                                    position: 'insideTopRight',
-                                                    fill: colorPalette.withBradley,
-                                                    fontFamily: 'Nunito Sans, sans-serif',
-                                                    fontSize: 12,
-                                                }}
-                                                className="ref-line-bradley"
-                                            />
+                                            {/* (No change here, your robust check is good) */}
+                                            { (data?.monthly_tracking?.target_per_month !== null && 
+                                               data?.monthly_tracking?.target_per_month !== undefined &&
+                                               data?.monthly_tracking?.target_per_month !== '' && 
+                                               isFinite(Number(data.monthly_tracking.target_per_month))) &&
+                                                <ReferenceLine
+                                                    ifOverflow="extendDomain"
+                                                    y={Number(data.monthly_tracking.target_per_month)}
+                                                    stroke={colorPalette.target}
+                                                    strokeDasharray="3 3"
+                                                    strokeWidth={1.5}
+                                                    label={{
+                                                        value: `Target: ${formatValue(data.monthly_tracking.target_per_month)}`,
+                                                        position: 'insideBottomRight',
+                                                        fill: colorPalette.target,
+                                                        fontFamily: 'Nunito Sans, sans-serif',
+                                                        fontSize: 12,
+                                                    }}
+                                                    className="ref-line-target"
+                                                />
+                                            }
+                                            
+                                            {/* (No change here, your robust check is good) */}
+                                            { (data?.monthly_tracking?.with_bradley_der_per_month !== null && 
+                                               data?.monthly_tracking?.with_bradley_der_per_month !== undefined &&
+                                               data?.monthly_tracking?.with_bradley_der_per_month !== '' && 
+                                               isFinite(Number(data.monthly_tracking.with_bradley_der_per_month))) &&
+                                                <ReferenceLine
+                                                    ifOverflow="extendDomain"
+                                                    y={Number(data.monthly_tracking.with_bradley_der_per_month)}
+                                                    stroke={colorPalette.withBradley}
+                                                    strokeDasharray="3 3"
+                                                    strokeWidth={1.5}
+                                                    label={{
+                                                        value: `With Bradley: ${formatValue(data.monthly_tracking.with_bradley_der_per_month)}`,
+                                                        position: 'insideTopRight',
+                                                        fill: colorPalette.withBradley,
+                                                        fontFamily: 'Nunito Sans, sans-serif',
+                                                        fontSize: 12,
+                                                    }}
+                                                    className="ref-line-bradley"
+                                                />
+                                            }
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </Box>
