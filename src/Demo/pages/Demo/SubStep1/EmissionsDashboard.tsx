@@ -12,7 +12,7 @@ interface DashboardDataObject {
     file_id: string;
     source: string;
     location: string;
-    verdict: { status_banner: string; severity: string; penalty_risk_usd: number; time_left_months: number; limit_utilization_pct: number; };
+    verdict: { compliance_status: string; status_banner: string; severity: string; penalty_risk_usd: number; time_left_months: number; limit_utilization_pct: number; }; // Added compliance_status
     evidence: { metrics: { actual_emissions: number; actual_yoy_pct: number | string; compliance_target: number; compliance_jurisdiction: string; required_reduction_pct: number; bradley_solution?: number; bradley_reduction_pct?: number; over_by: number; estimated_penalty_cost_usd_per_year: number; bradley_savings?: number; bradley_roi_years?: number; } };
     der_control_panel: { current_mix_pct: { [key: string]: number }; recommended_mix_pct: { [key: string]: number }; impact_by_der: { [key: string]: number }; };
     monthly_tracking: { target_per_month: number | string | null; with_bradley_der_per_month: number | string | null; monthly_emissions: { month: string | number; year: number | string; actual: number | null; projected: number | null; }[]; };
@@ -207,32 +207,26 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
         return processed.sort((a, b) => monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
     }, [data, selectedYear]);
 
-    // --- NEW: Calculate the Y-Axis maximum value manually ---
     const yAxisMax = useMemo(() => {
         if (!data || !filteredAndSortedChartData || filteredAndSortedChartData.length === 0) {
-            return 'auto'; // Fallback to automatic scaling
+            return 'auto'; 
         }
 
-        // 1. Find the max value from the bars
         const maxBarValue = Math.max(...filteredAndSortedChartData.map(entry => entry.emissions ?? 0));
         
-        // 2. Get the target value, ensuring it's a valid number
         const targetValue = (data.monthly_tracking?.target_per_month !== null && 
                              data.monthly_tracking?.target_per_month !== undefined &&
                              isFinite(Number(data.monthly_tracking.target_per_month)))
                              ? Number(data.monthly_tracking.target_per_month)
-                             : 0; // Use 0 if invalid
+                             : 0; 
 
-        // 3. The max domain should be the larger of the two
         const dataMax = Math.max(maxBarValue, targetValue);
 
-        if (dataMax === 0) return 100; // Handle case with no data, show a 0-100 chart
+        if (dataMax === 0) return 100; 
 
-        // 4. Return a formatted domain max with 10% padding, rounded up to the nearest 10
         return Math.ceil((dataMax * 1.1) / 10) * 10; 
     
     }, [data, filteredAndSortedChartData]);
-    // --- END NEW ---
 
     const evidenceCards: BenefitData[] = [
         { value: `${formatValue(data?.evidence?.metrics?.actual_emissions)} MT`, title: 'Actual Emissions', description: <><b>+{formatValue(data?.evidence?.metrics?.actual_yoy_pct, 'percent')}</b> YoY<br/>Over by: <b>{formatValue(data?.evidence?.metrics?.over_by)} MT</b><br/>Est. Penalty: <b>{formatValue(data?.evidence?.metrics?.estimated_penalty_cost_usd_per_year, 'currency')}/yr</b></>, watermark: '🔥' },
@@ -334,6 +328,21 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
         );
     };
 
+    // --- FIX: Logic for conditional styling ---
+    const isCompliant = data?.verdict?.compliance_status === 'COMPLIANT';
+    const complianceBannerBg = isCompliant ? '#e8f5e9' : '#fff3e0'; // Green vs Yellow
+    const complianceBannerBorder = isCompliant ? '#4caf50' : '#ff9800'; // Green vs Orange
+    const complianceBannerColor = isCompliant ? '#1b5e20' : '#e65100'; // Dark Green vs Dark Orange
+    const complianceIcon = isCompliant ? '✅' : '⚠️'; // Check vs Warning
+
+    const utilizationPct = data?.verdict?.limit_utilization_pct ?? 0;
+    const progressBarColor = isCompliant ? '#388E3C' : '#ff3b30'; // Green vs Red
+    
+    const statusColor = isCompliant ? '#388E3C' : '#d32f2f'; // Green vs Red
+    const statusIcon = isCompliant ? '🟢' : '🔴'; // Green vs Red
+    // --- END FIX ---
+
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
             <style>{`
@@ -367,7 +376,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                             </Select>
                         </FormControl>
 
-                    {/* --- FIXED SOURCE FILTER --- */}
                     <FormControl size="small">
                         <Select
                             value={selectedSource}
@@ -380,10 +388,48 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                         <FormControl size="small"><Select value={selectedYear} onChange={(e) => onYearChange(e.target.value)} sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }}>{availableYears.map(year => <MenuItem key={year} value={year}>{year}</MenuItem>)}</Select></FormControl>
                     </Box>
                     <Typography sx={{ textAlign: 'left', fontWeight: 'bold', fontSize: '1rem' }}>COMPLIANCE STATUS</Typography>
-                    <Paper variant="outlined" sx={{ mt: 3, backgroundColor: '#fff3e0', textAlign: 'center', p:1, borderColor: '#ff9800' }}><Typography sx={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#e65100' }}>⚠️ {data?.verdict?.status_banner}</Typography></Paper>
-                    <Box sx={{ height: '8px', backgroundColor: '#e0e0e0', borderRadius: '4px', overflow: 'hidden', margin: '16px auto', maxWidth: '100%' }}><Box sx={{ width: `${data?.verdict?.limit_utilization_pct ?? 0}%`, height: '100%', backgroundColor: '#ff3b30' }} /></Box>
+                    
+                    {/* --- FIX: Conditional Status Banner --- */}
+                    <Paper variant="outlined" sx={{ mt: 3, backgroundColor: complianceBannerBg, textAlign: 'center', p:1, borderColor: complianceBannerBorder }}>
+                        <Typography sx={{ fontWeight: 'bold', fontSize: '1.1rem', color: complianceBannerColor }}>
+                            {complianceIcon} {data?.verdict?.status_banner}
+                        </Typography>
+                    </Paper>
+
+                    {/* --- FIX: Improved Progress Bar with Percentage --- */}
+                    <Box sx={{ position: 'relative', height: '20px', backgroundColor: '#e0e0e0', borderRadius: '10px', overflow: 'hidden', margin: '16px auto', maxWidth: '100%' }}>
+                        <Box sx={{ 
+                            width: `${utilizationPct > 100 ? 100 : utilizationPct}%`, // Cap width at 100%
+                            height: '100%', 
+                            backgroundColor: progressBarColor,
+                            transition: 'width 0.4s ease-in-out'
+                        }} />
+                        <Box sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}>
+                            <Typography sx={{
+                                color: utilizationPct > 40 ? '#fff' : '#000', // Dynamic text color
+                                textShadow: utilizationPct > 40 ? '0px 0px 3px rgba(0,0,0,0.5)' : 'none',
+                                fontFamily: 'Nunito Sans, sans-serif',
+                                fontWeight: 'bold',
+                                fontSize: '0.75rem',
+                                lineHeight: '20px'
+                            }}>
+                                {formatValue(utilizationPct, 'percent')} Utilization
+                            </Typography>
+                        </Box>
+                    </Box>
+                    
                     <Grid container spacing={1} sx={{ textAlign: 'center' }}>
-                        <Grid item xs={4}><Typography sx={{fontSize: '0.8rem'}}>STATUS: <b style={{ color: '#d32f2f' }}>🔴 {data?.verdict?.severity}</b></Typography></Grid>
+                        {/* --- FIX: Conditional Status Icon/Color --- */}
+                        <Grid item xs={4}><Typography sx={{fontSize: '0.8rem'}}>STATUS: <b style={{ color: statusColor }}>{statusIcon} {data?.verdict?.severity}</b></Typography></Grid>
                         <Grid item xs={4}><Typography sx={{fontSize: '0.8rem'}}>PENALTY RISK: <b>{formatValue(data?.verdict?.penalty_risk_usd, 'currency')}</b></Typography></Grid>
                         <Grid item xs={4}><Typography sx={{fontSize: '0.8rem'}}>TIME LEFT: <b>{data?.verdict?.time_left_months} MONTHS</b></Typography></Grid>
                     </Grid>
@@ -432,12 +478,10 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                         <BarChart data={filteredAndSortedChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis dataKey="month" tick={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }} />
-                                            {/* --- NEW: Apply the manual domain to the YAxis --- */}
                                             <YAxis 
                                                 tick={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }} 
                                                 domain={[0, yAxisMax]}
                                             />
-                                            {/* --- END NEW --- */}
                                             <Tooltip cursor={{fill: 'rgba(230, 230, 230, 0.4)'}} contentStyle={{ fontFamily: 'Nunito Sans, sans-serif' }}/>
                                             
                                             <Legend
@@ -456,7 +500,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                                 ))}
                                             </Bar>
                                             
-                                            {/* (No change here, your robust check is good) */}
                                             { (data?.monthly_tracking?.target_per_month !== null && 
                                                data?.monthly_tracking?.target_per_month !== undefined &&
                                                data?.monthly_tracking?.target_per_month !== '' && 
@@ -478,7 +521,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                                 />
                                             }
                                             
-                                            {/* (No change here, your robust check is good) */}
                                             { (data?.monthly_tracking?.with_bradley_der_per_month !== null && 
                                                data?.monthly_tracking?.with_bradley_der_per_month !== undefined &&
                                                data?.monthly_tracking?.with_bradley_der_per_month !== '' && 
