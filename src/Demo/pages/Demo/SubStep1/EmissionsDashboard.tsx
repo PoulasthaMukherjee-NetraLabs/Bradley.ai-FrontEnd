@@ -370,6 +370,60 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
             </>
         );
         break;
+    
+    case 3:
+        content.title = (
+            <Typography variant="h6" sx={{ color: 'black' }}>
+                Emission Reduction Projects Explained
+            </Typography>
+        );
+        content.body = (
+            <>
+                <Typography sx={{ mt: 1.5, mb: 2, color: '#555' }}>
+                    This section outlines various projects that can help reduce your emissions. Each project targets specific areas of your operations, contributing to your overall compliance strategy.
+                </Typography>
+                <Paper variant="outlined" sx={{ p: 2, backgroundColor: '#f9f9f9' }}>
+                    <Typography variant="body1"><strong>Project Details:</strong></Typography>
+                    <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px', fontSize: '0.9rem' }}>
+                        {Object.entries(staticProjectKeys).map(([formattedKey, backendKey]) => (
+                            <li key={formattedKey} style={{ marginTop: '4px' }}>
+                                <b>{formattedKey}:</b> Reduces emissions by <b>{formatValue(data?.emission_reduction_projects?.[backendKey])} MT</b>
+                            </li>
+                        ))}
+                    </ul>
+                </Paper>
+            </>
+        );
+        break;
+
+    case 4:
+        content.title = (
+            <Typography variant="h6" sx={{ color: 'black' }}>
+                SREC Impact Overview
+            </Typography>
+        );
+        content.body = (
+            <>
+                <Typography sx={{ mt: 1.5, mb: 2, color: '#555' }}>
+                    Solar Renewable Energy Credits (SRECs) can significantly offset your compliance costs. This section provides insights into how varying SREC percentages impact your overall strategy.
+                </Typography>
+                <Paper variant="outlined" sx={{ p: 2, backgroundColor: '#f9f9f9' }}>
+                    <Typography variant="body1"><strong>SREC Metrics Explained:</strong></Typography>
+                    {calculatedSrecMetrics ? (
+                        <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px', fontSize: '0.9rem' }}>
+                            <li>Estimated Annual SREC Value: <b>{formatValue(calculatedSrecMetrics.reduced_emissions_mtpy, 'currency')}</b></li>
+                            <li style={{ marginTop: '4px' }}>Impact on Penalty Risk: <b>{formatValue(calculatedSrecMetrics.srec_needed_mwh, 'currency')}</b></li>
+                            <li style={{ marginTop: '4px' }}>Net Cost After SRECs: <b>{formatValue(calculatedSrecMetrics.total_srec_cost_usd, 'currency')}</b></li>
+                        </ul>
+                    ) : (
+                        <Typography variant="body2" sx={{ fontStyle: 'italic', mt: 1 }}>
+                            SREC metrics are not available for the current configuration.
+                        </Typography>
+                    )}
+                </Paper>
+            </>
+        );
+        break;
 
     default: 
         return null;
@@ -781,9 +835,9 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                             <StyledTabPanelBox sx={{minHeight: 360, fontFamily: 'Nunito Sans, sans-serif'}}>
                                 
                                 {/* Table 1: Emission Reduction Projects */}
-                                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1rem', mb: 1.5, textAlign:'center' }}>
-                                    Emission Reduction Projects
-                                </Typography>
+                                <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', pb: 2}}>
+                                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif',  textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>EMISSION REDUCTION PROJECTS</Typography>
+                                <IconButton size="small" onClick={() => handleOpenModal(3)}><HelpOutline sx={{fontSize: '1.1rem'}} /></IconButton></Box>
                                 <TableContainer component={Paper} variant="outlined" sx={{ mb: 4 }}>
                                     <Table size="small">
                                         <TableHead sx={{ backgroundColor: '#fafafa' }}>
@@ -843,9 +897,11 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                 </TableContainer>
 
                                 {/* Table layout for SRECs --- */}
-                                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1rem', mb: 1.5, textAlign:'center' }}>
+                                <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', pb: 2}}>
+                                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif',  textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
                                     Renewable Energy Credits (RECs)
                                 </Typography>
+                                <IconButton size="small" onClick={() => handleOpenModal(4)}><HelpOutline sx={{fontSize: '1.1rem'}} /></IconButton></Box>
                                 <TableContainer component={Paper} variant="outlined" sx={{ mb: 3 }}>
                                     <Table size="small">
                                         <TableHead sx={{ backgroundColor: '#fafafa' }}>
@@ -881,7 +937,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                         <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', backgroundColor: 'white' }}>
                                             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 600, color: 'grey.700' }}>Reduced Emissions (MT/yr)</Typography>
                                             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1.25rem', color: '#1b5e20' }}>
-                                                {formatValue(calculatedSrecMetrics?.reduced_emissions_mtpy)}
+                                                {formatValue(calculatedSrecMetrics?.reduced_emissions_mtpy) === 'N/A' ? '0' : formatValue(calculatedSrecMetrics?.reduced_emissions_mtpy)}
                                             </Typography>
                                         </Paper>
                                     </Grid>
@@ -889,7 +945,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                         <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', backgroundColor: 'white' }}>
                                             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 600, color: 'grey.700' }}>SREC Needed (MWh)</Typography>
                                             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1.25rem' }}>
-                                                {formatValue(calculatedSrecMetrics?.srec_needed_mwh)}
+                                                {formatValue(calculatedSrecMetrics?.srec_needed_mwh) === 'N/A' ? '0' : formatValue(calculatedSrecMetrics?.srec_needed_mwh)}
                                             </Typography>
                                         </Paper>
                                     </Grid>
@@ -897,7 +953,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                         <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', backgroundColor: 'white' }}>
                                             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 600, color: 'grey.700' }}>Total SREC Cost (USD)</Typography>
                                             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1.25rem' }}>
-                                                {formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency')}
+                                                {formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency') === 'N/A' ? '$0' : formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency')}
                                             </Typography>
                                         </Paper>
                                     </Grid>

@@ -71,7 +71,7 @@ const EmissionsDashboardWrapper: React.FC = () => {
             if (availableSources.length > 0) {
                 if (!availableSources.includes(selectedSource)) {
                     setSelectedSource(availableSources[0]);
-                    setSrecPercentage(0); // Reset SREC on location change
+                    setSrecPercentage(0);
                     setCalculatedSrecMetrics(null);
                 }
             } else {
@@ -90,14 +90,13 @@ const EmissionsDashboardWrapper: React.FC = () => {
         
         if (nextData) {
             setActiveData(nextData);
-            // Only set calculated metrics if they haven't been set by a filter change
             if (calculatedSrecMetrics === null) {
                 setCalculatedSrecMetrics(nextData.srec_metrics);
             }
             setIsFiltering(false); 
         }
 
-    }, [availableYears, selectedYear, nextData, calculatedSrecMetrics]); // Add calculatedSrecMetrics
+    }, [availableYears, selectedYear, nextData, calculatedSrecMetrics]);
 
     // Effect 4: WebSocket connection
     useEffect(() => {
@@ -108,7 +107,8 @@ const EmissionsDashboardWrapper: React.FC = () => {
         const connect = () => {
             if (socketRef.current || connectAttempts >= maxConnectAttempts) return;
 
-            const socketInstance = new WebSocket(/* 'wss://bradley-emission.onrender.com/ws' */ 'ws://localhost:8000/ws');
+            const socketURL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
+            const socketInstance = new WebSocket(socketURL);
             socketRef.current = socketInstance;
 
             socketInstance.onopen = () => {
