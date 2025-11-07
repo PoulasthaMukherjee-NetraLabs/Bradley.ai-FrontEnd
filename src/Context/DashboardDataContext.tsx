@@ -1,7 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
-// --- Interfaces matching the FINAL API Response Structure ---
-
 export interface Verdict {
     // compliance_status: string;
     status_banner: string;
@@ -35,6 +33,7 @@ export interface DERControlPanel {
     current_mix_pct: { [key: string]: number };
     recommended_mix_pct: { [key: string]: number };
     impact_by_der: { [key: string]: number };
+    insights?: string[];
 }
 
 export interface MonthlyEmission {
@@ -47,13 +46,12 @@ export interface MonthlyEmission {
 }
 
 export interface MonthlyTracking {
-    target_per_month: number;
-    with_bradley_der_per_month: number;
+    target_per_month: number | string | null;
+    with_bradley_der_per_month: number | string | null;
     monthly_emissions: MonthlyEmission[];
 }
 
 export interface ActionCenter {
-    // This now correctly matches the final JSON structure
     recommended_solution: {
         title: string;
         components: { type: string; size: string; }[];
@@ -68,6 +66,7 @@ export interface ActionCenter {
         estimated_penalties_remaining_usd_per_year?: number;
         carbon_negative_by_year?: number;
     }[];
+    insights?: string[];
 }
 
 export interface RegulatoryContext {
@@ -88,13 +87,32 @@ export interface RegulatoryContext {
     };
 }
 
+export interface EmissionReductionProjects {
+    Lighting: number;
+    Ventilation: number;
+    Cooling: number;
+    'Other (pumps, small motors, common areas)': number;
+    Refrigeration: number;
+    'Computing/IT': number;
+    'space heating (electric)': number;
+    [key: string]: number;
+}
+
+export interface SRECMetrics {
+    reduced_emissions_mtpy: number;
+    srec_needed_mwh: number;
+    total_srec_cost_usd: number;
+}
+
 export interface DashboardDataObject {
-    file_id: string; // Added as required
+    file_id: string;
     source: string;
     zipcode: string;
     location: string;
     verdict: Verdict;
     evidence: Evidence;
+    emission_reduction_projects: EmissionReductionProjects;
+    srec_metrics: SRECMetrics;
     der_control_panel: DERControlPanel;
     monthly_tracking: MonthlyTracking;
     action_center: ActionCenter;
@@ -103,11 +121,8 @@ export interface DashboardDataObject {
 
 export type DashboardData = DashboardDataObject[];
 
-// --- Context Definition & Provider ---
-
 interface DashboardDataContextType {
     dashboardData: DashboardData | null;
-    // CORRECTED: Use the standard React dispatch type for state setters
     setDashboardData: React.Dispatch<React.SetStateAction<DashboardData | null>>;
     isLoading: boolean;
     setIsLoading: (loading: boolean) => void;
@@ -125,8 +140,6 @@ export const DashboardDataProvider: React.FC<{ children: ReactNode }> = ({ child
         </DashboardDataContext.Provider>
     );
 };
-
-// --- Custom Hook ---
 
 export const useDashboardData = (): DashboardDataContextType => {
     const context = useContext(DashboardDataContext);

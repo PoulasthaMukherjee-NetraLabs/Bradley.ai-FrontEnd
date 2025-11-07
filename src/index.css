@@ -73,6 +73,15 @@ button:focus-visible {
   }
 }
 
+* {
+  outline: none !important;
+}
+
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 
 
 

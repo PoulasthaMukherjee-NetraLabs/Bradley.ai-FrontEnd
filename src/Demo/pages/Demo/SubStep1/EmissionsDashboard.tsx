@@ -2,10 +2,11 @@ import React, { useState, useMemo, useEffect, ReactNode } from 'react';
 import {
     Box, Typography, Card, styled, CardContent, Paper, Tabs, Tab, FormControl,
     Select, MenuItem, Slider, Button, Grid, Table, TableBody, TableCell,
-    TableContainer, TableRow, TableHead, Modal, IconButton, Stack, SelectChangeEvent
+    TableContainer, TableRow, TableHead, Modal, IconButton, Stack, SelectChangeEvent, Checkbox, TableFooter,
 } from '@mui/material';
 import { HelpOutline, Close } from '@mui/icons-material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend, Cell } from 'recharts';
+import { SRECMetrics } from '../../../../Context/DashboardDataContext'; 
 
 // --- TYPE DEFINITIONS ---
 interface DashboardDataObject {
@@ -14,17 +15,21 @@ interface DashboardDataObject {
     location: string;
     verdict: { /* compliance_status: string; */ status_banner: string; severity: string; penalty_risk_usd: number; time_left_months: number; limit_utilization_pct: number; };
     evidence: { metrics: { actual_emissions: number; projected_emissions: number; full_year_projection: number; actual_yoy_pct: number | string; compliance_target: number; compliance_jurisdiction: string; required_reduction_pct: number; bradley_solution?: number; bradley_reduction_pct?: number; over_by: number; bradley_savings?: number; bradley_roi_years?: number; } };
+    emission_reduction_projects: {
+        [key: string]: number;
+    };
+    srec_metrics: SRECMetrics; // Use imported type
     der_control_panel: { 
         current_mix_pct: { [key: string]: number }; 
         recommended_mix_pct: { [key: string]: number }; 
         impact_by_der: { [key: string]: number };
-        insights?: string[]; // Added insights
+        insights?: string[]; 
     };
     monthly_tracking: { target_per_month: number | string | null; with_bradley_der_per_month: number | string | null; monthly_emissions: { month: string | number; year: number | string; actual: number | null; projected: number | null; }[]; };
     action_center: {
         recommended_solution: { title: string; components: { type: string; size: string; }[]; investment_usd: number; payback_years: number; eliminates_penalties: boolean; };
         alternatives?: { title: string; investment_usd: number; reduction_pct: number; estimated_penalties_remaining_usd_per_year?: number; carbon_negative_by_year?: number; }[];
-        insights?: string[]; // Added insights
+        insights?: string[]; 
     };
 }
 
@@ -105,18 +110,28 @@ interface EmissionsDashboardProps {
     onSourceChange: (source: string) => void;
     selectedYear: number | string;
     onYearChange: (year: number | string) => void;
+    srecPercentage: number;
+    onSrecPercentageChange: (value: number) => void;
+    onSrecChangeCommitted: (value: number) => void;
+    calculatedSrecMetrics: SRECMetrics | null;
 }
 
 const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({ 
     allData, onConfirmChanges, setHasUnsavedChanges,
     selectedLocation, onLocationChange,
     selectedSource, onSourceChange,
-    selectedYear, onYearChange
+    selectedYear, onYearChange,
+    srecPercentage,
+    onSrecPercentageChange,
+    onSrecChangeCommitted,
+    calculatedSrecMetrics
 }) => {
     const [tabValue, setTabValue] = useState(0);
     const [userDerAllocation, setUserDerAllocation] = useState({});
     const [modalOpen, setModalOpen] = useState(false);
     const [modalContentId, setModalContentId] = useState<number | null>(null);
+
+    const [projectSelections, setProjectSelections] = useState<{ [key: string]: boolean }>({});
 
     const handleOpenModal = (id: number) => { setModalContentId(id); setModalOpen(true); };
     const handleCloseModal = () => { setModalOpen(false); setModalContentId(null); };
@@ -149,7 +164,8 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
     useEffect(() => {
         setUserDerAllocation(initialState);
         setHasUnsavedChanges(false);
-    }, [initialState, setHasUnsavedChanges]);
+        setProjectSelections({});
+    }, [initialState, setHasUnsavedChanges]); 
 
     const isChanged = useMemo(() => JSON.stringify(userDerAllocation) !== JSON.stringify(initialState), [userDerAllocation, initialState]);
     
@@ -189,7 +205,34 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
         return Array.from(years).sort((a, b) => b - a);
     }, [data]);
 
+    const staticProjectKeys: { [key: string]: string } = {
+        'Lighting': 'Lighting',
+        'Ventilation': 'Ventilation',
+        'Cooling': 'Cooling',
+        'Other (Pumps, Small Motors, Common Areas)': 'Other (pumps, small motors, common areas)',
+        'Refrigeration': 'Refrigeration',
+        'Computing/IT': 'Computing/IT',
+        'Space Heating (Electric)': 'space heating (electric)',
+    };
 
+    const cumulativeReduction = useMemo(() => {
+        if (!data?.emission_reduction_projects) return 0;
+
+        return Object.entries(projectSelections).reduce((sum, [formattedKey, isSelected]) => {
+            if (isSelected) {
+                const backendKey = staticProjectKeys[formattedKey];
+                return sum + (data.emission_reduction_projects[backendKey] || 0);
+            }
+            return sum;
+        }, 0);
+    }, [projectSelections, data?.emission_reduction_projects]);
+
+    const handleProjectSelectChange = (formattedKey: string) => {
+        setProjectSelections(prev => ({
+            ...prev,
+            [formattedKey]: !prev[formattedKey],
+        }));
+    };
     
     const filteredAndSortedChartData = useMemo(() => {
         if (!data || !selectedYear) return [];
@@ -235,7 +278,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
     }, [data, filteredAndSortedChartData]);
 
     const evidenceCards: BenefitData[] = [
-        // --- FIX: Updated Benefit Card Titles ---
         { value: `${formatValue(data?.evidence?.metrics?.full_year_projection)} MT`, title: (<>Annual Emissions<br />(YTD + Projected)</>), description: <>YTD: <b>{formatValue(data?.evidence?.metrics?.actual_emissions)} MT</b><br />Projected: <b>{formatValue(data?.evidence?.metrics?.projected_emissions)} MT</b><br/><b>+{formatValue(data?.evidence?.metrics?.actual_yoy_pct, 'percent')}</b> YoY | Over by: <b>{formatValue(data?.evidence?.metrics?.over_by)} MT</b><br/></>, watermark: '🔥' },
         { value: `${formatValue(data?.evidence?.metrics?.compliance_target)} MT`, title: (<>Compliance Target<br />by 2030</>), description: <>State: <b>{data?.evidence?.metrics?.compliance_jurisdiction}</b><br/>Required by law<br/><b>{formatValue(data?.evidence?.metrics?.required_reduction_pct, 'percent')}</b> reduction</>, watermark: '⚖️' },
         { value: `${formatValue(data?.evidence?.metrics?.bradley_solution)} MT`, title: 'Emission Compliance Energy Supply Configuration', description: <><b>{formatValue(data?.evidence?.metrics?.bradley_reduction_pct, 'percent')}</b> Reduction<br/>Saves: <b>{formatValue(data?.evidence?.metrics?.bradley_savings, 'currency')}/yr</b><br/>ROI: <b>{formatValue(data?.evidence?.metrics?.bradley_roi_years)} years</b></>, watermark: '💡' },
@@ -256,11 +298,9 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
         );
         content.body = (
             <>
-                {/* --- FIX: Updated main description --- */}
                 <Typography sx={{ mt: 1.5, mb: 2, color: '#555', fontSize: '0.9rem' }}>
                     CarbonCheckIQ+ enables you to select various types of energy supply to evaluate the GHG emission reductions related to having energy generation on premise. This evaluation output enables you to drive compliance through energy innovation. Should you want to further evaluate the practicality of having your own generation systems on your property to attain GHG emission compliance, 8XEnergy’s AI Energy Agent (Bradley.AI) provides a deep dive evaluation, equal to a 30% conceptual design that will confirm pricing, material, contractors, financing, constructability and/or third party ownership for your consideration
                 </Typography>
-                {/* --- FIX: Replaced hardcoded text with insights from data --- */}
                 <Paper variant="outlined" sx={{ p: 2, backgroundColor: '#f9f9f9' }}>
                     <Typography variant="body1"><strong>Key Insights:</strong></Typography>
                     {data?.der_control_panel?.insights && data.der_control_panel.insights.length > 0 ? (
@@ -295,7 +335,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                         <li><b><span style={{ color: colorPalette.actual }}>Dark Grey bars</span></b> show your recorded historical emissions.</li>
                         <li style={{ marginTop: '8px' }}><b><span style={{ color: colorPalette.projected }}>Light Grey bars</span></b> are our AI-powered forecasts for the upcoming months.</li>
                         <li style={{ marginTop: '8px' }}>The <b style={{ color: colorPalette.target }}>Red Target Line</b> represents your monthly compliance limit. Staying below this is key to avoiding penalties.</li>
-                        {/* --- FIX: Updated line name --- */}
                         <li style={{ marginTop: '8px' }}>The <b style={{ color: colorPalette.withBradley }}>Green CarbonCheckIQ+ Line</b> shows your projected emissions if you adopt our recommended solution, keeping you safely under target.</li>
                     </ul>
                 </Paper>
@@ -314,7 +353,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                 <Typography sx={{ mt: 1.5, mb: 2, color: '#555' }}>
                     Here, we turn data into a clear, actionable roadmap. Our goal is to provide a comprehensive solution that not only solves your compliance problem but also delivers long-term value.
                 </Typography>
-                {/* --- FIX: Replaced hardcoded text with insights from data --- */}
                 <Paper variant="outlined" sx={{ p: 2, backgroundColor: '#f9f9f9' }}>
                     <Typography variant="body1"><strong>Key Insights:</strong></Typography>
                      {data?.action_center?.insights && data.action_center.insights.length > 0 ? (
@@ -349,6 +387,8 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
 
     const utilizationPct = data?.verdict?.limit_utilization_pct ?? 0;
     const severity = data?.verdict?.severity || 'INFO';
+    const status_banner = data?.verdict?.status_banner || 'Status not available';
+
     let complianceBannerBg: string;
     let complianceBannerBorder: string;
     let complianceBannerColor: string;
@@ -420,7 +460,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
             
             <Modal open={modalOpen} onClose={handleCloseModal}><ModalBox>{renderModalContent()}</ModalBox></Modal>
 
-            {/* --- FIX: Updated Main Title --- */}
             <StyledTitle variant="h6">CarbonCheckIQ+ Emissions Dashboard</StyledTitle>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '10px', pb: '10px', px: { xs: '20px', md: '80px' } }}>
                 <Paper variant="outlined" sx={{ p: 2, position: 'relative' }}>
@@ -430,25 +469,25 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                 value={selectedLocation}
                                 onChange={(e: SelectChangeEvent<string>) => onLocationChange(e.target.value)}
                                 sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} 
-                                // MenuProps={{ 
-                                //     sx: { 
-                                //         '& .MuiMenu-paper': { 
-                                //             minWidth: 'auto !important', 
-                                //         },
-                                //         anchorOrigin: { vertical: "bottom", horizontal: "left" },
-                                //         transformOrigin: { vertical: "top", horizontal: "left" },
-                                //         getContentAnchorEl: null,
-                                //     },
-                                //     PaperProps: {
-                                //         style: {
-                                //         },
-                                //     },
-                                // }}
+                                MenuProps={{ //
+                                    // sx: { 
+                                    //     '& .MuiMenu-paper': { 
+                                    //         minWidth: 'auto !important', 
+                                    //     },
+                                    //     anchorOrigin: { vertical: "bottom", horizontal: "left" },
+                                    //     transformOrigin: { vertical: "top", horizontal: "left" },
+                                    //     getContentAnchorEl: null,
+                                    // },
+                                    // PaperProps: {
+                                    //     style: {
+                                    //     },
+                                    // },
+                                }}
                             >
                                 {availableLocations.map(loc => <MenuItem 
                                     key={loc} 
                                     value={loc} 
-                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} 
+                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} // ---
                                 >
                                     {loc}
                                 </MenuItem>)}
@@ -460,25 +499,25 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                 value={selectedSource}
                                 onChange={(e: SelectChangeEvent<string>) => onSourceChange(e.target.value)}
                                 sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} 
-                                // MenuProps={{ 
-                                //     sx: { 
-                                //         '& .MuiMenu-paper': { 
-                                //             minWidth: 'auto !important', 
-                                //         },
-                                //         anchorOrigin: { vertical: "bottom", horizontal: "left" },
-                                //         transformOrigin: { vertical: "top", horizontal: "left" },
-                                //         getContentAnchorEl: null,
-                                //     },
-                                //     PaperProps: {
-                                //         style: {
-                                //         },
-                                //     },
-                                // }}
+                                MenuProps={{ //
+                                    // sx: { 
+                                    //     '& .MuiMenu-paper': { 
+                                    //         minWidth: 'auto !important', 
+                                    //     },
+                                    //     anchorOrigin: { vertical: "bottom", horizontal: "left" },
+                                    //     transformOrigin: { vertical: "top", horizontal: "left" },
+                                    //     getContentAnchorEl: null,
+                                    // },
+                                    // PaperProps: {
+                                    //     style: {
+                                    //     },
+                                    // },
+                                }}
                             >
                                 {availableSources.map(src => <MenuItem 
                                     key={src} 
                                     value={src} 
-                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif'}} 
+                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif'}} // ---
                                 >
                                     {src.charAt(0).toUpperCase() + src.slice(1)}
                                 </MenuItem>)}
@@ -489,25 +528,25 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                 value={selectedYear} 
                                 onChange={(e: SelectChangeEvent<string | number>) => onYearChange(e.target.value)}
                                 sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }}
-                                // MenuProps={{ 
-                                //     sx: { 
-                                //         '& .MuiMenu-paper': { 
-                                //             minWidth: 'auto !important',
-                                //         },
-                                //         anchorOrigin: { vertical: "bottom", horizontal: "left" },
-                                //         transformOrigin: { vertical: "top", horizontal: "left" },
-                                //         getContentAnchorEl: null,
-                                //     },
-                                //     PaperProps: {
-                                //         style: {
-                                //         },
-                                //     },
-                                // }}
+                                MenuProps={{ //
+                                    // sx: { 
+                                    //     '& .MuiMenu-paper': { 
+                                    //         minWidth: 'auto !important',
+                                    //     },
+                                    //     anchorOrigin: { vertical: "bottom", horizontal: "left" },
+                                    //     transformOrigin: { vertical: "top", horizontal: "left" },
+                                    //     getContentAnchorEl: null,
+                                    // },
+                                    // PaperProps: {
+                                    //     style: {
+                                    //     },
+                                    // },
+                                }}
                             >
                                 {availableYears.map(year => <MenuItem 
                                     key={year} 
                                     value={year} 
-                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} 
+                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} // ---
                                 >
                                     {year}
                                 </MenuItem>)}
@@ -518,7 +557,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                     
                     <Paper variant="outlined" sx={{ mt: 3, backgroundColor: complianceBannerBg, textAlign: 'center', p:1, borderColor: complianceBannerBorder }}>
                         <Typography sx={{ fontWeight: 'bold', fontSize: '1.1rem', color: complianceBannerColor }}>
-                            {complianceIcon} {data?.verdict?.status_banner}
+                            {complianceIcon} {status_banner}
                         </Typography>
                     </Paper>
 
@@ -553,7 +592,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                     </Box>
                     
                     <Grid container spacing={1} sx={{ textAlign: 'center' }}>
-                        <Grid item xs={4}><Typography sx={{fontSize: '0.8rem'}}>STATUS: <b style={{ color: statusColor }}>{statusIcon} {data?.verdict?.severity}</b></Typography></Grid>
+                        <Grid item xs={4}><Typography sx={{fontSize: '0.8rem'}}>STATUS: <b style={{ color: statusColor }}>{statusIcon} {severity}</b></Typography></Grid>
                         <Grid item xs={4}><Typography sx={{fontSize: '0.8rem'}}>PENALTY RISK: <b>{formatValue(data?.verdict?.penalty_risk_usd, 'currency')}</b></Typography></Grid>
                         <Grid item xs={4}><Typography sx={{fontSize: '0.8rem'}}>TIME LEFT: <b>{data?.verdict?.time_left_months} MONTHS</b></Typography></Grid>
                     </Grid>
@@ -561,7 +600,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 1 }}>{evidenceCards.map((benefit, index) => <EnhancedBenefitCard key={index} benefit={benefit} />)}</Box>
                 <Paper elevation={0} sx={{ width: '100%', mt: 4, backgroundColor: 'transparent' }}>
                     <Box sx={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid #e0e0e0', backgroundColor: 'white' }}>
-                        {/* --- FIX: Updated Tab Labels --- */}
                         <Tabs
                             value={tabValue}
                             onChange={handleTabChange}
@@ -569,19 +607,19 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                             sx={{
                                 borderBottom: 1,
                                 borderColor: 'divider',
-                                '& .MuiTab-root': { fontFamily: 'Nunito Sans, sans-serif', margin: '0 30px', textTransform: 'none' }, // Added textTransform: 'none'
+                                '& .MuiTab-root': { fontFamily: 'Nunito Sans, sans-serif', margin: '0 18px', textTransform: 'none' },
                             }}
                         >
                             <Tab label={<span>Interactive Emission<br />Modelling Dashboard</span>} />
                             <Tab label={<span>Simulated Emissions from<br />Alternate Energy Source(s)</span>} />
                             <Tab label={<span>Immediate Emission<br />Compliance Configuration</span>} />
+                            <Tab label={<span>Energy Conservation &<br />Reduction Measures</span>} />
                         </Tabs>
 
                         
                         <TabPanel value={tabValue} index={0}>
                             <StyledTabPanelBox>
                                 <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', pb: 2}}>
-                                    {/* --- FIX: Updated Tab 1 Title --- */}
                                     <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>VISUALIZE YOUR FUTURE ENERGY SUPPLY AND EMISSIONS</Typography>
                                     <IconButton size="small" onClick={() => handleOpenModal(0)}><HelpOutline sx={{fontSize: '1.1rem'}} /></IconButton>
                                 </Box>
@@ -590,7 +628,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                         <TableHead sx={{ backgroundColor: '#fafafa' }}>
                                             <TableRow>
                                                 <TableCell sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>DER System</TableCell>
-                                                {/* --- FIX: Updated Table Header --- */}
                                                 <TableCell align="center" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>Preferred Gen. % to achieve<br />GHG Emission Compliance</TableCell>
                                                 <TableCell align="center" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', width: '30%' }}>Your Allocation</TableCell>
                                                 <TableCell align="right" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>Impact (MT)</TableCell>
@@ -609,7 +646,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                 </TableContainer>
                                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3 }}>
                                     <Button sx={{ fontFamily: 'Nunito Sans, sans-serif' }} size="small" variant="outlined" onClick={handleReset}>Reset to Current</Button>
-                                    {/* --- FIX: Updated Button Text --- */}
                                     <Button sx={{ fontFamily: 'Nunito Sans, sans-serif' }} size="small" variant="contained" onClick={handleApplyRecommendation}>Apply desired configuration of power generation</Button>
                                     <Button sx={{ fontFamily: 'Nunito Sans, sans-serif' }} size="small" variant="outlined" onClick={handleConfirm} disabled={!isChanged}>Confirm Changes</Button>
                                 </Box>
@@ -639,7 +675,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                                     { value: 'Actual', type: 'square', color: colorPalette.actual },
                                                     { value: 'Projected', type: 'square', color: colorPalette.projected },
                                                     { value: 'Target', type: 'line', color: colorPalette.target },
-                                                    // --- FIX: Updated Legend Label ---
                                                     { value: 'With CarbonCheckIQ+', type: 'line', color: colorPalette.withBradley },
                                                 ]}
                                             />
@@ -682,7 +717,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                                     strokeDasharray="3 3"
                                                     strokeWidth={1.5}
                                                     label={{
-                                                        // --- FIX: Updated Ref Line Label ---
                                                         value: `With CarbonCheckIQ+: ${formatValue(data.monthly_tracking.with_bradley_der_per_month)}`,
                                                         position: 'insideTopRight',
                                                         fill: colorPalette.withBradley,
@@ -743,45 +777,128 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                             </StyledTabPanelBox>
                         </TabPanel>
 
-                        <TabPanel value={tabValue} index={2}>
-                            <StyledTabPanelBox sx={{minHeight: 360}}>
-                                <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', pb: 2}}>
-                                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif',  textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>YOUR ACTION PLAN</Typography>
-                                    <IconButton size="small" onClick={() => handleOpenModal(2)}><HelpOutline sx={{fontSize: '1.1rem'}} /></IconButton>
-                                </Box>
-                                <Grid container spacing={3} alignItems="stretch">
-                                    <Grid item xs={12} md={7}>
-                                        <Paper variant="outlined" sx={{ p: 2.5, height: '87%', display: 'flex', flexDirection: 'column' }}>
-                                            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1rem', mb: 1.5 }}>RECOMMENDED SOLUTION</Typography>
-                                            <Card variant="outlined" sx={{ flexGrow: 1 }}>
-                                                <CardContent sx={{display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between'}}>
-                                                    <div>
-                                                        <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>📋 {data?.action_center?.recommended_solution?.title}</Typography>
-                                                        <ul style={{ fontSize: '0.9rem', margin: '12px 0', paddingLeft: '20px' }}>
-                                                            {data?.action_center?.recommended_solution?.components?.map(c => <li key={c.type}>{`${c.size} ${derNameMapping[c.type] || c.type}`}</li>)}
-                                                        </ul>
-                                                        <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif' }}><b>Investment:</b> {formatValue(data?.action_center?.recommended_solution?.investment_usd, 'currency')} | <b>Payback:</b> {data?.action_center?.recommended_solution?.payback_years} years</Typography>
-                                                    
-                                                        <Box sx={{ mt: 2, display: 'flex', gap: 1 }}><Button sx={{fontFamily: 'Nunito Sans, sans-serif'}} variant="contained" size="small">Schedule Consultation</Button><Button sx={{fontFamily: 'Nunito Sans, sans-serif'}} variant="outlined" size="small">Email Proposal</Button></Box>
-                                                </div></CardContent>
-                                            </Card>
+                        <TabPanel value={tabValue} index={3}>
+                            <StyledTabPanelBox sx={{minHeight: 360, fontFamily: 'Nunito Sans, sans-serif'}}>
+                                
+                                {/* Table 1: Emission Reduction Projects */}
+                                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1rem', mb: 1.5, textAlign:'center' }}>
+                                    Emission Reduction Projects
+                                </Typography>
+                                <TableContainer component={Paper} variant="outlined" sx={{ mb: 4 }}>
+                                    <Table size="small">
+                                        <TableHead sx={{ backgroundColor: '#fafafa' }}>
+                                            <TableRow>
+                                                <TableCell sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>Emission Reduction Projects</TableCell>
+                                                {/* --- FIX: Header text corrected --- */}
+                                                <TableCell align="right" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>Estimated Reduction</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {Object.entries(staticProjectKeys).map(([formattedKey, backendKey]) => {
+                                                const isSelected = !!projectSelections[formattedKey];
+                                                return (
+                                                    <TableRow 
+                                                        key={formattedKey} 
+                                                        hover 
+                                                        onClick={() => handleProjectSelectChange(formattedKey)} 
+                                                        sx={{ 
+                                                            cursor: 'pointer',
+                                                            backgroundColor: isSelected ? 'rgba(25, 118, 210, 0.08)' : 'inherit',
+                                                        }}
+                                                    >
+                                                        <TableCell sx={{ 
+                                                            fontFamily: 'Nunito Sans, sans-serif',
+                                                            fontWeight: isSelected ? 700 : 400,
+                                                        }}>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                                <Checkbox 
+                                                                    checked={isSelected}
+                                                                    size="small"
+                                                                    sx={{ mr: 1, p: 0.5 }}
+                                                                />
+                                                                {formattedKey}
+                                                            </Box>
+                                                        </TableCell>
+                                                        <TableCell align="right" sx={{ 
+                                                            fontFamily: 'Nunito Sans, sans-serif',
+                                                            fontWeight: isSelected ? 700 : 400,
+                                                            color: isSelected ? '#1976d2' : 'inherit',
+                                                        }}>
+                                                            {/* --- FIX: Added "MT" suffix --- */}
+                                                            {formatValue(data?.emission_reduction_projects?.[backendKey])} MT
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
+                                        </TableBody>
+                                        <TableFooter sx={{ backgroundColor: cumulativeReduction > 0 ? '#e8f5e9' : '#ffebee', borderTop: '2px solid', borderColor: cumulativeReduction > 0 ? '#1b5e20' : '#d32f2f' }}>
+                                            <TableRow sx={{ height: '40px' }}>
+                                                <TableCell colSpan={2} align="right" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '1rem' }}>
+                                                    <span style={{ fontWeight: 700, marginRight: 8 }}>Cumulative Reduction:</span>
+                                                    <span style={{ fontWeight: 700, color: cumulativeReduction > 0 ? '#1b5e20' : '#d32f2f' }}>{formatValue(cumulativeReduction)} MT</span>
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableFooter>
+                                    </Table>
+                                </TableContainer>
+
+                                {/* Table layout for SRECs --- */}
+                                <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1rem', mb: 1.5, textAlign:'center' }}>
+                                    Renewable Energy Credits (RECs)
+                                </Typography>
+                                <TableContainer component={Paper} variant="outlined" sx={{ mb: 3 }}>
+                                    <Table size="small">
+                                        <TableHead sx={{ backgroundColor: '#fafafa' }}>
+                                            <TableRow>
+                                                <TableCell sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>Renewable Energy Credits</TableCell>
+                                                <TableCell align="right" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold'/* , width: '60%' */ }}>Purchase Percentage</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            <TableRow>
+                                                <TableCell sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 600 }}>Solar RECs</TableCell>
+                                                <TableCell align="right">
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2/* , px: 1 */ }}>
+                                                        <Slider
+                                                            value={srecPercentage}
+                                                            onChange={(_, newValue) => onSrecPercentageChange(newValue as number)} // Visual update
+                                                            onChangeCommitted={(_, newValue) => onSrecChangeCommitted(newValue as number)} // API call
+                                                            aria-labelledby="srec-slider"
+                                                        />
+                                                        <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', width: '50px' }}>
+                                                            {srecPercentage}%
+                                                        </Typography>
+                                                    </Box>
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                                
+                                {/* SREC Metrics: Read from calculatedSrecMetrics prop (and check if null) */}
+                                <Grid container spacing={2} justifyContent="center">
+                                    <Grid item xs={12} md={4}>
+                                        <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', backgroundColor: 'white' }}>
+                                            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 600, color: 'grey.700' }}>Reduced Emissions (MT/yr)</Typography>
+                                            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1.25rem', color: '#1b5e20' }}>
+                                                {formatValue(calculatedSrecMetrics?.reduced_emissions_mtpy)}
+                                            </Typography>
                                         </Paper>
                                     </Grid>
-                                    <Grid item xs={12} md={5}>
-                                        <Paper variant="outlined" sx={{ p: 2.5, height: '87%', display: 'flex', flexDirection: 'column' }}>
-                                            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1rem', mb: 1.5 }}>ALTERNATIVE OPTIONS</Typography>
-                                            <Stack spacing={2}>
-                                                {data?.action_center?.alternatives?.map(alt => (
-                                                    <Card key={alt.title} variant="outlined">
-                                                        <CardContent sx={{py: 1.5, '&:last-child': { pb: 1.5 }}}>
-                                                            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>{alt.title.includes("Quick") || alt.title.includes("Solar") ? '💡' : '🚀'} {alt.title}</Typography>
-                                                            <Typography sx={{fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem'}}><b>Investment:</b> {formatValue(alt.investment_usd, 'currency')}<br /><b>Reduction:</b> {formatValue(alt.reduction_pct, 'percent')}</Typography>
-                                                            {alt.estimated_penalties_remaining_usd_per_year != null && <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '0.85rem', color: alt.estimated_penalties_remaining_usd_per_year > 0 ? '#ff3b30' : '#34c759' }}>Penalties: {formatValue(alt.estimated_penalties_remaining_usd_per_year, 'currency')}/yr</Typography>}
-                                                            {alt.carbon_negative_by_year != null && <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.85rem' }}><b>Carbon -ve by year:</b> {alt.carbon_negative_by_year}</Typography>}
-                                                        </CardContent>
-                                                    </Card>
-                                                ))}
-                                            </Stack>
+                                    <Grid item xs={12} md={4}>
+                                        <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', backgroundColor: 'white' }}>
+                                            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 600, color: 'grey.700' }}>SREC Needed (MWh)</Typography>
+                                            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1.25rem' }}>
+                                                {formatValue(calculatedSrecMetrics?.srec_needed_mwh)}
+                                            </Typography>
+                                        </Paper>
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', backgroundColor: 'white' }}>
+                                            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 600, color: 'grey.700' }}>Total SREC Cost (USD)</Typography>
+                                            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1.25rem' }}>
+                                                {formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency')}
+                                            </Typography>
                                         </Paper>
                                     </Grid>
                                 </Grid>
@@ -795,3 +912,4 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
 };
 
 export default EmissionsDashboard;
+
