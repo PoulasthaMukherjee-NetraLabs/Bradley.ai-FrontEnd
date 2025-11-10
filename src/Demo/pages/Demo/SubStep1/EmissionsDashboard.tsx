@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { HelpOutline, Close } from '@mui/icons-material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend, Cell } from 'recharts';
+// --- Import SRECMetrics type ---
 import { SRECMetrics } from '../../../../Context/DashboardDataContext'; 
 
 // --- TYPE DEFINITIONS ---
@@ -110,10 +111,15 @@ interface EmissionsDashboardProps {
     onSourceChange: (source: string) => void;
     selectedYear: number | string;
     onYearChange: (year: number | string) => void;
+    
+    // --- SREC Props from Wrapper ---
+    projectSelections: { [key: string]: boolean };
+    onProjectSelectChange: (key: string) => void;
     srecPercentage: number;
     onSrecPercentageChange: (value: number) => void;
     onSrecChangeCommitted: (value: number) => void;
-    calculatedSrecMetrics: SRECMetrics | null;
+    calculatedSrecMetrics: SRECMetrics | null; // Allow null
+    // --- END SREC Props ---
 }
 
 const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({ 
@@ -121,17 +127,21 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
     selectedLocation, onLocationChange,
     selectedSource, onSourceChange,
     selectedYear, onYearChange,
+    // --- SREC Props from Wrapper ---
+    projectSelections,
+    onProjectSelectChange,
     srecPercentage,
     onSrecPercentageChange,
     onSrecChangeCommitted,
     calculatedSrecMetrics
+    // --- END SREC Props ---
 }) => {
     const [tabValue, setTabValue] = useState(0);
     const [userDerAllocation, setUserDerAllocation] = useState({});
     const [modalOpen, setModalOpen] = useState(false);
     const [modalContentId, setModalContentId] = useState<number | null>(null);
 
-    const [projectSelections, setProjectSelections] = useState<{ [key: string]: boolean }>({});
+    // --- Local state for project selections removed, now passed as props ---
 
     const handleOpenModal = (id: number) => { setModalContentId(id); setModalOpen(true); };
     const handleCloseModal = () => { setModalOpen(false); setModalContentId(null); };
@@ -161,10 +171,10 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
         };
     }, [data]);
 
+    // --- useEffect no longer resets projectSelections or srecPercentage ---
     useEffect(() => {
         setUserDerAllocation(initialState);
         setHasUnsavedChanges(false);
-        setProjectSelections({});
     }, [initialState, setHasUnsavedChanges]); 
 
     const isChanged = useMemo(() => JSON.stringify(userDerAllocation) !== JSON.stringify(initialState), [userDerAllocation, initialState]);
@@ -205,6 +215,8 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
         return Array.from(years).sort((a, b) => b - a);
     }, [data]);
 
+
+    // This object maps the formatted, static display string to the exact backend key
     const staticProjectKeys: { [key: string]: string } = {
         'Lighting': 'Lighting',
         'Ventilation': 'Ventilation',
@@ -215,8 +227,9 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
         'Space Heating (Electric)': 'space heating (electric)',
     };
 
+    // Calculate cumulative reduction based on selections
     const cumulativeReduction = useMemo(() => {
-        if (!data?.emission_reduction_projects) return 0;
+        if (!data?.emission_reduction_projects || !projectSelections) return 0;
 
         return Object.entries(projectSelections).reduce((sum, [formattedKey, isSelected]) => {
             if (isSelected) {
@@ -227,12 +240,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
         }, 0);
     }, [projectSelections, data?.emission_reduction_projects]);
 
-    const handleProjectSelectChange = (formattedKey: string) => {
-        setProjectSelections(prev => ({
-            ...prev,
-            [formattedKey]: !prev[formattedKey],
-        }));
-    };
+    // --- handleProjectSelectChange is now passed in as a prop `onProjectSelectChange` ---
     
     const filteredAndSortedChartData = useMemo(() => {
         if (!data || !selectedYear) return [];
@@ -370,7 +378,8 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
             </>
         );
         break;
-    
+
+    // --- NEW: Added case 3 and 4 for the new tab ---
     case 3:
         content.title = (
             <Typography variant="h6" sx={{ color: 'black' }}>
@@ -424,6 +433,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
             </>
         );
         break;
+    // --- END NEW ---
 
     default: 
         return null;
@@ -523,25 +533,11 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                 value={selectedLocation}
                                 onChange={(e: SelectChangeEvent<string>) => onLocationChange(e.target.value)}
                                 sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} 
-                                MenuProps={{ //
-                                    // sx: { 
-                                    //     '& .MuiMenu-paper': { 
-                                    //         minWidth: 'auto !important', 
-                                    //     },
-                                    //     anchorOrigin: { vertical: "bottom", horizontal: "left" },
-                                    //     transformOrigin: { vertical: "top", horizontal: "left" },
-                                    //     getContentAnchorEl: null,
-                                    // },
-                                    // PaperProps: {
-                                    //     style: {
-                                    //     },
-                                    // },
-                                }}
                             >
                                 {availableLocations.map(loc => <MenuItem 
                                     key={loc} 
                                     value={loc} 
-                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} // ---
+                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} 
                                 >
                                     {loc}
                                 </MenuItem>)}
@@ -553,25 +549,11 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                 value={selectedSource}
                                 onChange={(e: SelectChangeEvent<string>) => onSourceChange(e.target.value)}
                                 sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} 
-                                MenuProps={{ //
-                                    // sx: { 
-                                    //     '& .MuiMenu-paper': { 
-                                    //         minWidth: 'auto !important', 
-                                    //     },
-                                    //     anchorOrigin: { vertical: "bottom", horizontal: "left" },
-                                    //     transformOrigin: { vertical: "top", horizontal: "left" },
-                                    //     getContentAnchorEl: null,
-                                    // },
-                                    // PaperProps: {
-                                    //     style: {
-                                    //     },
-                                    // },
-                                }}
                             >
                                 {availableSources.map(src => <MenuItem 
                                     key={src} 
                                     value={src} 
-                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif'}} // ---
+                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif'}} 
                                 >
                                     {src.charAt(0).toUpperCase() + src.slice(1)}
                                 </MenuItem>)}
@@ -582,25 +564,11 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                 value={selectedYear} 
                                 onChange={(e: SelectChangeEvent<string | number>) => onYearChange(e.target.value)}
                                 sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }}
-                                MenuProps={{ //
-                                    // sx: { 
-                                    //     '& .MuiMenu-paper': { 
-                                    //         minWidth: 'auto !important',
-                                    //     },
-                                    //     anchorOrigin: { vertical: "bottom", horizontal: "left" },
-                                    //     transformOrigin: { vertical: "top", horizontal: "left" },
-                                    //     getContentAnchorEl: null,
-                                    // },
-                                    // PaperProps: {
-                                    //     style: {
-                                    //     },
-                                    // },
-                                }}
                             >
                                 {availableYears.map(year => <MenuItem 
                                     key={year} 
                                     value={year} 
-                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} // ---
+                                    sx={{ fontSize: '0.8rem', fontFamily: 'Nunito Sans, sans-serif' }} 
                                 >
                                     {year}
                                 </MenuItem>)}
@@ -661,6 +629,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                             sx={{
                                 borderBottom: 1,
                                 borderColor: 'divider',
+                                // --- FIX: Reverted to original styling ---
                                 '& .MuiTab-root': { fontFamily: 'Nunito Sans, sans-serif', margin: '0 18px', textTransform: 'none' },
                             }}
                         >
@@ -831,6 +800,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                             </StyledTabPanelBox>
                         </TabPanel>
 
+                        {/* --- UPDATED: Tab Panel 4 (Restored original UI and uses props) --- */}
                         <TabPanel value={tabValue} index={3}>
                             <StyledTabPanelBox sx={{minHeight: 360, fontFamily: 'Nunito Sans, sans-serif'}}>
                                 
@@ -843,8 +813,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                         <TableHead sx={{ backgroundColor: '#fafafa' }}>
                                             <TableRow>
                                                 <TableCell sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>Emission Reduction Projects</TableCell>
-                                                {/* --- FIX: Header text corrected --- */}
-                                                <TableCell align="right" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>Estimated Reduction</TableCell>
+                                                <TableCell align="right" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>Estimated Reduction (MT)</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -854,7 +823,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                                     <TableRow 
                                                         key={formattedKey} 
                                                         hover 
-                                                        onClick={() => handleProjectSelectChange(formattedKey)} 
+                                                        onClick={() => onProjectSelectChange(formattedKey)} // Use prop handler
                                                         sx={{ 
                                                             cursor: 'pointer',
                                                             backgroundColor: isSelected ? 'rgba(25, 118, 210, 0.08)' : 'inherit',
@@ -878,7 +847,6 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                                             fontWeight: isSelected ? 700 : 400,
                                                             color: isSelected ? '#1976d2' : 'inherit',
                                                         }}>
-                                                            {/* --- FIX: Added "MT" suffix --- */}
                                                             {formatValue(data?.emission_reduction_projects?.[backendKey])} MT
                                                         </TableCell>
                                                     </TableRow>
@@ -896,7 +864,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                     </Table>
                                 </TableContainer>
 
-                                {/* Table layout for SRECs --- */}
+                                {/* Table 2: Renewable Energy Credits */}
                                 <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', pb: 2}}>
                                 <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif',  textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
                                     Renewable Energy Credits (RECs)
@@ -907,14 +875,14 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                         <TableHead sx={{ backgroundColor: '#fafafa' }}>
                                             <TableRow>
                                                 <TableCell sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold' }}>Renewable Energy Credits</TableCell>
-                                                <TableCell align="right" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold'/* , width: '60%' */ }}>Purchase Percentage</TableCell>
+                                                <TableCell align="right" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', width: '60%' }}>Purchase Percentage</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
                                             <TableRow>
                                                 <TableCell sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 600 }}>Solar RECs</TableCell>
                                                 <TableCell align="right">
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2/* , px: 1 */ }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 1 }}>
                                                         <Slider
                                                             value={srecPercentage}
                                                             onChange={(_, newValue) => onSrecPercentageChange(newValue as number)} // Visual update
@@ -953,13 +921,14 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                         <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', backgroundColor: 'white' }}>
                                             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 600, color: 'grey.700' }}>Total SREC Cost (USD)</Typography>
                                             <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1.25rem' }}>
-                                                {formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency') === 'N/A' ? '$0' : formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency')}
+                                                {formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency') === 'N/A' ? '$0.00' : formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency')}
                                             </Typography>
                                         </Paper>
                                     </Grid>
                                 </Grid>
                             </StyledTabPanelBox>
                         </TabPanel>
+                        {/* --- END TAB 4 UI --- */}
                     </Box>
                 </Paper>
             </Box>
