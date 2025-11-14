@@ -655,6 +655,16 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
     const initialReducedEmissions = data?.srec_metrics?.reduced_emissions_mtpy || 0;
     const initialCreditsNeeded = data?.srec_metrics?.srec_needed_mwh || 0;
 
+    useEffect(() => {
+        if (data?.srec_metrics?.percentage_needed && srecPercentage === 0) {
+            const optimal = Math.round(data.srec_metrics.percentage_needed);
+            onSrecPercentageChange(optimal);
+            // onSrecChangeCommitted(optimal); 
+        }
+    }, [data, srecPercentage, onSrecPercentageChange]);
+
+    const currentMetrics = calculatedSrecMetrics || data?.srec_metrics;
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
             <style>{`
@@ -932,7 +942,8 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                             Total Cost (USD)
                         </Typography>
                         <Typography sx={{ fontWeight: 'bold', fontSize: '1.2rem', fontFamily: 'Nunito Sans, sans-serif', color: complianceBannerColor }}>
-                            {formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency') === 'N/A' ? '$0.00' : formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency')}
+                            {/* Use currentMetrics instead of calculatedSrecMetrics */}
+                            {formatValue(currentMetrics?.total_srec_cost_usd, 'currency') === 'N/A' ? '$0.00' : formatValue(currentMetrics?.total_srec_cost_usd, 'currency')}
                         </Typography>
                     </Box>
                 </Grid>
@@ -942,7 +953,8 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                             Emission Offset
                         </Typography>
                         <Typography sx={{ fontWeight: 'bold', fontSize: '1.2rem', fontFamily: 'Nunito Sans, sans-serif', color: '#1b5e20' }}>
-                            {formatValue(calculatedSrecMetrics?.reduced_emissions_mtpy) === 'N/A' ? '0' : formatValue(calculatedSrecMetrics?.reduced_emissions_mtpy)} MT/yr
+                            {/* Use currentMetrics instead of calculatedSrecMetrics */}
+                            {formatValue(currentMetrics?.reduced_emissions_mtpy) === 'N/A' ? '0' : formatValue(currentMetrics?.reduced_emissions_mtpy)} MT/yr
                         </Typography>
                     </Box>
                 </Grid>
@@ -952,7 +964,8 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                             SRECs Needed
                         </Typography>
                         <Typography sx={{ fontWeight: 'bold', fontSize: '1.2rem', fontFamily: 'Nunito Sans, sans-serif' }}>
-                            {formatValue(calculatedSrecMetrics?.srec_needed_mwh) === 'N/A' ? '0' : formatValue(calculatedSrecMetrics?.srec_needed_mwh)} {/* MWh */}
+                            {/* Use currentMetrics instead of calculatedSrecMetrics */}
+                            {formatValue(currentMetrics?.srec_needed_mwh) === 'N/A' ? '0' : formatValue(currentMetrics?.srec_needed_mwh)}
                         </Typography>
                     </Box>
                 </Grid>
