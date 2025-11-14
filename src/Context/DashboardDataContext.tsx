@@ -102,6 +102,8 @@ export interface SRECMetrics {
     reduced_emissions_mtpy: number;
     srec_needed_mwh: number;
     total_srec_cost_usd: number;
+    percentage_needed: number;
+    emission_factor_constant: number;
 }
 
 export interface DashboardDataObject {

@@ -243,7 +243,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
     const [frozenActionInsights, setFrozenActionInsights] = useState<string[] | undefined>(undefined);
 
     const [quickFixModalOpen, setQuickFixModalOpen] = useState(false);
-    const [/* selectedCreditAmount */, setSelectedCreditAmount] = useState(0);
+    // const [/* selectedCreditAmount */, setSelectedCreditAmount] = useState(0);
 
     const handleOpenModal = (id: number) => { setModalContentId(id); setModalOpen(true); };
     const handleCloseModal = () => { setModalOpen(false); setModalContentId(null); };
@@ -289,9 +289,9 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
     const handleOpenQuickFix = () => setQuickFixModalOpen(true);
     const handleCloseQuickFix = () => setQuickFixModalOpen(false);
 
-    const handleCreditSelection = (amount: number) => {
-        setSelectedCreditAmount(amount);
-    };
+    // const handleCreditSelection = (amount: number) => {
+    //     setSelectedCreditAmount(amount);
+    // };
     
     const handleTabChange = (_: React.SyntheticEvent, newValue: number) => setTabValue(newValue);
     
@@ -650,6 +650,11 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
             statusIcon = <Error sx={{ fontSize: '1rem', verticalAlign: 'middle' }} />;
             break;
     }
+
+    const initialEmissionFactor = data?.srec_metrics?.emission_factor_constant || 0.433;
+    const initialReducedEmissions = data?.srec_metrics?.reduced_emissions_mtpy || 0;
+    const initialCreditsNeeded = data?.srec_metrics?.srec_needed_mwh || 0;
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
             <style>{`
@@ -802,6 +807,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
         width: 650, 
         maxWidth: '90vw',
         borderTop: `4px solid ${complianceBannerBorder}`,
+        borderBottom: `4px solid ${complianceBannerBorder}`,
     }}>
         <IconButton onClick={handleCloseQuickFix} sx={{position: 'absolute', top: 8, right: 8}}>
             <Close />
@@ -842,86 +848,111 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                     color: complianceBannerColor,
                     lineHeight: 1,
                 }}>
-                    {Math.ceil((data?.evidence?.metrics?.over_by || 0) / 0.433)}
+                    {/* {Math.ceil((data?.evidence?.metrics?.over_by || 0) / (data?.srec_metrics?.emission_factor_constant || 0.433))} */}
+                    {/* {formatValue(calculatedSrecMetrics?.srec_needed_mwh) === 'N/A' ? '0' : formatValue(calculatedSrecMetrics?.srec_needed_mwh)} */}
+                    {formatValue(initialCreditsNeeded)}
                 </Typography>
                 <Typography sx={{ fontSize: '0.85rem', fontFamily: 'Nunito Sans, sans-serif', color: '#666', mt: 0.5 }}>
                     SRECs to get back to compliance
                 </Typography>
             </Box>
             
-            <Box sx={{ mt: 2, p: 1.5, bgcolor: 'white', borderRadius: 1, border: `1px dashed ${complianceBannerBorder}` }}>
+            {<Box sx={{ mt: 2, p: 1.5, bgcolor: 'white', borderRadius: 1, border: `1px dashed ${complianceBannerBorder}` }}>
                 <Typography sx={{ fontSize: '0.75rem', fontFamily: 'Nunito Sans, sans-serif', textAlign: 'center', color: '#666' }}>
-                    <b>Calculation:</b> {formatValue(data?.evidence?.metrics?.over_by)} MT ÷ 0.433 MT per credit = {Math.ceil((data?.evidence?.metrics?.over_by || 0) / 0.433)} SRECs
+                    {/* <b>Calculation:</b> {formatValue(calculatedSrecMetrics?.reduced_emissions_mtpy) === 'N/A' ? '0' : formatValue(calculatedSrecMetrics?.reduced_emissions_mtpy)} MT/yr ÷ {data?.srec_metrics?.emission_factor_constant} = {Math.ceil((data?.evidence?.metrics?.over_by || 0) / (data?.srec_metrics?.emission_factor_constant))} {formatValue(calculatedSrecMetrics?.srec_needed_mwh) === 'N/A' ? '0' : formatValue(calculatedSrecMetrics?.srec_needed_mwh)} MWh SRECs */}
+                    <b>Calculation:</b> {formatValue(initialReducedEmissions)} MT/yr ÷ {initialEmissionFactor} = {formatValue(initialCreditsNeeded)} SRECs
                 </Typography>
-            </Box>
+            </Box>}
         </Paper>
 
         <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '0.9rem', mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.5, color: '#000' }}>
-            <span>🛒</span> MARKETPLACE:
+            <span>🛒</span> CONFIGURE YOUR PURCHASE:
         </Typography>
 
         <Paper 
             variant="outlined" 
             sx={{ 
-                p: 2.5, 
-                cursor: 'pointer',
+                p: 2.5,
                 transition: 'all 0.3s ease',
                 border: `2px solid ${complianceBannerBorder}`,
                 bgcolor: 'white',
-                '&:hover': {
-                    borderColor: progressBarColor,
-                    boxShadow: `0 4px 12px ${complianceBannerBorder}40`,
-                    transform: 'translateY(-2px)',
-                }
             }}
-            onClick={() => handleCreditSelection(Math.ceil((data?.evidence?.metrics?.over_by || 0) / 0.433))}
         >
-            <Grid container alignItems="center" spacing={2}>
-                <Grid item xs={1}>
-                    <Box sx={{ fontSize: '2rem', textAlign: 'center' }}>☀️</Box>
-                </Grid>
-                <Grid item xs={3}>
-                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '0.95rem' }}>
-                        Solar Renewable Energy Credits
+            {/* Slider Section */}
+            <Box sx={{ mb: 2.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                        ☀️ Solar RECs - Purchase Percentage
                     </Typography>
-                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', color: '#666' }}>
-                        (SRECs)
+                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', fontSize: '1.1rem', color: complianceBannerColor }}>
+                        {srecPercentage}%
                     </Typography>
-                </Grid>
-                <Grid item xs={2}>
-                    <Box>
-                        <Typography sx={{ fontSize: '0.7rem', color: '#666', fontFamily: 'Nunito Sans, sans-serif', mb: 0.5 }}>Total Cost</Typography>
-                        <Typography sx={{ fontWeight: 'bold', fontSize: '1.1rem', fontFamily: 'Nunito Sans, sans-serif', color: complianceBannerColor }}>
-                            ${((Math.ceil((data?.evidence?.metrics?.over_by || 0) / 0.433) * 230) / 1000).toFixed(0)}k
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Slider
+                        value={srecPercentage}
+                        onChange={(_, newValue) => onSrecPercentageChange(newValue as number)}
+                        onChangeCommitted={(_, newValue) => onSrecChangeCommitted(newValue as number)}
+                        sx={{ 
+                            flex: 1,
+                            '& .MuiSlider-thumb': { 
+                                transition: 'all 0.1s ease'
+                            }
+                        }}
+                    />
+                    <Button
+                        size="small"
+                        variant="contained"
+                        onClick={() => {
+                            const percentage = Math.round(data?.srec_metrics?.percentage_needed || 0);
+                            onSrecPercentageChange(percentage);
+                            onSrecChangeCommitted(percentage);
+                        }}
+                        sx={{
+                            fontFamily: 'Nunito Sans, sans-serif',
+                            fontSize: '0.7rem',
+                            whiteSpace: 'nowrap',
+                            minWidth: '115px',
+                            bgcolor: complianceBannerColor,
+                            '&:hover': {
+                                bgcolor: progressBarColor,
+                            }
+                        }}
+                    >
+                        Optimal {Math.round(data?.srec_metrics?.percentage_needed || 0)}%
+                    </Button>
+                </Box>
+            </Box>
+
+            {/* Metrics Grid - Balanced */}
+            <Grid container spacing={2}>
+                <Grid item xs={4}>
+                    <Box sx={{ textAlign: 'center' }}>
+                        <Typography sx={{ fontSize: '0.7rem', color: '#666', fontFamily: 'Nunito Sans, sans-serif', mb: 0.5 }}>
+                            Total Cost (USD)
+                        </Typography>
+                        <Typography sx={{ fontWeight: 'bold', fontSize: '1.2rem', fontFamily: 'Nunito Sans, sans-serif', color: complianceBannerColor }}>
+                            {formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency') === 'N/A' ? '$0.00' : formatValue(calculatedSrecMetrics?.total_srec_cost_usd, 'currency')}
                         </Typography>
                     </Box>
                 </Grid>
-                <Grid item xs={2}>
-                    <Box>
-                        <Typography sx={{ fontSize: '0.7rem', color: '#666', fontFamily: 'Nunito Sans, sans-serif', mb: 0.5 }}>Emission Offset</Typography>
-                        <Typography sx={{ fontWeight: 'bold', fontSize: '1.1rem', fontFamily: 'Nunito Sans, sans-serif' }}>
-                            {formatValue((Math.ceil((data?.evidence?.metrics?.over_by || 0) / 0.433) * 0.433))} MT
+                <Grid item xs={4}>
+                    <Box sx={{ textAlign: 'center' }}>
+                        <Typography sx={{ fontSize: '0.7rem', color: '#666', fontFamily: 'Nunito Sans, sans-serif', mb: 0.5 }}>
+                            Emission Offset
+                        </Typography>
+                        <Typography sx={{ fontWeight: 'bold', fontSize: '1.2rem', fontFamily: 'Nunito Sans, sans-serif', color: '#1b5e20' }}>
+                            {formatValue(calculatedSrecMetrics?.reduced_emissions_mtpy) === 'N/A' ? '0' : formatValue(calculatedSrecMetrics?.reduced_emissions_mtpy)} MT/yr
                         </Typography>
                     </Box>
                 </Grid>
-                <Grid item xs={2}>
-                    <Box>
-                        <Typography sx={{ fontSize: '0.7rem', color: '#666', fontFamily: 'Nunito Sans, sans-serif', mb: 0.5 }}>Result</Typography>
-                        <Typography sx={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1b5e20', fontFamily: 'Nunito Sans, sans-serif' }}>
-                            {formatValue(data?.evidence?.metrics?.compliance_target)} MT
+                <Grid item xs={4}>
+                    <Box sx={{ textAlign: 'center' }}>
+                        <Typography sx={{ fontSize: '0.7rem', color: '#666', fontFamily: 'Nunito Sans, sans-serif', mb: 0.5 }}>
+                            SRECs Needed
                         </Typography>
-                    </Box>
-                </Grid>
-                <Grid item xs={2}>
-                    <Box>
-                        <Typography sx={{ fontSize: '0.75rem', color: '#1b5e20', fontFamily: 'Nunito Sans, sans-serif', fontWeight: 600 }}>
-                            ✓ Meet Compliance
-                        </Typography>
-                        <Typography sx={{ fontSize: '0.7rem', color: '#666', fontFamily: 'Nunito Sans, sans-serif', mt: 0.3 }}>
-                            ✓ Weekly available
-                        </Typography>
-                        <Typography sx={{ fontSize: '0.7rem', color: '#666', fontFamily: 'Nunito Sans, sans-serif' }}>
-                            ✓ Regulator approved
+                        <Typography sx={{ fontWeight: 'bold', fontSize: '1.2rem', fontFamily: 'Nunito Sans, sans-serif' }}>
+                            {formatValue(calculatedSrecMetrics?.srec_needed_mwh) === 'N/A' ? '0' : formatValue(calculatedSrecMetrics?.srec_needed_mwh)} {/* MWh */}
                         </Typography>
                     </Box>
                 </Grid>
@@ -931,6 +962,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
         <Box sx={{ display: 'flex', gap: 2, mt: 3, justifyContent: 'flex-end' }}>
             <Button 
                 variant="outlined" 
+                size="small"
                 onClick={handleCloseQuickFix}
                 sx={{ 
                     fontFamily: 'Nunito Sans, sans-serif',
@@ -946,6 +978,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
             </Button>
             <Button 
                 variant="contained" 
+                size="small"
                 sx={{ 
                     fontFamily: 'Nunito Sans, sans-serif',
                     bgcolor: progressBarColor,
@@ -959,7 +992,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                     }
                 }}
             >
-                Purchase {Math.ceil((data?.evidence?.metrics?.over_by || 0) / 0.433)} SRECs
+                Purchase SRECs
             </Button>
         </Box>
     </ModalBox>
@@ -1499,7 +1532,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
     </StyledTabPanelBox>
 
     {/* --- Box 2: Renewable Energy Credits --- */}
-    <StyledTabPanelBox sx={{/* minHeight: 360, */ fontFamily: 'Nunito Sans, sans-serif'}}>
+    {/* <StyledTabPanelBox sx={{ fontFamily: 'Nunito Sans, sans-serif'}}>
         <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', pb: 2}}>
         <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif',  textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
             Renewable Energy Credits (RECs)
@@ -1523,7 +1556,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                                     onChange={(_, newValue) => onSrecPercentageChange(newValue as number)}
                                     onChangeCommitted={(_, newValue) => onSrecChangeCommitted(newValue as number)}
                                     aria-labelledby="srec-slider"
-                                    sx={{ '& .MuiSlider-thumb': { transition: 'all 0.1s ease', /* '&:hover': { transform: 'scale(1.3)' } */}}}
+                                    sx={{ '& .MuiSlider-thumb': { transition: 'all 0.1s ease' }}}
                                 />
                                 <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 'bold', width: '50px' }}>
                                     {srecPercentage}%
@@ -1561,7 +1594,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
                 </Paper>
             </Grid>
         </Grid>
-    </StyledTabPanelBox>
+    </StyledTabPanelBox> */}
 </TabPanel>
                     </Box>
                 </Paper>

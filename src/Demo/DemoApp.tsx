@@ -379,7 +379,7 @@ const AppContent: React.FC = () => {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row', height: '100vh', zIndex: 500 }}>
             <Backdrop
-                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 2, position: 'absolute', backdropFilter: 'blur(3px)', display: 'flex', flexDirection: 'column', gap: 2 }}
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 0, position: 'absolute', backdropFilter: 'blur(3px)', display: 'flex', flexDirection: 'column', gap: 2 }}
                 open={isLoading}
             >
                 <CircularProgress color="inherit" />
