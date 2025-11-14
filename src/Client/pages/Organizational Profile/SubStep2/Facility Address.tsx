@@ -13,26 +13,6 @@ import { useFacilityAddress } from '../../../../Context/Organizational Profile/S
 import { useBillAddress } from '../../../../Context/Energy Profile/BillAddressContext';
 import CloseIcon from '@mui/icons-material/Close';
 
-// --- Map Search Component ---
-const MapSearch = () => {
-  const map = useMap();
-  useEffect(() => {
-    const provider = new OpenStreetMapProvider();
-    const searchControl = new (GeoSearchControl as any)({
-      provider: provider,
-      style: 'button',
-      autoClose: true,
-      keepResult: true,
-      searchLabel: 'Enter address to search...',
-    });
-    map.addControl(searchControl);
-    return () => {
-      map.removeControl(searchControl);
-    };
-  }, [map]);
-  return null;
-};
-
 // --- Custom Icon Creator ---
 const createCustomIcon = (IconComponent: React.ElementType, color: string = '#e74c3c') => {
   const iconMarkup = renderToStaticMarkup(
@@ -44,6 +24,35 @@ const createCustomIcon = (IconComponent: React.ElementType, color: string = '#e7
     iconSize: [30, 30],
     iconAnchor: [15, 30],
   });
+};
+
+// --- Map Search Component ---
+const MapSearch = () => {
+  const map = useMap();
+  useEffect(() => {
+    const provider = new OpenStreetMapProvider();
+    
+    // Create the custom icon for search results
+    const searchIcon = createCustomIcon(FaMapMarkerAlt, '#2196f3'); // Using the blue 'selected' color for search results
+
+    const searchControl = new (GeoSearchControl as any)({
+      provider: provider,
+      style: 'button',
+      autoClose: true,
+      keepResult: true,
+      searchLabel: 'Enter address to search...',
+      marker: {
+        icon: searchIcon, // Pass the custom icon here
+        draggable: false,
+      },
+    });
+    
+    map.addControl(searchControl);
+    return () => {
+      map.removeControl(searchControl);
+    };
+  }, [map]);
+  return null;
 };
 
 // --- Map Markers Component ---
@@ -361,7 +370,8 @@ const SubStep2 = () => {
             pt: 1.3,
             fontFamily: "'Nunito Sans',sans-serif",
             bgcolor: '#f9f9fb'
-          }}>
+          }}
+          >
             <Typography
               sx={{
                 fontFamily: "'Nunito Sans',sans-serif",
