@@ -189,10 +189,10 @@ interface EnhancedBenefitCardProps {
 const EnhancedBenefitCard: React.FC<EnhancedBenefitCardProps> = ({ benefit, onClick, valueColor }) => (
     <StyledBenefitCard onClick={onClick}>
         <WatermarkIcon className="watermark-icon">{benefit.watermark}</WatermarkIcon>
-        <CardContent sx={{ position: 'relative', zIndex: 2, py: 0.1, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
-            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 600, fontSize: '1rem', mb: 0.5 }}>{benefit.title}</Typography>
-            <AbsoluteValue sx={{ color: valueColor ?? '#333' }}>{benefit.value}</AbsoluteValue>
-            <BenefitDescription>{benefit.description}</BenefitDescription>
+        <CardContent sx={{ position: 'relative', zIndex: 2, py: 2.1, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
+            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 600, fontSize: '0.9rem', mb: 0.5 }}>{benefit.title}</Typography>
+            <AbsoluteValue sx={{ fontSize:'1.6rem', color: valueColor ?? '#333' }}>{benefit.value}</AbsoluteValue>
+            <BenefitDescription sx={{ fontSize: '0.8rem' }}>{benefit.description}</BenefitDescription>
         </CardContent>
     </StyledBenefitCard>
 );
@@ -276,6 +276,8 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
             bradley_savings: 0,
             // Weighted avg helpers
             total_roi_investment: 0, // For ROI approx
+            yoy_sum: 0,
+            yoy_count: 0
         };
 
         filteredDataByLocations.forEach(d => {
@@ -289,6 +291,12 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
             acc.over_by += m.over_by || 0;
             acc.bradley_savings += m.bradley_savings || 0;
             acc.total_roi_investment += (m.bradley_savings || 0) * (m.bradley_roi_years || 0);
+
+            const yoyVal = parseFloat(String(m.actual_yoy_pct));
+            if (!isNaN(yoyVal)) {
+                acc.yoy_sum += yoyVal;
+                acc.yoy_count += 1;
+            }
         });
 
         // Recalculate percentages based on new totals
@@ -314,7 +322,7 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
             compliance_jurisdiction: new Set(filteredDataByLocations.map(d => d.evidence?.metrics?.compliance_jurisdiction)).size > 1 
                 ? 'Multiple Jurisdictions' 
                 : filteredDataByLocations[0]?.evidence?.metrics?.compliance_jurisdiction,
-            actual_yoy_pct: '—' // YOY is difficult to sum without raw previous year data
+            actual_yoy_pct: acc.yoy_count > 0 ? (acc.yoy_sum / acc.yoy_count) : '0'
         };
     }, [filteredDataByLocations]);
 
@@ -880,8 +888,8 @@ const getContainerColors = (sev: string | null) => {
             border: '#e0e0e0',   // Neutral Grey Border
             color: '#424242',
             icon: '',            // No icon for mixed container
-            progressBar: '#9e9e9e',
-            statusColor: '#757575',
+            // progressBar: '#9e9e9e',
+            statusColor: 'black',
             statusIcon: null
         };
     }
@@ -1550,7 +1558,7 @@ useEffect(() => {
                                 benefit={benefit} 
                                 onClick={() => handleOpenModal(10 + index)}
                                 // Pass statusColor to first card and green to third card (index 2)
-                                valueColor={index === 0 ? statusColor : index === 2 ? '#388E3C' : undefined}
+                                valueColor={index === 0 ? statusColor : index === 2 ? '#388E3C' : 'black'}
                             />
                         </Box>
                     ))}
