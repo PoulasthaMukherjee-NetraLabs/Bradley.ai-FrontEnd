@@ -401,13 +401,34 @@ const EmissionsDashboard: React.FC<EmissionsDashboardProps> = ({
     }, [selectedLocation/* , selectedSource */]);
 
     const initialState = useMemo(() => {
-        const current = data?.der_control_panel?.current_mix_pct;
-        return {
-            'Solar PV': current?.solar_pv ?? 0, 'Battery Storage': current?.battery_storage ?? 0, 'CHP': current?.chp ?? 0,
-            'Fuel Cells': current?.fuel_cells ?? 0, 'Simple Turbines': current?.simple_turbines ?? 0,
-            'Linear Generation': current?.linear_generation ?? 0, 'GRID': current?.grid ?? 100, 'NATURAL GAS': current?.gas ?? 0,
-        };
-    }, [data]);
+    const current = data?.der_control_panel?.current_mix_pct;
+    
+    // Initialize all possible DER types to 0
+    const state = {
+        'Solar PV': 0,
+        'Battery Storage': 0,
+        'CHP': 0,
+        'Fuel Cells': 0,
+        'Simple Turbines': 0,
+        'Linear Generation': 0,
+        'GRID': 0,
+        'NATURAL GAS': 0,
+    };
+    
+    // Only update values that exist in current_mix_pct
+    if (current) {
+        state['Solar PV'] = current.solar_pv ?? 0;
+        state['Battery Storage'] = current.battery_storage ?? 0;
+        state['CHP'] = current.chp ?? 0;
+        state['Fuel Cells'] = current.fuel_cells ?? 0;
+        state['Simple Turbines'] = current.simple_turbines ?? 0;
+        state['Linear Generation'] = current.linear_generation ?? 0;
+        state['GRID'] = current.grid ?? 0;
+        state['NATURAL GAS'] = current.gas ?? 0;
+    }
+    
+    return state;
+}, [data]);
 
     useEffect(() => {
         setUserDerAllocation(initialState);
