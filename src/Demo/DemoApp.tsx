@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, LinearProgress, Tooltip, Backdrop, CircularProgress, Typography, Modal, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { usePDF } from 'react-to-pdf';
 
 // Contexts & Components
-import { AppProvider, useAppContext } from '../Context/AppContext';
+import { AppProvider, useAppContext as useLocalAppContext } from '../Context/AppContext';
+import { useAppContext as useGlobalAppContext } from '../Context/AppContext';
 import { steps } from './components/steps';
 import HorizontalStepper from '../components/HorizontalStepper';
 import StepContent from './StepContent';
@@ -16,22 +17,22 @@ import ChatBot from '../components/ChatBot';
 import ApiPrePinger from './components/ApiPrePinger';
 
 // Feature Contexts
-import { OrganizationDetailsProvider, useOrganizationDetails } from '../Context/Organizational Profile/SubStep2/Organization Details Context';
-import { FacilityAddressProvider, useFacilityAddress } from '../Context/Organizational Profile/SubStep2/Facility Address Context';
-import { ElectricBillUploadProvider, useElectricBillUpload } from '../Context/Energy Profile/SubStep2/Electric Bill Upload Context';
-import { NaturalGasBillUploadProvider, useNaturalGasBillUpload } from '../Context/Energy Profile/SubStep2/Natural Gas Bill Upload Context';
-import { LOAProvider } from '../Context/Energy Profile/SubStep2/Letter Of Authorization Context';
-import { LOAStatusProvider } from '../Context/Energy Profile/SubStep2/LOA - Status Context';
-import { ThermalEnergyNeedsIProvider } from '../Context/Energy Profile/SubStep2/Thermal Energy Needs - I Context';
-import { ThermalEnergyNeedsIIProvider } from '../Context/Energy Profile/SubStep2/Thermal Energy Needs - II Context';
-import { ThermalEnergyNeedsIIIProvider } from '../Context/Energy Profile/SubStep2/Thermal Energy Needs - III Context';
-import { ThermalEnergyNeedsIVProvider } from '../Context/Energy Profile/SubStep2/Thermal Energy Needs - IV Context';
-import { BoilerCogenerationProvider } from '../Context/Energy Profile/SubStep2/Existing Boiler Cogeneration Context';
-import { BillAddressProvider, useBillAddress } from '../Context/Energy Profile/BillAddressContext';
+import { OrganizationDetailsProvider, useOrganizationDetails } from './Context/Organizational Profile/SubStep2/Organization Details Context';
+import { FacilityAddressProvider, useFacilityAddress } from './Context/Organizational Profile/SubStep2/Facility Address Context';
+import { ElectricBillUploadProvider, useElectricBillUpload } from './Context/Energy Profile/SubStep2/Electric Bill Upload Context';
+import { NaturalGasBillUploadProvider, useNaturalGasBillUpload } from './Context/Energy Profile/SubStep2/Natural Gas Bill Upload Context';
+import { LOAProvider } from './Context/Energy Profile/SubStep2/Letter Of Authorization Context';
+import { LOAStatusProvider } from './Context/Energy Profile/SubStep2/LOA - Status Context';
+// import { ThermalEnergyNeedsIProvider } from './Context/Energy Profile/SubStep2/Thermal Energy Needs - I Context';
+// import { ThermalEnergyNeedsIIProvider } from './Context/Energy Profile/SubStep2/Thermal Energy Needs - II Context';
+// import { ThermalEnergyNeedsIIIProvider } from './Context/Energy Profile/SubStep2/Thermal Energy Needs - III Context';
+// import { ThermalEnergyNeedsIVProvider } from './Context/Energy Profile/SubStep2/Thermal Energy Needs - IV Context';
+// import { BoilerCogenerationProvider } from './Context/Energy Profile/SubStep2/Existing Boiler Cogeneration Context';
+import { BillAddressProvider, useBillAddress } from './Context/Energy Profile/BillAddressContext';
 import { updateOrganizationDetails, updateFacilityAddresses, uploadBillData, BillMetadata } from '../services/APIServices';
 
 // Dashboard Context
-import { DashboardDataProvider, useDashboardData } from '../Context/DashboardDataContext';
+import { DashboardDataProvider, useDashboardData } from './Context/DashboardDataContext';
 import EmissionsReportTemplate from './components/EmissionsReportTemplate';
 
 const AppContent: React.FC = () => {
@@ -41,8 +42,8 @@ const AppContent: React.FC = () => {
         currentFurtherSubStep, setCurrentFurtherSubStep,
         visitedSteps, setVisitedSteps,
         completedSubSteps, setCompletedSubSteps,
-        logout, bootstrap,
-    } = useAppContext();
+        /* logout, */ bootstrap,
+    } = useLocalAppContext();
 
     const { dashboardData, setDashboardData, isLoading, setIsLoading } = useDashboardData();
 
@@ -59,7 +60,7 @@ const AppContent: React.FC = () => {
     const { naturalGasBillUploadState } = useNaturalGasBillUpload();
     const { bills, isNextDisabled } = useBillAddress();
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const [organizationId, setOrganizationId] = useState<string | null>(null);
     const [addressUuidMap, setAddressUuidMap] = useState<{ [key: string]: string }>({});
     const [hasHydratedFromBootstrap, setHasHydratedFromBootstrap] = useState(false);
@@ -343,6 +344,7 @@ const AppContent: React.FC = () => {
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 2) {
             markCompleted(0, 0);
             const hasFiles = electricBillUploadState.fileMetadata.length > 0;
+            console.log("Electric Bill Files Uploaded:", hasFiles);
             if (hasFiles) {
                 setCurrentStep(0);
                 setCurrentSubStep(0);
@@ -404,9 +406,15 @@ const AppContent: React.FC = () => {
         return ((currentFurtherSubStep + 1) / totalFurtherSubSteps) * 100;
     };
 
+    const { logoutForProduct } = useLocalAppContext();
+
+    const handleLogout = () => {
+        const isEmissionCheckIQ = window.location.pathname.startsWith('/emissioncheckiq');
+        logoutForProduct(isEmissionCheckIQ ? "emissioncheckiq" : "bradley");
+    };
+
     const handleSaveAndContinueLater = () => {
-        logout();
-        navigate('/login');
+        handleLogout();
     };
 
     const loadingMessages = [
@@ -580,7 +588,7 @@ const AppContent: React.FC = () => {
 };
 
 const DemoApp: React.FC = () => {
-    const { bootstrap } = useAppContext();
+    const { bootstrap } = useGlobalAppContext();
 
     return (
         <AppProvider steps={steps} appPrefix="emissioncheckiq" initialBootstrap={bootstrap}>
@@ -592,19 +600,19 @@ const DemoApp: React.FC = () => {
                             <NaturalGasBillUploadProvider>
                                 <LOAProvider>
                                     <LOAStatusProvider>
-                                        <ThermalEnergyNeedsIProvider>
+                                        {/* <ThermalEnergyNeedsIProvider>
                                             <ThermalEnergyNeedsIIProvider>
                                                 <ThermalEnergyNeedsIIIProvider>
                                                     <ThermalEnergyNeedsIVProvider>
-                                                        <BoilerCogenerationProvider>
+                                                        <BoilerCogenerationProvider> */}
                                                             <BillAddressProvider appPrefix="emissioncheckiq">
                                                                 <AppContent />
                                                             </BillAddressProvider>
-                                                        </BoilerCogenerationProvider>
+                                                        {/* </BoilerCogenerationProvider>
                                                     </ThermalEnergyNeedsIVProvider>
                                                 </ThermalEnergyNeedsIIIProvider>
                                             </ThermalEnergyNeedsIIProvider>
-                                        </ThermalEnergyNeedsIProvider>
+                                        </ThermalEnergyNeedsIProvider> */}
                                     </LOAStatusProvider>
                                 </LOAProvider>
                             </NaturalGasBillUploadProvider>

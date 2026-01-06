@@ -20,7 +20,8 @@ const Navbar: React.FC = () => {
   };
 
   const handleLogout = () => {
-    logoutForProduct("emissioncheckiq");
+    const isEmissionCheckIQ = window.location.pathname.startsWith('/emissioncheckiq');
+    logoutForProduct(isEmissionCheckIQ ? "emissioncheckiq" : "bradley");
     handleMenuClose();
   };
 

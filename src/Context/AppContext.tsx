@@ -36,7 +36,7 @@ interface AppContextProps {
 
 const defaultCredentials = {
   client: { email: 'client@gmail.com', password: 'client@gmail.com' },
-  analyst: { email: 'analyst@gmail.com', password: 'analyst@gmail.com' },
+  // analyst: { email: 'analyst@gmail.com', password: 'analyst@gmail.com' },
   demo: { email: '', password: '' }, // Demo user has no credentials
 };
 
@@ -141,24 +141,28 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, steps, appPr
     setUser(null);
     Cookies.remove(`${appPrefix}_user`);
     Cookies.remove('global_user');
-    window.location.href = '/login';
+    if (appPrefix === 'emissioncheckiq') {
+      window.location.href = '/login/emissioncheckiq';
+    } else {
+      window.location.href = '/login/bradley';
+    }
   };
 
   const loginForProduct = React.useCallback(async (product: ProductKey, email: string, password: string): Promise<User> => {
     if (product === "bradley") {
       const client = defaultCredentials.client;
-      const analyst = defaultCredentials.analyst;
+      // const analyst = defaultCredentials.analyst;
 
       if (email === client.email && password === client.password) {
         const u = { email, role: "client", product: "bradley" as const };
         setUser(u);
         return u;
       }
-      if (email === analyst.email && password === analyst.password) {
-        const u = { email, role: "analyst", product: "bradley" as const };
-        setUser(u);
-        return u;
-      }
+      // if (email === analyst.email && password === analyst.password) {
+      //   const u = { email, role: "analyst", product: "bradley" as const };
+      //   setUser(u);
+      //   return u;
+      // }
       throw new Error("Invalid email or password");
     }
 
@@ -208,10 +212,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, steps, appPr
     }
     setUser(null);
     Cookies.remove('global_user'); // if you adopt global auth cookie
-    window.location.href = "/login?product=bradley";
+    if (product === "emissioncheckiq") {
+      window.location.href = "/login/emissioncheckiq";
+    } else {
+      window.location.href = "/login/bradley";
+    }
   }, [user]);
-
-
 
   return (
     <AppContext.Provider

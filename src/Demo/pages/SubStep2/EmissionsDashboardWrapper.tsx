@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Box, CircularProgress, Typography, Backdrop } from '@mui/material';
-import { useDashboardData, type DashboardData, type DashboardDataObject, type SRECMetrics } from '../../../../Context/DashboardDataContext';
+import { useDashboardData, type DashboardData, type DashboardDataObject, type SRECMetrics } from '../../Context/DashboardDataContext';
 import EmissionsDashboard from './EmissionsDashboard';
 
 const loadingMessages = [
