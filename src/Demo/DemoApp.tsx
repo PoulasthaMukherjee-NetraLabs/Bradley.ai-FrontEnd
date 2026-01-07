@@ -34,6 +34,8 @@ import { updateOrganizationDetails, updateFacilityAddresses, uploadBillData, Bil
 // Dashboard Context
 import { DashboardDataProvider, useDashboardData } from './Context/DashboardDataContext';
 import EmissionsReportTemplate from './components/EmissionsReportTemplate';
+import OrganizationDetails from './pages/SubStep1/Organization Details';
+import FacilityAddress from './pages/SubStep1/Facility Address';
 
 const AppContent: React.FC = () => {
     const {
@@ -214,18 +216,31 @@ const AppContent: React.FC = () => {
                 setErrorModalOpen(true);
                 return;
             }
-            const addressesPayload = facilityAddressState.addresses.map(({ id, ...address }) => ({
-                ...address,
-                organizationId: organizationId,
-            }));
+
+            const selectedAddresses = facilityAddressState.addresses.filter(addr => 
+                facilityAddressState.selectedFacilityIds.includes(addr.id)
+            );
+
+            if (selectedAddresses.length === 0) {
+                 setErrorTitle('No Facility Selected');
+                 setErrorMsg("Please select at least one facility to continue.");
+                 setErrorModalOpen(true);
+                 return;
+            }
+
+            const addressesPayload = selectedAddresses.map(({ id, ...address }) => ({
+                ...address,
+                organizationId: organizationId,
+            }));
             setIsLoading(true);
             try {
                 const response = await updateFacilityAddresses(addressesPayload);
                 const newMap: { [key: string]: string } = {};
-                facilityAddressState.addresses.forEach((address, index) => {
-                    newMap[address.id] = response.facility_ids[index];
-                });
-                setAddressUuidMap(newMap);
+                selectedAddresses.forEach((address, index) => {
+                    newMap[address.id] = response.facility_ids[index];
+                });
+                
+                setAddressUuidMap(newMap);
             } catch (error: any) {
                 setErrorTitle('Save Facility Addresses Failed');
                 
@@ -533,7 +548,10 @@ const AppContent: React.FC = () => {
                 </Box>
             </Modal>
 
-            <Navbar />
+            <Navbar 
+                OrganizationDetailsComponent={OrganizationDetails} 
+                FacilityAddressComponent={FacilityAddress} 
+            />
             <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px', width: '100vw' }}>
                 <Box sx={{ width: '210px', flexShrink: 0 }}>
                     <Sidebar currentStep={currentStep} visitedSteps={visitedSteps} onStepChange={handleStepChange} />

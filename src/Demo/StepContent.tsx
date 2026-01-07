@@ -13,7 +13,8 @@ const stepSubStepMapping: StepSubStepMapping = {
   0: {
     0: {
       0: lazy(() => import('./pages/SubStep1/Organization Details')),
-      1: lazy(() => import('./pages/SubStep1/Facility Address')),
+      // 1: lazy(() => import('./pages/SubStep1/Facility Address')),
+      1: lazy(() => import('./pages/SubStep1/FacilityAddressSelector')), 
       2: lazy(() => import('./pages/SubStep1/Electric Bill Upload')),
       3: lazy(() => import("./pages/SubStep1/Don't Have Interval Electric Load Data")),
       4: lazy(() => import('./pages/SubStep1/Letter Of Authorization')),

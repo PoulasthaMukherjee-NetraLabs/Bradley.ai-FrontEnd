@@ -9,7 +9,6 @@ interface Address {
   state: string;
   zipCode: string;
   areaSqFt: string;
-  // otherAddress: string;
   operationalStart: string;
   operationalEnd: string;
 }
@@ -21,7 +20,6 @@ interface AddressData {
   state: string;
   zipCode: string;
   areaSqFt: string;
-  // otherAddress: string;
   operationalStart: string;
   operationalEnd: string;
   position: L.LatLng;
@@ -30,6 +28,7 @@ interface AddressData {
 interface FacilityAddressState {
   addresses: AddressData[];
   selectedAddressId: string | null;
+  selectedFacilityIds: string[];
 }
 
 interface FacilityAddressContextType {
@@ -40,6 +39,7 @@ interface FacilityAddressContextType {
   updateAddressField: (addressId: string, field: keyof Address, value: string) => void;
   deleteAddress: (addressId: string) => void;
   setSelectedAddress: (addressId: string | null) => void;
+  toggleAddressSelection: (addressId: string) => void; // NEW
   getAddressById: (addressId: string) => AddressData | undefined;
 }
 
@@ -60,9 +60,10 @@ interface FacilityAddressProviderProps {
 const defaultState: FacilityAddressState = {
   addresses: [],
   selectedAddressId: null,
+  selectedFacilityIds: [],
 };
 
-const generateId = (): string => uuidv4();;
+const generateId = (): string => uuidv4();
 
 export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = ({ children }) => {
   const [facilityAddressState, setFacilityAddressState] = useState<FacilityAddressState>(() => {
@@ -70,10 +71,7 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
     if (savedState) {
       try {
         const parsedState = JSON.parse(savedState);
-        if (parsedState && 
-            typeof parsedState === 'object' && 
-            Array.isArray(parsedState.addresses)) {
-          
+        if (parsedState && typeof parsedState === 'object' && Array.isArray(parsedState.addresses)) {
           const rehydratedAddresses = parsedState.addresses
             .map((addr: any) => ({
               ...addr,
@@ -84,6 +82,7 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
           return {
             addresses: rehydratedAddresses,
             selectedAddressId: parsedState.selectedAddressId || null,
+            selectedFacilityIds: parsedState.selectedFacilityIds || rehydratedAddresses.map((a: any) => a.id),
           };
         }
       } catch (error) {
@@ -95,7 +94,6 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
 
   useEffect(() => {
     if (!facilityAddressState.addresses || !Array.isArray(facilityAddressState.addresses)) {
-      console.warn('facilityAddress.addresses is not an array, skipping save to cookies');
       return;
     }
 
@@ -103,9 +101,7 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
       ...facilityAddressState,
       addresses: facilityAddressState.addresses.map(addr => ({
         ...addr,
-        position: addr.position
-          ? { lat: addr.position.lat, lng: addr.position.lng }
-          : null,
+        position: addr.position ? { lat: addr.position.lat, lng: addr.position.lng } : null,
       })),
     };
     Cookies.set('emissioncheckiq_facilityAddressState', JSON.stringify(stateToSave));
@@ -129,6 +125,7 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
       ...prevState,
       addresses: [...(prevState.addresses || []), newAddress],
       selectedAddressId: newId,
+      selectedFacilityIds: [...prevState.selectedFacilityIds, newId],
     }));
 
     return newId;
@@ -159,7 +156,8 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
       return {
         ...prevState,
         addresses: filteredAddresses,
-        selectedAddressId: prevState.selectedAddressId === addressId 
+        selectedFacilityIds: prevState.selectedFacilityIds.filter(id => id !== addressId),
+        selectedAddressId: prevState.selectedAddressId === addressId
           ? (filteredAddresses.length > 0 ? filteredAddresses[0].id : null)
           : prevState.selectedAddressId,
       };
@@ -173,20 +171,34 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
     }));
   };
 
+  // NEW FUNCTION to handle checkboxes
+  const toggleAddressSelection = (addressId: string) => {
+    setFacilityAddressState((prevState) => {
+      const isSelected = prevState.selectedFacilityIds.includes(addressId);
+      return {
+        ...prevState,
+        selectedFacilityIds: isSelected
+          ? prevState.selectedFacilityIds.filter(id => id !== addressId)
+          : [...prevState.selectedFacilityIds, addressId]
+      };
+    });
+  };
+
   const getAddressById = (addressId: string): AddressData | undefined => {
     return facilityAddressState.addresses?.find(addr => addr.id === addressId);
   };
 
   return (
-    <FacilityAddressContext.Provider 
-      value={{ 
-        facilityAddressState, 
-        updateFacilityAddress, 
+    <FacilityAddressContext.Provider
+      value={{
+        facilityAddressState,
+        updateFacilityAddress,
         addAddress,
         updateAddress,
-        updateAddressField, 
+        updateAddressField,
         deleteAddress,
         setSelectedAddress,
+        toggleAddressSelection,
         getAddressById
       }}
     >

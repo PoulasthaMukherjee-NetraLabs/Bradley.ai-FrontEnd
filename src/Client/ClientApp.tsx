@@ -59,6 +59,9 @@ import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 import ChatBot from '../components/ChatBot';
 
+import OrganizationDetails from './pages/Organizational Profile/SubStep2/Organization Details';
+import FacilityAddress from './pages/Organizational Profile/SubStep2/Facility Address';
+
 
 // Component to hold all providers for cleanliness
 const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -323,7 +326,7 @@ const AppContent: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'row', height: '100vh', zIndex: 500 }}>
-      <Navbar />
+      <Navbar OrganizationDetailsComponent={OrganizationDetails} FacilityAddressComponent={FacilityAddress} />
       <Box sx={{ display: 'flex', flexGrow: 1, mt: '64px', width: '100vw' }}>
         <Box sx={{ width: '210px', flexShrink: 0 }}>
           <Sidebar currentStep={currentStep} steps={steps} visitedSteps={visitedSteps} onStepChange={handleStepChange} />
