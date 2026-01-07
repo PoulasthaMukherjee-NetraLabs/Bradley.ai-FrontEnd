@@ -1,3 +1,5 @@
+import { BASE_URL } from "../services/Constants";
+
 export type ProductKey = "bradley" | "emissioncheckiq" | string;
 
 export type SessionUser = {
@@ -19,7 +21,7 @@ export type ProductAuthConfig = {
 export const PRODUCT_AUTH: Record<ProductKey, ProductAuthConfig> = {
   emissioncheckiq: {
     key: "emissioncheckiq",
-    baseUrl: "", // same origin; change if needed
+    baseUrl: BASE_URL,
     endpoints: {
       login: "/auth/login",
       logout: "/auth/logout",
