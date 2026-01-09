@@ -32,8 +32,7 @@ const MapSearch = () => {
   useEffect(() => {
     const provider = new OpenStreetMapProvider();
     
-    // Create the custom icon for search results
-    const searchIcon = createCustomIcon(FaMapMarkerAlt, '#2196f3'); // Using the blue 'selected' color for search results
+    const searchIcon = createCustomIcon(FaMapMarkerAlt, '#2196f3');
 
     const searchControl = new (GeoSearchControl as any)({
       provider: provider,
@@ -42,7 +41,7 @@ const MapSearch = () => {
       keepResult: true,
       searchLabel: 'Enter address to search...',
       marker: {
-        icon: searchIcon, // Pass the custom icon here
+        icon: searchIcon,
         draggable: false,
       },
     });
@@ -93,7 +92,8 @@ const SubStep2 = () => {
     updateAddressField,
     deleteAddress,
     setSelectedAddress,
-    getAddressById
+    getAddressById,
+    getCompactAddress
   } = useFacilityAddress();
   const { setAddresses: setBillAddresses } = useBillAddress();
   
@@ -101,8 +101,11 @@ const SubStep2 = () => {
   const [openNonUSModal, setOpenNonUSModal] = useState(false);
 
   useEffect(() => {
-    setBillAddresses(facilityAddressState.addresses.map(a => ({ id: a.id, address: `${a.streetAddress}, ${a.city}, ${a.state} ${a.zipCode}` })));
-  }, [facilityAddressState.addresses, setBillAddresses]);
+    setBillAddresses(facilityAddressState.addresses.map(a => ({ 
+      id: a.id, 
+      address: `${getCompactAddress(a.id)}, ${a.city}, ${a.state} ${a.zipCode}` 
+    })));
+  }, [facilityAddressState.addresses, setBillAddresses, getCompactAddress]);
 
   const { addresses, selectedAddressId } = facilityAddressState;
   const defaultUSACenter: L.LatLngExpression = [39.8283, -98.5795];
@@ -121,7 +124,20 @@ const SubStep2 = () => {
           return;
         }
         const newAddressId = addAddress({
-          streetAddress: '', city: '', state: '', zipCode: '', areaSqFt: '', operationalStart: '', operationalEnd: '', position
+          houseNumber: '',
+          road: '',
+          neighbourhood: '',
+          suburb: '',
+          city: '', 
+          county: '',
+          state: '', 
+          zipCode: '', 
+          country: '',
+          countryCode: '',
+          areaSqFt: '', 
+          operationalStart: '', 
+          operationalEnd: '', 
+          position
         });
         handleFetchAddress(newAddressId, position);
       })
@@ -132,10 +148,20 @@ const SubStep2 = () => {
     fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position.lat}&lon=${position.lng}`)
       .then(response => response.json())
       .then(data => {
-        updateAddressField(addressId, 'streetAddress', data.address.road || '');
-        updateAddressField(addressId, 'city', data.address.city || data.address.town || '');
-        updateAddressField(addressId, 'state', data.address.state || '');
-        updateAddressField(addressId, 'zipCode', data.address.postcode || '');
+        const addr = data.address || {};
+        
+        // Fetch all available fields
+        updateAddressField(addressId, 'houseNumber', addr.house_number || '');
+        updateAddressField(addressId, 'road', addr.road || '');
+        updateAddressField(addressId, 'neighbourhood', addr.neighbourhood || addr.suburb || '');
+        updateAddressField(addressId, 'suburb', addr.suburb || '');
+        updateAddressField(addressId, 'city', addr.city || addr.town || addr.village || '');
+        updateAddressField(addressId, 'county', addr.county || '');
+        updateAddressField(addressId, 'state', addr.state || '');
+        updateAddressField(addressId, 'zipCode', addr.postcode || '');
+        updateAddressField(addressId, 'country', addr.country || '');
+        updateAddressField(addressId, 'countryCode', addr.country_code?.toUpperCase() || '');
+        
         updateAddressField(addressId, 'areaSqFt', '');
         updateAddressField(addressId, 'operationalStart', '');
         updateAddressField(addressId, 'operationalEnd', '');
@@ -162,7 +188,6 @@ const SubStep2 = () => {
     setSelectedAddress(addressId);
   };
 
-  // Sleek modal styling (minimal, soft, smaller font)
   const modalStyle = {
     position: 'absolute' as 'absolute',
     top: '50%',
@@ -289,12 +314,18 @@ const SubStep2 = () => {
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {[
-                      { label: "Street Address:", key: "streetAddress", placeholder: "Enter street address" },
-                      { label: "City:", key: "city", placeholder: "Enter city name" },
-                      { label: "State:", key: "state", placeholder: "Enter state" },
-                      { label: "Zip Code:", key: "zipCode", placeholder: "Enter zip code" },
-                      { label: "Area (in sq ft):", key: "areaSqFt", placeholder: "Enter area in sq ft" },
-                    ].map(({ label, key, placeholder }) => (
+                        { label: "House Number:", key: "houseNumber", placeholder: "Enter house number" },
+                        { label: "Road/Street:", key: "road", placeholder: "Enter road/street name" },
+                        { label: "Neighbourhood:", key: "neighbourhood", placeholder: "Enter neighbourhood" },
+                        { label: "Suburb:", key: "suburb", placeholder: "Enter suburb" },
+                        { label: "City:", key: "city", placeholder: "Enter city name" },
+                        { label: "County:", key: "county", placeholder: "Enter county" },
+                        { label: "State:", key: "state", placeholder: "Enter state" },
+                        { label: "Zip Code:", key: "zipCode", placeholder: "Enter zip code" },
+                        { label: "Country:", key: "country", placeholder: "Enter country" },
+                        { label: "Country Code:", key: "countryCode", placeholder: "Enter country code" },
+                        { label: "Area (in sq ft):", key: "areaSqFt", placeholder: "Enter area in sq ft" },
+                      ].map(({ label, key, placeholder }) => (
                       <Box key={key} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                         <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', fontWeight: 'bold' }}>
                           {label}
@@ -396,7 +427,7 @@ const SubStep2 = () => {
           </Box>
         </Box>
       </Box>
-      {/* Sleek, minimal Non-USA Location Modal */}
+      {/* Non-USA Location Modal */}
       <Modal
         open={openNonUSModal}
         onClose={() => setOpenNonUSModal(false)}

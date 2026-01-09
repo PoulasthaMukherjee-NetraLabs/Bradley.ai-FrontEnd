@@ -21,14 +21,43 @@ const SubStep3: React.FC = () => {
 
   // Provide default values if no address is available
   const address = currentAddress || {
-    streetAddress: '',
+    houseNumber: '',
+    road: '',
+    neighbourhood: '',
+    suburb: '',
     city: '',
+    county: '',
     state: '',
     zipCode: '',
-    // otherAddress: ''
+    country: '',
+    countryCode: ''
   };
 
   const customerNameDisplay = (userName && organizationName) ? `${userName}, ${organizationName}` : (userName || organizationName || '');
+  
+  // Helper function to format full address for display
+  const formatFullAddress = (addr: any) => {
+    const parts = [];
+    
+    // Street address (house number + road)
+    const streetAddr = [addr.houseNumber, addr.road].filter(Boolean).join(' ');
+    if (streetAddr) parts.push(streetAddr);
+    
+    // Neighbourhood or suburb
+    if (addr.neighbourhood) parts.push(addr.neighbourhood);
+    else if (addr.suburb) parts.push(addr.suburb);
+    
+    // City, State ZIP
+    const cityStateZip = [addr.city, addr.state, addr.zipCode].filter(Boolean).join(', ');
+    if (cityStateZip) parts.push(cityStateZip);
+    
+    return parts.join(', ');
+  };
+
+  // Helper function to format city, state
+  const formatCityState = (addr: any) => {
+    return [addr.city, addr.state].filter(Boolean).join(', ');
+  };
   
   // Create address components for display
   const AddressBoxes: React.FC<{ addresses: any[] }> = ({ addresses }) => {
@@ -58,7 +87,7 @@ const SubStep3: React.FC = () => {
         }
       }}>
         {addresses.map((addr, index) => {
-          const addressText = [addr.streetAddress, addr.city, addr.state, addr.zipCode].filter(Boolean).join(', ');
+          const addressText = formatFullAddress(addr);
           return addressText ? (
             <Chip
               key={index}
@@ -113,7 +142,7 @@ const SubStep3: React.FC = () => {
         }
       }}>
         {addresses.map((addr, index) => {
-          const cityStateText = [addr.city, addr.state].filter(Boolean).join(', ');
+          const cityStateText = formatCityState(addr);
           return cityStateText ? (
             <Chip
               key={index}
@@ -197,8 +226,8 @@ const SubStep3: React.FC = () => {
               On this <TextField variant="standard" type="text" placeholder="(DAY)" value={textFields.day} onChange={handleDayChange} inputProps={{ maxLength: 2 }} sx={{ width: '50px', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { padding: 0, marginBottom: '-2px' }, '& input': { textAlign: 'center', fontSize: '0.8rem', padding: 0 }, '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' } }} />
               {' '}day of{' '}<TextField variant="standard" type="text" placeholder="(MONTH)" value={textFields.month} onChange={handleMonthChange} sx={{ width: '80px', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { padding: 0, marginBottom: '-2px' }, '& input': { textAlign: 'center', fontSize: '0.8rem', padding: 0 }, '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' } }} />
               , 2025, the{' '}<TextField variant="standard" type="text" placeholder="(CUSTOMER NAME)" value={customerNameDisplay} onChange={(e) => updateOrganizationDetails({ organizationName: e.target.value.split(',')[1]?.trim(), userName: e.target.value.split(',')[0]?.trim() })} sx={{ width: '150px', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { padding: 0, marginBottom: '-2px' }, '& input': { textAlign: 'center', fontSize: '0.8rem', padding: 0 }, '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' } }} />
-              {' '} (Customer) appoints {window.location.pathname === '/demo' ? 'EmissionCheckIQ+' : 'Bradley.ai'} as its Agent to obtain any and all usage information {window.location.pathname === '/demo' ? 'EmissionCheckIQ+' : 'Bradley.ai'} deems necessary to EVALUATE the Customer electricity, gas, or all steam supply at our location in{' '}
-              <Box component="span" sx={{ display: 'inline-block', width: '200px', borderBottom: '1px solid #000', pb: 0.5, mb: 1 }}>
+              {' '} (Customer) appoints {window.location.pathname === '/demo' ? 'EmissionCheckIQ+' : 'Bradley.ai'} as its Agent to obtain any and all usage information {window.location.pathname === '/demo' ? 'EmissionCheckIQ+' : 'Bradley.ai'} deems necessary to EVALUATE the Customer electricity, gas, or all steam supply at our location{addresses && addresses.length > 1 ? 's' : ''} in{' '}
+              <Box component="span" sx={{ display: 'inline-block', minWidth: '200px', maxWidth: '400px', borderBottom: '1px solid #000', pb: 0.5, mb: 1 }}>
                 <AddressBoxes addresses={addresses || []} />
               </Box>
               . Customer Point of Contact is Mr./Mrs.{' '}<TextField variant="standard" type="text" placeholder="(NAME)" value={textFields.contactName} onChange={(e) => updateNestedField('textFields', 'contactName', e.target.value)} sx={{ width: '120px', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { padding: 0, marginBottom: '-2px' }, '& input': { textAlign: 'center', fontSize: '0.8rem', padding: 0 }, '& .MuiInputBase-input::placeholder': { fontSize: '0.7rem' } }} />
@@ -212,11 +241,11 @@ const SubStep3: React.FC = () => {
             <TextField fullWidth variant="outlined" size="small" type="text" placeholder='1212 USA Lane' value={contactDetails.serviceAddress} onChange={(e) => updateNestedField('contactDetails', 'serviceAddress', e.target.value)} sx={{ flex: 0.5, fontSize: '0.7rem', fontFamily: 'Nunito Sans, sans-serif', '& .MuiInputBase-root': { height: '24px', padding: '0 6px' }, '& input': { padding: 0, fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem' }, '& .MuiInputBase-input::placeholder': { fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem' } }} />
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, justifyContent: 'center' }}>
-            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Full Address:</b></Typography>
+            <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', minWidth: '150px', flex: 0.25 }}><b>Full Address{addresses && addresses.length > 1 ? 'es' : ''}:</b></Typography>
             <Box sx={{ 
               flex: 0.5, 
               minHeight: '24px', 
-              maxWidth: '200px', // Added width constraint
+              maxWidth: '200px',
               border: '1px solid #c4c4c4', 
               borderRadius: '4px', 
               padding: '2px 6px', 
@@ -230,7 +259,7 @@ const SubStep3: React.FC = () => {
             <Box sx={{ 
               flex: 0.5, 
               minHeight: '24px', 
-              maxWidth: '200px', // Added width constraint
+              maxWidth: '200px',
               border: '1px solid #c4c4c4', 
               borderRadius: '4px', 
               padding: '2px 6px', 

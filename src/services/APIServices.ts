@@ -20,14 +20,20 @@ organization_id: string;
 }
 
 export interface AddressPayload {
-streetAddress: string;
-city: string;
-state: string;
-zipCode: string;
-organizationId: string;
-areaSqFt: string;
-operationalStart: string;
-operationalEnd: string;
+  houseNumber: string;
+  road: string;
+  neighbourhood: string;
+  suburb: string;
+  city: string;
+  county: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  countryCode: string;
+  organizationId: string;
+  areaSqFt: string;
+  operationalStart: string;
+  operationalEnd: string;
 }
 
 export interface BillMetadata {

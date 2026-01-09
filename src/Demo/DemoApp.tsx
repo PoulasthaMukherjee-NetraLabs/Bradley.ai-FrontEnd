@@ -209,72 +209,83 @@ const AppContent: React.FC = () => {
         }
 
         // Step 0: Facility Addresses
-        if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 1) {
-            if (!organizationId) {
-                setErrorTitle('Facility Address Save Failed');
-                setErrorMsg("Organization ID not found. Cannot update addresses.");
-                setErrorModalOpen(true);
-                return;
-            }
+if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 1) {
+    if (!organizationId) {
+        setErrorTitle('Facility Address Save Failed');
+        setErrorMsg("Organization ID not found. Cannot update addresses.");
+        setErrorModalOpen(true);
+        return;
+    }
 
-            const selectedAddresses = facilityAddressState.addresses.filter(addr => 
-                facilityAddressState.selectedFacilityIds.includes(addr.id)
-            );
+    const selectedAddresses = facilityAddressState.addresses.filter(addr => 
+        facilityAddressState.selectedFacilityIds.includes(addr.id)
+    );
 
-            if (selectedAddresses.length === 0) {
-                 setErrorTitle('No Facility Selected');
-                 setErrorMsg("Please select at least one facility to continue.");
-                 setErrorModalOpen(true);
-                 return;
-            }
+    if (selectedAddresses.length === 0) {
+         setErrorTitle('No Facility Selected');
+         setErrorMsg("Please select at least one facility to continue.");
+         setErrorModalOpen(true);
+         return;
+    }
 
-            const addressesPayload = selectedAddresses.map(({ id, ...address }) => ({
-                ...address,
-                organizationId: organizationId,
-            }));
-            setIsLoading(true);
-            try {
-                const response = await updateFacilityAddresses(addressesPayload);
-                const newMap: { [key: string]: string } = {};
-                selectedAddresses.forEach((address, index) => {
-                    newMap[address.id] = response.facility_ids[index];
-                });
-                
-                setAddressUuidMap(newMap);
-            } catch (error: any) {
-                setErrorTitle('Save Facility Addresses Failed');
-                
-                // --- Updated Error Handling ---
-                const status = error.response?.status || error.status;
-                let friendlyError: string;
-                switch (status) {
-                    case 409: // Specific to this step
-                        friendlyError = "Invalid ZipCode/Address data provided.";
-                        break;
-                    case 400:
-                        friendlyError = "Invalid data provided for one or more fields.";
-                        break;
-                    case 422:
-                        friendlyError = "Data provided in invalid format for one or more fields.";
-                        break;
-                    case 404:
-                        friendlyError = "Resource not found.";
-                        break;
-                    case 500:
-                        friendlyError = "Something went wrong. Please try after some time.";
-                        break;
-                    default:
-                        friendlyError = error.message || "An unknown error occurred. Please try again.";
-                }
-                setErrorMsg(friendlyError);
-                // --- End of Update ---
-                
-                setErrorModalOpen(true);
-                setIsLoading(false);
-                return;
-            }
-            setIsLoading(false);
-        }
+    const addressesPayload = selectedAddresses.map(({ id, position, ...address }) => ({
+        houseNumber: address.houseNumber || '',
+        road: address.road || '',
+        neighbourhood: address.neighbourhood || '',
+        suburb: address.suburb || '',
+        city: address.city || '',
+        county: address.county || '',
+        state: address.state || '',
+        zipCode: address.zipCode || '',
+        country: address.country || '',
+        countryCode: address.countryCode || '',
+        areaSqFt: address.areaSqFt || '',
+        operationalStart: address.operationalStart || '',
+        operationalEnd: address.operationalEnd || '',
+        organizationId: organizationId,
+    }));
+    
+    setIsLoading(true);
+    try {
+        const response = await updateFacilityAddresses(addressesPayload);
+        const newMap: { [key: string]: string } = {};
+        selectedAddresses.forEach((address, index) => {
+            newMap[address.id] = response.facility_ids[index];
+        });
+        
+        setAddressUuidMap(newMap);
+    } catch (error: any) {
+        setErrorTitle('Save Facility Addresses Failed');
+        
+        const status = error.response?.status || error.status;
+        let friendlyError: string;
+        switch (status) {
+            case 409:
+                friendlyError = "Invalid ZipCode/Address data provided.";
+                break;
+            case 400:
+                friendlyError = "Invalid data provided for one or more fields.";
+                break;
+            case 422:
+                friendlyError = "Data provided in invalid format for one or more fields.";
+                break;
+            case 404:
+                friendlyError = "Resource not found.";
+                break;
+            case 500:
+                friendlyError = "Something went wrong. Please try after some time.";
+                break;
+            default:
+                friendlyError = error.message || "An unknown error occurred. Please try again.";
+        }
+        setErrorMsg(friendlyError);
+        
+        setErrorModalOpen(true);
+        setIsLoading(false);
+        return;
+    }
+    setIsLoading(false);
+}
 
         // Step 0: Bill Uploads
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 6) {

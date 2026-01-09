@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Button, Chip, Divider, IconButton, ToggleButtonGroup, ToggleButton, Tooltip, Fade } from '@mui/material';
+import { Box, Typography, Paper, Button, /* Chip, Divider, */ IconButton, ToggleButtonGroup, ToggleButton, Tooltip, Fade } from '@mui/material';
 import { 
   Add as AddIcon, 
   LocationOn as LocationIcon, 
@@ -8,18 +8,21 @@ import {
   Business as BusinessIcon,
   Edit as EditIcon,
   ViewModule as GridViewIcon,
-  ViewList as ListViewIcon
+  ViewList as ListViewIcon,
+  // Home as HomeIcon,
+  // Public as PublicIcon,
+  // LocationCity as CityIcon,
+  // Terrain as TerrainIcon
 } from '@mui/icons-material';
 import { useFacilityAddress } from '../../Context/Organizational Profile/SubStep2/Facility Address Context';
 import { useBillAddress } from '../../Context/Energy Profile/BillAddressContext';
 
 const FacilityAddressSelector: React.FC = () => {
-  const { facilityAddressState, toggleAddressSelection, setSelectedAddress } = useFacilityAddress();
+  const { facilityAddressState, toggleAddressSelection, setSelectedAddress, getCompactAddress } = useFacilityAddress();
   const { setAddresses: setBillAddresses } = useBillAddress();
 
   const { addresses, selectedFacilityIds } = facilityAddressState;
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-
   const [hoveredEditId, setHoveredEditId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,9 +32,9 @@ const FacilityAddressSelector: React.FC = () => {
 
     setBillAddresses(selectedAddresses.map(a => ({
       id: a.id,
-      address: `${a.streetAddress}, ${a.city}, ${a.state} ${a.zipCode}`
+      address: `${getCompactAddress(a.id)}, ${a.city}, ${a.state} ${a.zipCode}`
     })));
-  }, [addresses, selectedFacilityIds, setBillAddresses]);
+  }, [addresses, selectedFacilityIds, setBillAddresses, getCompactAddress]);
 
   const handleOpenModal = () => {
     window.dispatchEvent(new CustomEvent('open-facility-modal'));
@@ -106,7 +109,7 @@ const FacilityAddressSelector: React.FC = () => {
           display: 'grid', 
           gridTemplateColumns: viewMode === 'list' 
             ? '1fr' 
-            : 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))', 
+            : 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))', 
           gap: 3,
           pb: 2
         }}
@@ -136,9 +139,8 @@ const FacilityAddressSelector: React.FC = () => {
                   transition: 'all 0.2s ease-in-out',
                   overflow: 'hidden',
                   display: 'flex',
-                  flexDirection: viewMode === 'list' ? 'row' : 'column',
-                  alignItems: viewMode === 'list' ? 'center' : 'stretch',
-                  minHeight: viewMode === 'list' ? 'auto' : '220px',
+                  flexDirection: 'column',
+                  minHeight: viewMode === 'list' ? 'auto' : '280px',
                   '&:hover': {
                     transform: 'translateY(-2px)',
                     boxShadow: '0 8px 20px rgba(0,0,0,0.08)',
@@ -157,7 +159,7 @@ const FacilityAddressSelector: React.FC = () => {
                           top: 8,
                           right: 8,
                           zIndex: 3,
-                          bgcolor: 'rgba(255,255,255,0.8)',
+                          bgcolor: 'rgba(255,255,255,0.9)',
                           '&:hover': { bgcolor: 'white', color: '#1976d2' }
                       }}
                   >
@@ -165,13 +167,14 @@ const FacilityAddressSelector: React.FC = () => {
                   </IconButton>
                 </Tooltip>
 
+                {/* Header Section */}
                 <Box sx={{ 
                     p: 2, 
+                    pb: 1.5,
                     display: 'flex', 
                     alignItems: 'center', 
-                    gap: 2, 
-                    width: viewMode === 'list' ? '40%' : 'auto',
-                    borderRight: viewMode === 'list' ? '1px solid #f0f0f0' : 'none'
+                    gap: 2,
+                    borderBottom: '1px solid #f0f0f0'
                 }}>
                   <Box 
                     sx={{ 
@@ -184,60 +187,123 @@ const FacilityAddressSelector: React.FC = () => {
                   >
                     <BusinessIcon />
                   </Box>
-                  <Box>
-                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 800, fontSize: '1rem', lineHeight: 1.3, mb: 0.5, color: '#2c3e50' }}>
-                      {address.streetAddress || "Unnamed Facility"}
+                  <Box sx={{ flex: 1 }}>
+                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontWeight: 800, fontSize: '1rem', lineHeight: 1.3, mb: 0.3, color: '#2c3e50' }}>
+                      {address.houseNumber} {address.road}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#666' }}>
                       <LocationIcon sx={{ fontSize: '0.9rem', color: '#95a5a6' }} />
-                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 600, color: '#7f8c8d' }}>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', fontWeight: 600, color: '#7f8c8d' }}>
                         {address.city}, {address.state} {address.zipCode}
                       </Typography>
                     </Box>
                   </Box>
                 </Box>
 
-                {!isSelected && viewMode === 'grid' && <Divider sx={{ borderColor: '#f0f0f0' }} />}
-
+                {/* Details Grid */}
                 <Box sx={{ 
                     p: 2, 
-                    pt: viewMode === 'list' ? 2 : 1.5, 
+                    pt: 1.5,
                     flex: 1, 
-                    display: 'flex', 
-                    flexDirection: viewMode === 'list' ? 'row' : 'column', 
-                    justifyContent: viewMode === 'list' ? 'space-around' : 'flex-start',
-                    gap: viewMode === 'list' ? 4 : 1.5 
+                    display: 'grid',
+                    gridTemplateColumns: viewMode === 'list' 
+                      ? 'repeat(auto-fill, minmax(115px, 1fr))' 
+                      : '1fr 1fr',
+                    gap: viewMode === 'list' ? 0.65 : 2,
+                    fontSize: '0.75rem'
                 }}>
                   
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: viewMode === 'list' ? '150px' : 'auto' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <AreaIcon sx={{ fontSize: '1.1rem', color: '#95a5a6' }} />
-                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#7f8c8d', fontWeight: 600 }}>
-                        Total Area: &nbsp;
+                  {/* House Number */}
+                  {address.houseNumber && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        House #
+                      </Typography>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#2c3e50', fontWeight: 700 }}>
+                        {address.houseNumber}
                       </Typography>
                     </Box>
-                    <Chip 
-                      label={address.areaSqFt ? `${Number(address.areaSqFt).toLocaleString()} sq ft` : "N/A"} 
-                      size="small" 
-                      sx={{ 
-                        height: '24px', 
-                        fontSize: '0.75rem', 
-                        fontFamily: 'Nunito Sans, sans-serif',
-                        bgcolor: '#f8f9fa',
-                        border: '1px solid #e9ecef',
-                        fontWeight: 700,
-                        color: '#495057'
-                      }} 
-                    />
+                  )}
+
+                  {/* Road */}
+                  {address.road && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        Road
+                      </Typography>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#2c3e50', fontWeight: 700 }}>
+                        {address.road}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Neighbourhood */}
+                  {address.neighbourhood && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        Neighbourhood
+                      </Typography>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#2c3e50', fontWeight: 700 }}>
+                        {address.neighbourhood}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Suburb */}
+                  {address.suburb && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        Suburb
+                      </Typography>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#2c3e50', fontWeight: 700 }}>
+                        {address.suburb}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* County */}
+                  {address.county && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        County
+                      </Typography>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#2c3e50', fontWeight: 700 }}>
+                        {address.county}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Country */}
+                  {address.country && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        Country
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#2c3e50', fontWeight: 700 }}>
+                          {address.country}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
+
+                  {/* Area */}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      <AreaIcon sx={{ fontSize: '0.8rem', mr: 0.3, verticalAlign: 'middle' }} />
+                      Total Area
+                    </Typography>
+                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 700, color: '#2c3e50' }}>
+                      {address.areaSqFt ? `${address.areaSqFt} sq ft` : "Not set"}
+                    </Typography>
                   </Box>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: viewMode === 'list' ? '200px' : 'auto' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <TimeIcon sx={{ fontSize: '1.1rem', color: '#95a5a6' }} />
-                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#7f8c8d', fontWeight: 600 }}>
-                        Operating Hours: &nbsp;
-                      </Typography>
-                    </Box>
+                  {/* Operating Hours */}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      <TimeIcon sx={{ fontSize: '0.8rem', mr: 0.3, verticalAlign: 'middle' }} />
+                      Operating Hours
+                    </Typography>
                     <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 700, color: '#2c3e50' }}>
                       {(address.operationalStart && address.operationalEnd) 
                         ? `${address.operationalStart} - ${address.operationalEnd}` 
@@ -247,22 +313,20 @@ const FacilityAddressSelector: React.FC = () => {
 
                 </Box>
 
-                {viewMode === 'grid' && (
-                  <Box 
-                      sx={{ 
-                      bgcolor: isSelected ? '#1976d2' : '#f8f9fa', 
-                      color: isSelected ? 'white' : '#adb5bd',
-                      p: 1, 
-                      textAlign: 'center',
-                      transition: 'background-color 0.2s',
-                      borderTop: isSelected ? 'none' : '1px solid #f1f3f5'
-                      }}
-                  >
-                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', fontWeight: 800, letterSpacing: 0.8, textTransform: 'uppercase' }}>
-                      {isSelected ? "Selected" : "Click to Select"}
-                      </Typography>
-                  </Box>
-                )}
+                <Box 
+                    sx={{ 
+                    bgcolor: isSelected ? '#1976d2' : '#f8f9fa', 
+                    color: isSelected ? 'white' : '#adb5bd',
+                    p: 1, 
+                    textAlign: 'center',
+                    transition: 'background-color 0.2s',
+                    borderTop: isSelected ? 'none' : '1px solid #f1f3f5'
+                    }}
+                >
+                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', fontWeight: 800, letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                    {isSelected ? "Selected" : "Click to Select"}
+                    </Typography>
+                </Box>
               </Paper>
             </Tooltip>
           );
@@ -275,12 +339,13 @@ const FacilityAddressSelector: React.FC = () => {
             sx={{
               border: '2px dashed #cfd8dc',
               borderRadius: 3,
+              gridColumn: (viewMode === 'grid' && addresses.length % 2 === 0) ? '1 / -1' : 'auto',
               display: 'flex',
               flexDirection: viewMode === 'list' ? 'row' : 'column',
               justifyContent: 'center',
               alignItems: 'center',
               gap: 1.5,
-              minHeight: viewMode === 'list' ? '80px' : '220px',
+              minHeight: viewMode === 'list' ? '150px' : '300px',
               textTransform: 'none',
               color: '#78909c',
               bgcolor: 'transparent',

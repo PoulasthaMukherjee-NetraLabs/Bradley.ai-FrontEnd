@@ -4,10 +4,16 @@ import L from 'leaflet';
 import { v4 as uuidv4 } from 'uuid';
 
 interface Address {
-  streetAddress: string;
+  houseNumber: string;
+  road: string;
+  neighbourhood: string;
+  suburb: string;
   city: string;
+  county: string;
   state: string;
   zipCode: string;
+  country: string;
+  countryCode: string;
   areaSqFt: string;
   operationalStart: string;
   operationalEnd: string;
@@ -15,10 +21,16 @@ interface Address {
 
 interface AddressData {
   id: string;
-  streetAddress: string;
+  houseNumber: string;
+  road: string;
+  neighbourhood: string;
+  suburb: string;
   city: string;
+  county: string;
   state: string;
   zipCode: string;
+  country: string;
+  countryCode: string;
   areaSqFt: string;
   operationalStart: string;
   operationalEnd: string;
@@ -39,8 +51,9 @@ interface FacilityAddressContextType {
   updateAddressField: (addressId: string, field: keyof Address, value: string) => void;
   deleteAddress: (addressId: string) => void;
   setSelectedAddress: (addressId: string | null) => void;
-  toggleAddressSelection: (addressId: string) => void; // NEW
+  toggleAddressSelection: (addressId: string) => void;
   getAddressById: (addressId: string) => AddressData | undefined;
+  getCompactAddress: (addressId: string) => string;
 }
 
 const FacilityAddressContext = createContext<FacilityAddressContextType | undefined>(undefined);
@@ -75,6 +88,13 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
           const rehydratedAddresses = parsedState.addresses
             .map((addr: any) => ({
               ...addr,
+              houseNumber: addr.houseNumber || '',
+              road: addr.road || '',
+              neighbourhood: addr.neighbourhood || '',
+              suburb: addr.suburb || '',
+              county: addr.county || '',
+              country: addr.country || '',
+              countryCode: addr.countryCode || '',
               position: addr.position ? new L.LatLng(addr.position.lat, addr.position.lng) : null,
             }))
             .filter((addr: any) => addr.position !== null);
@@ -171,7 +191,6 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
     }));
   };
 
-  // NEW FUNCTION to handle checkboxes
   const toggleAddressSelection = (addressId: string) => {
     setFacilityAddressState((prevState) => {
       const isSelected = prevState.selectedFacilityIds.includes(addressId);
@@ -188,6 +207,12 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
     return facilityAddressState.addresses?.find(addr => addr.id === addressId);
   };
 
+  const getCompactAddress = (addressId: string): string => {
+    const address = getAddressById(addressId);
+    if (!address) return '';
+    return [address.houseNumber, address.road].filter(Boolean).join(' ');
+  };
+
   return (
     <FacilityAddressContext.Provider
       value={{
@@ -199,7 +224,8 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
         deleteAddress,
         setSelectedAddress,
         toggleAddressSelection,
-        getAddressById
+        getAddressById,
+        getCompactAddress
       }}
     >
       {children}
