@@ -6,34 +6,28 @@ import { v4 as uuidv4 } from 'uuid';
 interface Address {
   houseNumber: string;
   road: string;
-  neighbourhood: string;
-  suburb: string;
   city: string;
-  county: string;
   state: string;
   zipCode: string;
-  country: string;
-  countryCode: string;
   areaSqFt: string;
   operationalStart: string;
   operationalEnd: string;
+  placeId: string;
+  billType: ('electric' | 'natural_gas')[];
 }
 
 interface AddressData {
   id: string;
   houseNumber: string;
   road: string;
-  neighbourhood: string;
-  suburb: string;
   city: string;
-  county: string;
   state: string;
   zipCode: string;
-  country: string;
-  countryCode: string;
   areaSqFt: string;
   operationalStart: string;
   operationalEnd: string;
+  placeId: string;
+  billType: ('electric' | 'natural_gas')[];
   position: L.LatLng;
 }
 
@@ -85,20 +79,16 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
       try {
         const parsedState = JSON.parse(savedState);
         if (parsedState && typeof parsedState === 'object' && Array.isArray(parsedState.addresses)) {
-          const rehydratedAddresses = parsedState.addresses
-            .map((addr: any) => ({
-              ...addr,
-              houseNumber: addr.houseNumber || '',
-              road: addr.road || '',
-              neighbourhood: addr.neighbourhood || '',
-              suburb: addr.suburb || '',
-              county: addr.county || '',
-              country: addr.country || '',
-              countryCode: addr.countryCode || '',
-              position: addr.position ? new L.LatLng(addr.position.lat, addr.position.lng) : null,
-            }))
-            .filter((addr: any) => addr.position !== null);
-
+                      const rehydratedAddresses = parsedState.addresses
+                      .map((addr: any) => ({
+                        ...addr,
+                        houseNumber: addr.houseNumber || '',
+                        road: addr.road || '',
+                        placeId: addr.placeId || 0,
+                        billType: Array.isArray(addr.billType) ? addr.billType : [],
+                        position: addr.position ? new L.LatLng(addr.position.lat, addr.position.lng) : null,
+                      }))
+                      .filter((addr: any) => addr.position !== null);
           return {
             addresses: rehydratedAddresses,
             selectedAddressId: parsedState.selectedAddressId || null,
@@ -139,6 +129,7 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
     const newAddress: AddressData = {
       ...addressData,
       id: newId,
+      billType: addressData.billType || [],
     };
 
     setFacilityAddressState((prevState) => ({
@@ -160,7 +151,7 @@ export const FacilityAddressProvider: React.FC<FacilityAddressProviderProps> = (
     }));
   };
 
-  const updateAddressField = (addressId: string, field: keyof Address, value: string) => {
+  const updateAddressField = (addressId: string, field: keyof Address, value: string | string[]) => {
     setFacilityAddressState((prevState) => ({
       ...prevState,
       addresses: (prevState.addresses || []).map(addr =>

@@ -5,10 +5,13 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useElectricBillUpload } from '../../Context/Energy Profile/SubStep2/Electric Bill Upload Context'
 import { useBillAddress } from '../../Context/Energy Profile/BillAddressContext';
+import { useFacilityAddress } from '../../Context/Organizational Profile/SubStep2/Facility Address Context';
 
 const SubStep2: React.FC = () => {
   const { addFiles, removeFile } = useElectricBillUpload();
   const { bills, addBill, removeBill: removeBillFromContext, addresses, assignAddressToBill, updateBillDateRange } = useBillAddress();
+  const { getAddressById } = useFacilityAddress();
+  
   const electricBills = bills.filter(b => b.type === 'grid');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -53,6 +56,12 @@ const SubStep2: React.FC = () => {
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
+
+  // Filter addresses for electric bill type
+  const electricAddresses = addresses.filter(addr => {
+    const facilityAddr = getAddressById(addr.id);
+    return facilityAddr?.billType?.includes('electric');
+  });
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
@@ -175,7 +184,7 @@ const SubStep2: React.FC = () => {
   <MenuItem value="" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontStyle: 'italic', color: 'text.secondary' }}>
     Select
   </MenuItem>
-  {addresses.map(address => (
+  {electricAddresses.map(address => (
   <MenuItem  
     key={address.id}  
     value={address.id}

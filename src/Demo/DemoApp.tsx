@@ -62,6 +62,17 @@ const AppContent: React.FC = () => {
     const { naturalGasBillUploadState } = useNaturalGasBillUpload();
     const { bills, isNextDisabled } = useBillAddress();
 
+    const getFacilityFlags = () => {
+        const selectedAddresses = facilityAddressState.addresses.filter(addr => 
+            facilityAddressState.selectedFacilityIds.includes(addr.id)
+        );
+        const hasElectric = selectedAddresses.some(addr => addr.billType.includes('electric'));
+        const hasGas = selectedAddresses.some(addr => addr.billType.includes('natural_gas'));
+        return { selectedAddresses, hasElectric, hasGas };
+    };
+
+    const { hasElectric, hasGas } = getFacilityFlags();
+
     // const navigate = useNavigate();
     const [organizationId, setOrganizationId] = useState<string | null>(null);
     const [addressUuidMap, setAddressUuidMap] = useState<{ [key: string]: string }>({});
@@ -148,6 +159,77 @@ const AppContent: React.FC = () => {
         }
     };
 
+    const submitBillData = async (
+        electricFiles: File[], 
+        gasFiles: File[], 
+        electricMetadata: BillMetadata[], 
+        gasMetadata: BillMetadata[],
+        currentUuidMap: { [key: string]: string }
+    ) => {
+        const Files = [...electricFiles, ...gasFiles];
+        const sources = [...electricFiles.map(() => 'grid'), ...gasFiles.map(() => 'gas')];
+        
+        const electricUuids = electricMetadata.map(meta => {
+             if (meta.addressId) {
+                 return currentUuidMap[meta.addressId];
+             }
+             return null;
+        });
+        const gasUuids = gasMetadata.map(meta => {
+             if (meta.addressId) {
+                 return currentUuidMap[meta.addressId];
+             }
+             return null;
+        });
+        const uuidsForUpload = [...electricUuids, ...gasUuids].filter((uuid): uuid is string => uuid !== null);
+
+        if (uuidsForUpload.length !== Files.length) {
+             setErrorTitle('Facility Mapping Error');
+             setErrorMsg("An internal error occurred: Could not map a facility to every file. Please review your uploads.");
+             setErrorModalOpen(true);
+             setIsLoading(false);
+             return false;
+        }
+
+        setIsLoading(true);
+        try {
+             const apiResponse = await uploadBillData(Files, sources, uuidsForUpload);
+             if (apiResponse && Array.isArray(apiResponse) && apiResponse.length > 0) {
+                 setDashboardData(apiResponse);
+                 return true;
+             } else {
+                 throw new Error("API returned invalid or empty dashboard data.");
+             }
+        } catch (error: any) {
+             setErrorTitle('Bill Upload Failed');
+             const status = error.response?.status || error.status;
+             let friendlyError: string;
+             switch (status) {
+                 case 415: // Specific to this step
+                     friendlyError = "File or uploaded data format not supported.";
+                     break;
+                 case 400:
+                     friendlyError = "Invalid data provided for one or more fields.";
+                     break;
+                 case 422:
+                     friendlyError = "Data provided in invalid format for one or more fields.";
+                     break;
+                 case 404:
+                     friendlyError = "Resource not found.";
+                     break;
+                 case 500:
+                     friendlyError = "Something went wrong. Please try after some time.";
+                     break;
+                 default:
+                     friendlyError = error.message || "An unknown error occurred. Please try again.";
+             }
+             setErrorMsg(friendlyError);
+             setErrorModalOpen(true);
+             setIsLoading(false);
+             return false;
+        }
+    };
+
     const handleNext = async () => {
         const isLastFurtherSubStep = currentFurtherSubStep === steps[currentStep].subSteps[currentSubStep].furtherSubSteps.length - 1;
         const isLastSubStep = currentSubStep === steps[currentStep].subSteps.length - 1;
@@ -171,15 +253,14 @@ const AppContent: React.FC = () => {
         }
 
         // Step 0: Save Org Details
-        if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 0) {
-            setIsLoading(true);
-            try {
-                const orgId = await updateOrganizationDetails(organizationDetailsState);
-                setOrganizationId(orgId);
-            } catch (error: any) {
-                setErrorTitle('Save Organization Failed');
+        if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 0) {
+            setIsLoading(true);
+            try {
+                const orgId = await updateOrganizationDetails(organizationDetailsState);
+                setOrganizationId(orgId);
+            } catch (error: any) {
+                setErrorTitle('Save Organization Failed');
                 
-                // --- Updated Error Handling ---
                 const status = error.response?.status || error.status;
                 let friendlyError: string;
                 switch (status) {
@@ -198,148 +279,73 @@ const AppContent: React.FC = () => {
                     default:
                         friendlyError = error.message || "An unknown error occurred. Please try again.";
                 }
-                setErrorMsg(friendlyError);
-                // --- End of Update ---
+                setErrorMsg(friendlyError);
 
-                setErrorModalOpen(true);
-                setIsLoading(false);
-                return; 
-            }
-            setIsLoading(false);
-        }
-
-        // Step 0: Facility Addresses
-if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 1) {
-    if (!organizationId) {
-        setErrorTitle('Facility Address Save Failed');
-        setErrorMsg("Organization ID not found. Cannot update addresses.");
-        setErrorModalOpen(true);
-        return;
-    }
-
-    const selectedAddresses = facilityAddressState.addresses.filter(addr => 
-        facilityAddressState.selectedFacilityIds.includes(addr.id)
-    );
-
-    if (selectedAddresses.length === 0) {
-         setErrorTitle('No Facility Selected');
-         setErrorMsg("Please select at least one facility to continue.");
-         setErrorModalOpen(true);
-         return;
-    }
-
-    const addressesPayload = selectedAddresses.map(({ id, position, ...address }) => ({
-        houseNumber: address.houseNumber || '',
-        road: address.road || '',
-        neighbourhood: address.neighbourhood || '',
-        suburb: address.suburb || '',
-        city: address.city || '',
-        county: address.county || '',
-        state: address.state || '',
-        zipCode: address.zipCode || '',
-        country: address.country || '',
-        countryCode: address.countryCode || '',
-        areaSqFt: address.areaSqFt || '',
-        operationalStart: address.operationalStart || '',
-        operationalEnd: address.operationalEnd || '',
-        organizationId: organizationId,
-    }));
-    
-    setIsLoading(true);
-    try {
-        const response = await updateFacilityAddresses(addressesPayload);
-        const newMap: { [key: string]: string } = {};
-        selectedAddresses.forEach((address, index) => {
-            newMap[address.id] = response.facility_ids[index];
-        });
-        
-        setAddressUuidMap(newMap);
-    } catch (error: any) {
-        setErrorTitle('Save Facility Addresses Failed');
-        
-        const status = error.response?.status || error.status;
-        let friendlyError: string;
-        switch (status) {
-            case 409:
-                friendlyError = "Invalid ZipCode/Address data provided.";
-                break;
-            case 400:
-                friendlyError = "Invalid data provided for one or more fields.";
-                break;
-            case 422:
-                friendlyError = "Data provided in invalid format for one or more fields.";
-                break;
-            case 404:
-                friendlyError = "Resource not found.";
-                break;
-            case 500:
-                friendlyError = "Something went wrong. Please try after some time.";
-                break;
-            default:
-                friendlyError = error.message || "An unknown error occurred. Please try again.";
+                setErrorModalOpen(true);
+                setIsLoading(false);
+                return; 
+            }
+            setIsLoading(false);
         }
-        setErrorMsg(friendlyError);
-        
-        setErrorModalOpen(true);
-        setIsLoading(false);
-        return;
-    }
-    setIsLoading(false);
-}
 
-        // Step 0: Bill Uploads
-        if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 6) {
-            const billsWithAddress = bills.filter(bill => bill.addressId);
-            const electricBillMetadataList: BillMetadata[] = billsWithAddress.filter(bill => bill.type === 'grid').map(bill => ({ ...bill, size: bill.size.toString(), addressId: bill.addressId! }));
-            const gasBillMetadataList: BillMetadata[] = billsWithAddress.filter(bill => bill.type === 'gas').map(bill => ({ ...bill, size: bill.size.toString(), addressId: bill.addressId! }));
-            const electricBillNames = new Set(electricBillMetadataList.map(bill => bill.name));
-            const electricFiles = electricBillUploadState.files.filter(file => electricBillNames.has(file.name));
-            const gasBillNames = new Set(gasBillMetadataList.map(bill => bill.name));
-            const gasFiles = naturalGasBillUploadState.files.filter(file => gasBillNames.has(file.name));
-            const Files = [...electricFiles, ...gasFiles];
-            const sources = [...electricFiles.map(() => 'grid'), ...gasFiles.map(() => 'gas')];
-            const allBillMetadata = [...electricBillMetadataList, ...gasBillMetadataList];
-            const fileToMetadataMap = new Map<string, BillMetadata>();
-            allBillMetadata.forEach(meta => fileToMetadataMap.set(meta.name, meta));
-            const electricUuids = electricBillMetadataList.map(meta => {
-                    if (meta.addressId) {
-                        return addressUuidMap[meta.addressId];
-                    }
-                        return null;
-                });
-            const gasUuids = gasBillMetadataList.map(meta => {
-                    if (meta.addressId) {
-                        return addressUuidMap[meta.addressId];
-                    }
-                    return null;
-                });
-            const uuidsForUpload = [...electricUuids, ...gasUuids].filter((uuid): uuid is string => uuid !== null);
+        // Step 0: Facility Addresses
+        if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 1) {
+            if (!organizationId) {
+                setErrorTitle('Facility Address Save Failed');
+                setErrorMsg("Organization ID not found. Cannot update addresses.");
+                setErrorModalOpen(true);
+                return;
+            }
 
-            if (uuidsForUpload.length !== Files.length) {
-                setErrorTitle('Facility Mapping Error');
-                setErrorMsg("An internal error occurred: Could not map a facility to every file. Please review your uploads.");
-                setErrorModalOpen(true);
-                setIsLoading(false);
-                return;
-            }
+            const { selectedAddresses, hasElectric } = getFacilityFlags();
 
-            setIsLoading(true);
-            try {
-                const apiResponse = await uploadBillData(Files, sources, uuidsForUpload);
-                if (apiResponse && Array.isArray(apiResponse) && apiResponse.length > 0) {
-                    setDashboardData(apiResponse);
-                } else {
-                    throw new Error("API returned invalid or empty dashboard data.");
-                }
-            } catch (error: any) {
-                setErrorTitle('Bill Upload Failed');
+            if (selectedAddresses.length === 0) {
+                 setErrorTitle('No Facility Selected');
+                 setErrorMsg("Please select at least one facility to continue.");
+                 setErrorModalOpen(true);
+                 return;
+            }
 
-                // --- Updated Error Handling ---
+            const addressesPayload = selectedAddresses.map(({ id, position, ...address }) => ({
+                houseNumber: address.houseNumber || '',
+                streetAddress: address.road || '',
+                city: address.city || '',
+                state: address.state || '',
+                zipCode: address.zipCode || '',
+                areaSqFt: address.areaSqFt || '',
+                operationalStart: address.operationalStart || '',
+                operationalEnd: address.operationalEnd || '',
+                organizationId: organizationId,
+                placeId: address.placeId || '',
+                position: position ? { lat: position.lat, lng: position.lng } : null,
+            }));
+            
+            setIsLoading(true);
+            try {
+                const response = await updateFacilityAddresses(addressesPayload);
+                const newMap: { [key: string]: string } = {};
+                selectedAddresses.forEach((address, index) => {
+                    newMap[address.id] = response.facility_ids[index];
+                });
+                
+                setAddressUuidMap(newMap);
+                
+                if (hasElectric) {
+                } else {
+                    setCurrentFurtherSubStep(3);
+                    markVisited(0, 3);
+                    setIsLoading(false);
+                    return;
+                }
+
+            } catch (error: any) {
+                setErrorTitle('Save Facility Addresses Failed');
+                
                 const status = error.response?.status || error.status;
                 let friendlyError: string;
                 switch (status) {
-                    case 415: // Specific to this step
-                        friendlyError = "File or uploaded data format not supported.";
+                    case 409:
+                        friendlyError = "Invalid ZipCode/Address data provided.";
                         break;
                     case 400:
                         friendlyError = "Invalid data provided for one or more fields.";
@@ -354,33 +360,85 @@ if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 1) {
                         friendlyError = "Something went wrong. Please try after some time.";
                         break;
                     default:
-                         // Keep the specific client-side error message if one was thrown
                         friendlyError = error.message || "An unknown error occurred. Please try again.";
                 }
-                setErrorMsg(friendlyError);
-                // --- End of Update ---
+                setErrorMsg(friendlyError);
+                
+                setErrorModalOpen(true);
+                setIsLoading(false);
+                return;
+            }
+            setIsLoading(false);
+        }
 
-                setErrorModalOpen(true);
-                setIsLoading(false);
-                return;
-            }
-            setIsLoading(false);
-        }
+        const gatherBillData = () => {
+             const billsWithAddress = bills.filter(bill => bill.addressId);
+             const electricBillMetadataList: BillMetadata[] = billsWithAddress.filter(bill => bill.type === 'grid').map(bill => ({ ...bill, size: bill.size.toString(), addressId: bill.addressId! }));
+             const gasBillMetadataList: BillMetadata[] = billsWithAddress.filter(bill => bill.type === 'gas').map(bill => ({ ...bill, size: bill.size.toString(), addressId: bill.addressId! }));
+             
+             const electricBillNames = new Set(electricBillMetadataList.map(bill => bill.name));
+             const electricFiles = electricBillUploadState.files.filter(file => electricBillNames.has(file.name));
+             
+             const gasBillNames = new Set(gasBillMetadataList.map(bill => bill.name));
+             const gasFiles = naturalGasBillUploadState.files.filter(file => gasBillNames.has(file.name));
 
+             return { electricFiles, gasFiles, electricBillMetadataList, gasBillMetadataList };
+        };
+
+        // Step 0: Bill Uploads (Natural Gas)
+        if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 6) {
+             const { electricFiles, gasFiles, electricBillMetadataList, gasBillMetadataList } = gatherBillData();
+             const success = await submitBillData(electricFiles, gasFiles, electricBillMetadataList, gasBillMetadataList, addressUuidMap);
+             if (!success) return;
+             setIsLoading(false);
+        }
+
+        // Step 0: Electric Bill Upload
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 2) {
             markCompleted(0, 0);
             const hasFiles = electricBillUploadState.fileMetadata.length > 0;
-            console.log("Electric Bill Files Uploaded:", hasFiles);
+            const { hasGas } = getFacilityFlags();
+
+            console.log("Electric Bill Files Uploaded:", hasFiles, "Has Gas:", hasGas);
+            
             if (hasFiles) {
-                setCurrentStep(0);
-                setCurrentSubStep(0);
-                setCurrentFurtherSubStep(6);
-                markVisited(0, 6);
+                if (hasGas) {
+                    setCurrentStep(0);
+                    setCurrentSubStep(0);
+                    setCurrentFurtherSubStep(6);
+                    markVisited(0, 6);
+                } else {
+                    const { electricFiles, gasFiles, electricBillMetadataList, gasBillMetadataList } = gatherBillData();
+                    const success = await submitBillData(electricFiles, gasFiles, electricBillMetadataList, gasBillMetadataList, addressUuidMap);
+                    
+                    if (success) {
+                        setCurrentStep(0);
+                        setCurrentSubStep(1);
+                        setCurrentFurtherSubStep(0);
+                        markVisited(0, 1);
+                        markCompleted(0, 0);
+                    }
+                    setIsLoading(false);
+                }
+                return;
             } else {
                 setCurrentFurtherSubStep(3);
                 markVisited(0, 3);
+                return;
             }
-            return;
+        }
+
+        // Step 0: LOA Status - Intercept transition to Gas
+        if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 5) {
+             const { hasGas } = getFacilityFlags();
+             if (!hasGas) {
+                 setCurrentStep(0);
+                 setCurrentSubStep(1);
+                 setCurrentFurtherSubStep(0);
+                 markVisited(0, 1);
+                 markCompleted(0, 0);
+                 return;
+             }
         }
 
         if (isLastFurtherSubStep) {
@@ -572,6 +630,8 @@ if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 1) {
                         visitedSteps={visitedSteps}
                         onStepChange={handleStepChange}
                         hasElectricFiles={electricBillUploadState.fileMetadata.length > 0}
+                        hasElectric={hasElectric}
+                        hasGas={hasGas}
                     />
                 </Box>
                 <Box component="main" sx={{ flexGrow: 1, p: 4, bgcolor: '#f5f5f5', overflowX: 'auto', scrollbarWidth: 'none' }}>

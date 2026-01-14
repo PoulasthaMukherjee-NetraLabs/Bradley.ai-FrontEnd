@@ -21,19 +21,15 @@ organization_id: string;
 
 export interface AddressPayload {
   houseNumber: string;
-  road: string;
-  neighbourhood: string;
-  suburb: string;
+  streetAddress: string;
   city: string;
-  county: string;
   state: string;
   zipCode: string;
-  country: string;
-  countryCode: string;
   organizationId: string;
   areaSqFt: string;
   operationalStart: string;
   operationalEnd: string;
+  placeId: string;
 }
 
 export interface BillMetadata {

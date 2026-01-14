@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Button, Checkbox, TextField, Typography, Chip } from '@mui/material';
-import { useLOA } from '../../../Client/Context/Energy Profile/SubStep2/Letter Of Authorization Context';
+import { useLOA } from '../../Context/Energy Profile/SubStep2/Letter Of Authorization Context';
 import { useOrganizationDetails } from '../../Context/Organizational Profile/SubStep2/Organization Details Context';
 import { useFacilityAddress } from '../../Context/Organizational Profile/SubStep2/Facility Address Context';
 
@@ -23,10 +23,10 @@ const SubStep3: React.FC = () => {
   const address = currentAddress || {
     houseNumber: '',
     road: '',
-    neighbourhood: '',
-    suburb: '',
+    // neighbourhood: '',
+    // suburb: '',
     city: '',
-    county: '',
+    // county: '',
     state: '',
     zipCode: '',
     country: '',
@@ -44,8 +44,8 @@ const SubStep3: React.FC = () => {
     if (streetAddr) parts.push(streetAddr);
     
     // Neighbourhood or suburb
-    if (addr.neighbourhood) parts.push(addr.neighbourhood);
-    else if (addr.suburb) parts.push(addr.suburb);
+    // if (addr.neighbourhood) parts.push(addr.neighbourhood);
+    // else if (addr.suburb) parts.push(addr.suburb);
     
     // City, State ZIP
     const cityStateZip = [addr.city, addr.state, addr.zipCode].filter(Boolean).join(', ');
