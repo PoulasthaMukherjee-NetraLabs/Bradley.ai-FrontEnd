@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Box, Typography, TextField, Button, Tooltip, IconButton, Paper, Modal
+  Box, Typography, TextField, Button, Tooltip, IconButton, Paper, Modal, Checkbox, FormControlLabel, FormGroup
 } from '@mui/material';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap, LayersControl } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -126,17 +126,14 @@ const SubStep2 = () => {
         const newAddressId = addAddress({
           houseNumber: '',
           road: '',
-          neighbourhood: '',
-          suburb: '',
           city: '', 
-          county: '',
           state: '', 
           zipCode: '', 
-          country: '',
-          countryCode: '',
           areaSqFt: '', 
           operationalStart: '', 
           operationalEnd: '', 
+          placeId: '',
+          billType: [],
           position
         });
         handleFetchAddress(newAddressId, position);
@@ -153,14 +150,10 @@ const SubStep2 = () => {
         // Fetch all available fields
         updateAddressField(addressId, 'houseNumber', addr.house_number || '');
         updateAddressField(addressId, 'road', addr.road || '');
-        updateAddressField(addressId, 'neighbourhood', addr.neighbourhood || addr.suburb || '');
-        updateAddressField(addressId, 'suburb', addr.suburb || '');
         updateAddressField(addressId, 'city', addr.city || addr.town || addr.village || '');
-        updateAddressField(addressId, 'county', addr.county || '');
         updateAddressField(addressId, 'state', addr.state || '');
         updateAddressField(addressId, 'zipCode', addr.postcode || '');
-        updateAddressField(addressId, 'country', addr.country || '');
-        updateAddressField(addressId, 'countryCode', addr.country_code?.toUpperCase() || '');
+        updateAddressField(addressId, 'placeId', data.place_id?.toString() || '');
         
         updateAddressField(addressId, 'areaSqFt', '');
         updateAddressField(addressId, 'operationalStart', '');
@@ -315,15 +308,10 @@ const SubStep2 = () => {
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {[
                         { label: "House Number:", key: "houseNumber", placeholder: "Enter house number" },
-                        { label: "Road/Street:", key: "road", placeholder: "Enter road/street name" },
-                        { label: "Neighbourhood:", key: "neighbourhood", placeholder: "Enter neighbourhood" },
-                        { label: "Suburb:", key: "suburb", placeholder: "Enter suburb" },
+                        { label: "Road:", key: "road", placeholder: "Enter road name" },
                         { label: "City:", key: "city", placeholder: "Enter city name" },
-                        { label: "County:", key: "county", placeholder: "Enter county" },
                         { label: "State:", key: "state", placeholder: "Enter state" },
                         { label: "Zip Code:", key: "zipCode", placeholder: "Enter zip code" },
-                        { label: "Country:", key: "country", placeholder: "Enter country" },
-                        { label: "Country Code:", key: "countryCode", placeholder: "Enter country code" },
                         { label: "Area (in sq ft):", key: "areaSqFt", placeholder: "Enter area in sq ft" },
                       ].map(({ label, key, placeholder }) => (
                       <Box key={key} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
@@ -350,6 +338,55 @@ const SubStep2 = () => {
                         />
                       </Box>
                     ))}
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.7rem', fontWeight: 'bold' }}>
+                        Bill Type:
+                      </Typography>
+                      <FormGroup row>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={address.billType?.includes('electric')}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                const currentTypes = address.billType || [];
+                                const newTypes = e.target.checked
+                                  ? [...currentTypes, 'electric']
+                                  : currentTypes.filter((t: any) => t !== 'electric');
+                                // @ts-ignore
+                                updateAddressField(address.id, 'billType', newTypes);
+                              }}
+                              size="small"
+                              onClick={(e) => e.stopPropagation()}
+                              sx={{ padding: '4px' }}
+                            />
+                          }
+                          label={<Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }}>Electric</Typography>}
+                          sx={{ marginRight: 2 }}
+                        />
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={address.billType?.includes('natural_gas')}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                const currentTypes = address.billType || [];
+                                const newTypes = e.target.checked
+                                  ? [...currentTypes, 'natural_gas']
+                                  : currentTypes.filter((t: any) => t !== 'natural_gas');
+                                // @ts-ignore
+                                updateAddressField(address.id, 'billType', newTypes);
+                              }}
+                              size="small"
+                              onClick={(e) => e.stopPropagation()}
+                              sx={{ padding: '4px' }}
+                            />
+                          }
+                          label={<Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }}>Natural Gas</Typography>}
+                        />
+                      </FormGroup>
+                    </Box>
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                       <Typography

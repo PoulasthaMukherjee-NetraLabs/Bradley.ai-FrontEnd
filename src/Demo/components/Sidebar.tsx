@@ -25,6 +25,8 @@ interface SidebarProps {
   visitedSteps: boolean[][];
   onStepChange: (step: number, subStep: number, furtherSubStep: number) => void;
   hasElectricFiles: boolean;
+  hasElectric: boolean;
+  hasGas: boolean;
 }
 
 const iconMap: { [key: string]: React.ElementType } = {
@@ -65,6 +67,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   visitedSteps,
   onStepChange,
   hasElectricFiles,
+  hasElectric,
+  hasGas,
 }) => {
 
   const { flatSteps, activeFlatIndex } = useMemo(() => {
@@ -141,7 +145,22 @@ const Sidebar: React.FC<SidebarProps> = ({
           const isCurrent = activeFlatIndex === flatIndex;
           const isCompleted = flatIndex < activeFlatIndex;
           const isVisited = visitedSteps[stepIndex]?.[subStepIndex] === true;
-          const isDisabled = hasElectricFiles && (label === "Don't Have Interval Data" || label === "Letter Of Authorization" || label === "LOA - Status");
+          
+          let isDisabled = false;
+          let tooltipTitle = "";
+
+          if (label === 'Electric Bill Upload' && !hasElectric) {
+              isDisabled = true;
+              tooltipTitle = "No electric facility selected";
+          } else if (label === 'Natural Gas Bill Upload' && !hasGas) {
+              isDisabled = true;
+              tooltipTitle = "No natural gas facility selected";
+          } else if (hasElectricFiles && (label === "Don't Have Interval Data" || label === "Letter Of Authorization" || label === "LOA - Status")) {
+              isDisabled = true;
+              tooltipTitle = "You have already uploaded an electric bill";
+          } else if (label === "Don't Have Interval Data" && !hasElectric) {
+          }
+
           const isClickable = !isDisabled && (isVisited || isCompleted);
 
           const textColor = isDisabled ? '#bdbdbd' : (isCurrent ? '#036ca1' : (isVisited || isCompleted ? '#0584b7' : 'gray'));
@@ -190,7 +209,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     </ListItemButton>
                   </Tooltip>
                 ) : (
-                  <Tooltip title={isDisabled ? "You have already uploaded an electric bill" : ""} placement="right" arrow>
+                  <Tooltip title={tooltipTitle} placement="right" arrow>
                     <ListItemButton
                       sx={{
                         padding: '3px 4px',

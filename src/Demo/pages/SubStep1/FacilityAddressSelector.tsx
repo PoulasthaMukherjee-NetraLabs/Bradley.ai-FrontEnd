@@ -9,6 +9,8 @@ import {
   Edit as EditIcon,
   ViewModule as GridViewIcon,
   ViewList as ListViewIcon,
+  Bolt as ElectricIcon,
+  LocalFireDepartment as GasIcon,
   // Home as HomeIcon,
   // Public as PublicIcon,
   // LocationCity as CityIcon,
@@ -148,24 +150,63 @@ const FacilityAddressSelector: React.FC = () => {
                   }
                 }}
               >
-                <Tooltip arrow title="Edit Location details on Map">
-                  <IconButton 
-                      size="small"
-                      onClick={(e) => handleEdit(e, address.id)}
-                      onMouseEnter={() => setHoveredEditId(address.id)}
-                      onMouseLeave={() => setHoveredEditId(null)}
-                      sx={{
-                          position: 'absolute',
-                          top: 8,
-                          right: 8,
-                          zIndex: 3,
-                          bgcolor: 'rgba(255,255,255,0.9)',
-                          '&:hover': { bgcolor: 'white', color: '#1976d2' }
-                      }}
-                  >
-                      <EditIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
+                  <Box sx={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      zIndex: 3,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5
+                  }}>
+                      {address.billType?.includes('electric') && (
+                          <Tooltip title="Electric Bill Type">
+                              <Box sx={{
+                                  bgcolor: 'rgba(255,255,255,0.9)',
+                                  borderRadius: '50%',
+                                  p: 0.5,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  color: '#fbc02d',
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                              }}>
+                                  <ElectricIcon fontSize="small" />
+                              </Box>
+                          </Tooltip>
+                      )}
+                      {address.billType?.includes('natural_gas') && (
+                          <Tooltip title="Natural Gas Bill Type">
+                              <Box sx={{
+                                  bgcolor: 'rgba(255,255,255,0.9)',
+                                  borderRadius: '50%',
+                                  p: 0.5,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  color: '#e64a19',
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                              }}>
+                                  <GasIcon fontSize="small" />
+                              </Box>
+                          </Tooltip>
+                      )}
+                    <Tooltip arrow title="Edit Location details on Map">
+                      <IconButton 
+                          size="small"
+                          onClick={(e) => handleEdit(e, address.id)}
+                          onMouseEnter={() => setHoveredEditId(address.id)}
+                          onMouseLeave={() => setHoveredEditId(null)}
+                          sx={{
+                              bgcolor: 'rgba(255,255,255,0.9)',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                              '&:hover': { bgcolor: 'white', color: '#1976d2' }
+                          }}
+                      >
+                          <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                </Box>
 
                 {/* Header Section */}
                 <Box sx={{ 
@@ -237,55 +278,61 @@ const FacilityAddressSelector: React.FC = () => {
                     </Box>
                   )}
 
-                  {/* Neighbourhood */}
-                  {address.neighbourhood && (
+                  {/* City */}
+                  {address.city && (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
                       <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                        Neighbourhood
+                        City
                       </Typography>
                       <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#2c3e50', fontWeight: 700 }}>
-                        {address.neighbourhood}
+                        {address.city}
                       </Typography>
                     </Box>
                   )}
 
-                  {/* Suburb */}
-                  {address.suburb && (
+                  {/* State */}
+                  {address.state && (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
                       <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                        Suburb
+                        State
                       </Typography>
                       <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#2c3e50', fontWeight: 700 }}>
-                        {address.suburb}
+                        {address.state}
                       </Typography>
                     </Box>
                   )}
 
-                  {/* County */}
-                  {address.county && (
+                  {/* Zip Code */}
+                  {address.zipCode && (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
                       <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                        County
+                        Zip Code
                       </Typography>
                       <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#2c3e50', fontWeight: 700 }}>
-                        {address.county}
+                        {address.zipCode}
                       </Typography>
                     </Box>
                   )}
 
-                  {/* Country */}
-                  {address.country && (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
-                      <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                        Country
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#2c3e50', fontWeight: 700 }}>
-                          {address.country}
+                  {/* Bill Types */}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
+                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      Bill Type(s)
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      {address.billType.length > 0 ? (
+                        address.billType.map((type) => (
+                          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 700, color: '#2c3e50' }}>
+                            <span>{type === 'electric' ? 'Electric' : 'Natural Gas'}</span>
+                          </Typography>
+                        ))
+                      ) : (
+                        <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#7f8c8d', fontWeight: 600 }}>
+                          Not set
                         </Typography>
-                      </Box>
+                      )}
                     </Box>
-                  )}
+                  </Box>
 
                   {/* Area */}
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>

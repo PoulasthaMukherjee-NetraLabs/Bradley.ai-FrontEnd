@@ -4,10 +4,13 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNaturalGasBillUpload } from '../../Context/Energy Profile/SubStep2/Natural Gas Bill Upload Context';
 import { useBillAddress } from '../../Context/Energy Profile/BillAddressContext';
+import { useFacilityAddress } from '../../Context/Organizational Profile/SubStep2/Facility Address Context';
 
 const SubStep2: React.FC = () => {
   const { addFiles, removeFile } = useNaturalGasBillUpload();
   const { bills, addBill, removeBill: removeBillFromContext, addresses, assignAddressToBill, updateBillDateRange } = useBillAddress();
+  const { getAddressById } = useFacilityAddress();
+
   const gasBills = bills.filter(b => b.type === 'gas');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,6 +55,12 @@ const SubStep2: React.FC = () => {
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
+
+    // Filter addresses for natural_gas bill type
+    const gasAddresses = addresses.filter(addr => {
+      const facilityAddr = getAddressById(addr.id);
+      return facilityAddr?.billType?.includes('natural_gas');
+    });
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem', p: 1, pr: 4, pl: 1, pt: 1 }}>
@@ -173,7 +182,7 @@ const SubStep2: React.FC = () => {
   <MenuItem value="" sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontStyle: 'italic', color: 'text.secondary' }}>
       Select
     </MenuItem>
-  {addresses.map(address => (
+  {gasAddresses.map(address => (
     <MenuItem  
       key={address.id}  
       value={address.id}
