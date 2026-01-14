@@ -157,7 +157,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               tooltipTitle = "No natural gas facility selected";
           } else if (hasElectric && (label === "Don't Have Interval Data" || label === "Letter Of Authorization" || label === "LOA - Status")) {
               isDisabled = true;
-              tooltipTitle = "You have an electric facility with interval data";
+              tooltipTitle = "You have an electric facility with interval data.";
           } else if (label === "Don't Have Interval Data" && !hasElectric) {
           }
 
