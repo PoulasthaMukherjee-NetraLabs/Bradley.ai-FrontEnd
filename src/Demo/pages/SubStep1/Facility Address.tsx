@@ -384,6 +384,27 @@ const SubStep2 = () => {
                             />
                           }
                           label={<Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }}>Natural Gas</Typography>}
+                          sx={{ marginRight: 2 }}
+                        />
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={address.billType?.includes('water')}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                const currentTypes = address.billType || [];
+                                const newTypes = e.target.checked
+                                  ? [...currentTypes, 'water']
+                                  : currentTypes.filter((t: any) => t !== 'water');
+                                // @ts-ignore
+                                updateAddressField(address.id, 'billType', newTypes);
+                              }}
+                              size="small"
+                              onClick={(e) => e.stopPropagation()}
+                              sx={{ padding: '4px' }}
+                            />
+                          }
+                          label={<Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.75rem' }}>Water</Typography>}
                         />
                       </FormGroup>
                     </Box>

@@ -27,6 +27,7 @@ interface SidebarProps {
   hasElectricFiles: boolean;
   hasElectric: boolean;
   hasGas: boolean;
+  hasWater: boolean;
 }
 
 const iconMap: { [key: string]: React.ElementType } = {
@@ -37,6 +38,7 @@ const iconMap: { [key: string]: React.ElementType } = {
     'Letter Of Authorization': GrDocumentVerified,
     'LOA - Status': MdOutlineFactCheck,
     'Natural Gas Bill Upload': BsFileEarmarkArrowUp,
+    'Water Bill Upload': BsFileEarmarkArrowUp,
     'Emissions Dashboard': MdDashboard,
 };
 
@@ -69,6 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   // hasElectricFiles,
   hasElectric,
   hasGas,
+  hasWater,
 }) => {
 
   const { flatSteps, activeFlatIndex } = useMemo(() => {
@@ -155,6 +158,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           } else if (label === 'Natural Gas Bill Upload' && !hasGas) {
               isDisabled = true;
               tooltipTitle = "No natural gas facility selected";
+          } else if (label === 'Water Bill Upload' && !hasWater) {
+              isDisabled = true;
+              tooltipTitle = "No water facility selected";
           } else if (hasElectric && (label === "Don't Have Interval Data" || label === "Letter Of Authorization" || label === "LOA - Status")) {
               isDisabled = true;
               tooltipTitle = "You have an electric facility with interval data";

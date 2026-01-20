@@ -20,6 +20,7 @@ const stepSubStepMapping: StepSubStepMapping = {
       4: lazy(() => import('./pages/SubStep1/Letter Of Authorization')),
       5: lazy(() => import('./pages/SubStep1/LOA - Status')),
       6: lazy(() => import('./pages/SubStep1/Natural Gas Bill Upload')),
+      7: lazy(() => import('./pages/SubStep1/Water Bill Upload')),
     },
     1: {
       // 0: lazy(() => import('../Client/pages/Energy Profile/SubStep2/Thermal Energy Needs - I')),

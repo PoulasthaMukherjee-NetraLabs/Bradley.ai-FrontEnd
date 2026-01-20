@@ -21,6 +21,7 @@ import { OrganizationDetailsProvider, useOrganizationDetails } from './Context/O
 import { FacilityAddressProvider, useFacilityAddress } from './Context/Organizational Profile/SubStep2/Facility Address Context';
 import { ElectricBillUploadProvider, useElectricBillUpload } from './Context/Energy Profile/SubStep2/Electric Bill Upload Context';
 import { NaturalGasBillUploadProvider, useNaturalGasBillUpload } from './Context/Energy Profile/SubStep2/Natural Gas Bill Upload Context';
+import { WaterBillUploadProvider, useWaterBillUpload } from './Context/Energy Profile/SubStep2/Water Bill Upload Context';
 import { LOAProvider } from './Context/Energy Profile/SubStep2/Letter Of Authorization Context';
 import { LOAStatusProvider } from './Context/Energy Profile/SubStep2/LOA - Status Context';
 // import { ThermalEnergyNeedsIProvider } from './Context/Energy Profile/SubStep2/Thermal Energy Needs - I Context';
@@ -60,6 +61,7 @@ const AppContent: React.FC = () => {
     const { facilityAddressState } = useFacilityAddress();
     const { electricBillUploadState } = useElectricBillUpload();
     const { naturalGasBillUploadState } = useNaturalGasBillUpload();
+    const { waterBillUploadState } = useWaterBillUpload();
     const { bills, isNextDisabled } = useBillAddress();
 
     const getFacilityFlags = () => {
@@ -68,10 +70,11 @@ const AppContent: React.FC = () => {
         );
         const hasElectric = selectedAddresses.some(addr => addr.billType.includes('electric'));
         const hasGas = selectedAddresses.some(addr => addr.billType.includes('natural_gas'));
-        return { selectedAddresses, hasElectric, hasGas };
+        const hasWater = selectedAddresses.some(addr => addr.billType.includes('water'));
+        return { selectedAddresses, hasElectric, hasGas, hasWater };
     };
 
-    const { hasElectric, hasGas } = getFacilityFlags();
+    const { hasElectric, hasGas, hasWater } = getFacilityFlags();
 
     // const navigate = useNavigate();
     const [organizationId, setOrganizationId] = useState<string | null>(null);
@@ -162,12 +165,14 @@ const AppContent: React.FC = () => {
     const submitBillData = async (
         electricFiles: File[], 
         gasFiles: File[], 
+        waterFiles: File[],
         electricMetadata: BillMetadata[], 
         gasMetadata: BillMetadata[],
+        waterMetadata: BillMetadata[],
         currentUuidMap: { [key: string]: string }
     ) => {
-        const Files = [...electricFiles, ...gasFiles];
-        const sources = [...electricFiles.map(() => 'grid'), ...gasFiles.map(() => 'gas')];
+        const Files = [...electricFiles, ...gasFiles, ...waterFiles];
+        const sources = [...electricFiles.map(() => 'grid'), ...gasFiles.map(() => 'gas'), ...waterFiles.map(() => 'water')];
         
         const electricUuids = electricMetadata.map(meta => {
              if (meta.addressId) {
@@ -181,7 +186,13 @@ const AppContent: React.FC = () => {
              }
              return null;
         });
-        const uuidsForUpload = [...electricUuids, ...gasUuids].filter((uuid): uuid is string => uuid !== null);
+        const waterUuids = waterMetadata.map(meta => {
+             if (meta.addressId) {
+                 return currentUuidMap[meta.addressId];
+             }
+             return null;
+        });
+        const uuidsForUpload = [...electricUuids, ...gasUuids, ...waterUuids].filter((uuid): uuid is string => uuid !== null);
 
         if (uuidsForUpload.length !== Files.length) {
              setErrorTitle('Facility Mapping Error');
@@ -318,6 +329,7 @@ const AppContent: React.FC = () => {
                 organizationId: organizationId,
                 placeId: address.placeId || '',
                 position: position ? { lat: position.lat, lng: position.lng } : null,
+                billType: address.billType
             }));
             
             setIsLoading(true);
@@ -375,6 +387,7 @@ const AppContent: React.FC = () => {
              const billsWithAddress = bills.filter(bill => bill.addressId);
              const electricBillMetadataList: BillMetadata[] = billsWithAddress.filter(bill => bill.type === 'grid').map(bill => ({ ...bill, size: bill.size.toString(), addressId: bill.addressId! }));
              const gasBillMetadataList: BillMetadata[] = billsWithAddress.filter(bill => bill.type === 'gas').map(bill => ({ ...bill, size: bill.size.toString(), addressId: bill.addressId! }));
+             const waterBillMetadataList: BillMetadata[] = billsWithAddress.filter(bill => bill.type === 'water').map(bill => ({ ...bill, size: bill.size.toString(), addressId: bill.addressId! }));
              
              const electricBillNames = new Set(electricBillMetadataList.map(bill => bill.name));
              const electricFiles = electricBillUploadState.files.filter(file => electricBillNames.has(file.name));
@@ -382,24 +395,48 @@ const AppContent: React.FC = () => {
              const gasBillNames = new Set(gasBillMetadataList.map(bill => bill.name));
              const gasFiles = naturalGasBillUploadState.files.filter(file => gasBillNames.has(file.name));
 
-             return { electricFiles, gasFiles, electricBillMetadataList, gasBillMetadataList };
+             const waterBillNames = new Set(waterBillMetadataList.map(bill => bill.name));
+             const waterFiles = waterBillUploadState.files.filter(file => waterBillNames.has(file.name));
+
+             return { electricFiles, gasFiles, waterFiles, electricBillMetadataList, gasBillMetadataList, waterBillMetadataList };
         };
+
+        // Step 0: Bill Uploads (Water)
+        if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 7) {
+             const { electricFiles, gasFiles, waterFiles, electricBillMetadataList, gasBillMetadataList, waterBillMetadataList } = gatherBillData();
+             const success = await submitBillData(electricFiles, gasFiles, waterFiles, electricBillMetadataList, gasBillMetadataList, waterBillMetadataList, addressUuidMap);
+             if (!success) return;
+             setIsLoading(false);
+        }
 
         // Step 0: Bill Uploads (Natural Gas)
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 6) {
-             const { electricFiles, gasFiles, electricBillMetadataList, gasBillMetadataList } = gatherBillData();
-             const success = await submitBillData(electricFiles, gasFiles, electricBillMetadataList, gasBillMetadataList, addressUuidMap);
-             if (!success) return;
-             setIsLoading(false);
+             const { hasWater } = getFacilityFlags();
+             if (hasWater) {
+                 setCurrentFurtherSubStep(7);
+                 markVisited(0, 7);
+                 return;
+             } else {
+                 const { electricFiles, gasFiles, waterFiles, electricBillMetadataList, gasBillMetadataList, waterBillMetadataList } = gatherBillData();
+                 const success = await submitBillData(electricFiles, gasFiles, waterFiles, electricBillMetadataList, gasBillMetadataList, waterBillMetadataList, addressUuidMap);
+                 if (!success) return;
+                 setIsLoading(false);
+
+                 markCompleted(0, 0);
+                 setCurrentSubStep(1);
+                 setCurrentFurtherSubStep(0);
+                 markVisited(0, 1);
+                 return;
+             }
         }
 
         // Step 0: Electric Bill Upload
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 2) {
             markCompleted(0, 0);
             const hasFiles = electricBillUploadState.fileMetadata.length > 0;
-            const { hasGas } = getFacilityFlags();
+            const { hasGas, hasWater } = getFacilityFlags();
 
-            console.log("Electric Bill Files Uploaded:", hasFiles, "Has Gas:", hasGas);
+            console.log("Electric Bill Files Uploaded:", hasFiles, "Has Gas:", hasGas, "Has Water:", hasWater);
             
             if (hasFiles) {
                 if (hasGas) {
@@ -407,9 +444,14 @@ const AppContent: React.FC = () => {
                     setCurrentSubStep(0);
                     setCurrentFurtherSubStep(6);
                     markVisited(0, 6);
+                } else if (hasWater) {
+                    setCurrentStep(0);
+                    setCurrentSubStep(0);
+                    setCurrentFurtherSubStep(7);
+                    markVisited(0, 7);
                 } else {
-                    const { electricFiles, gasFiles, electricBillMetadataList, gasBillMetadataList } = gatherBillData();
-                    const success = await submitBillData(electricFiles, gasFiles, electricBillMetadataList, gasBillMetadataList, addressUuidMap);
+                    const { electricFiles, gasFiles, waterFiles, electricBillMetadataList, gasBillMetadataList, waterBillMetadataList } = gatherBillData();
+                    const success = await submitBillData(electricFiles, gasFiles, waterFiles, electricBillMetadataList, gasBillMetadataList, waterBillMetadataList, addressUuidMap);
                     
                     if (success) {
                         setCurrentStep(0);
@@ -428,15 +470,32 @@ const AppContent: React.FC = () => {
             }
         }
 
-        // Step 0: LOA Status - Intercept transition to Gas
+        // Step 0: LOA Status - Intercept transition to Gas/Water
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 5) {
-             const { hasGas } = getFacilityFlags();
-             if (!hasGas) {
+             const { hasGas, hasWater } = getFacilityFlags();
+             if (hasGas) {
                  setCurrentStep(0);
-                 setCurrentSubStep(1);
-                 setCurrentFurtherSubStep(0);
-                 markVisited(0, 1);
-                 markCompleted(0, 0);
+                 setCurrentSubStep(0);
+                 setCurrentFurtherSubStep(6);
+                 markVisited(0, 6);
+                 return;
+             } else if (hasWater) {
+                 setCurrentStep(0);
+                 setCurrentSubStep(0);
+                 setCurrentFurtherSubStep(7);
+                 markVisited(0, 7);
+                 return;
+             } else {
+                 const { electricFiles, gasFiles, waterFiles, electricBillMetadataList, gasBillMetadataList, waterBillMetadataList } = gatherBillData();
+                 const success = await submitBillData(electricFiles, gasFiles, waterFiles, electricBillMetadataList, gasBillMetadataList, waterBillMetadataList, addressUuidMap);
+                 
+                 if (success) {
+                     setCurrentStep(0);
+                     setCurrentSubStep(1);
+                     setCurrentFurtherSubStep(0);
+                     markVisited(0, 1);
+                     markCompleted(0, 0);
+                 }
                  return;
              }
         }
@@ -461,6 +520,24 @@ const AppContent: React.FC = () => {
     };
 
     const handleBack = () => {
+        // Back from Water (7)
+        if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 7) {
+            const { hasGas } = getFacilityFlags();
+            if (hasGas) {
+                setCurrentFurtherSubStep(6);
+                return;
+            } else {
+                const hasElectricFiles = electricBillUploadState.fileMetadata.length > 0;
+                if (hasElectricFiles) {
+                    setCurrentFurtherSubStep(2);
+                } else {
+                    setCurrentFurtherSubStep(5);
+                }
+                return;
+            }
+        }
+
+        // Back from Gas (6)
         if (currentStep === 0 && currentSubStep === 0 && currentFurtherSubStep === 6) {
             const hasFiles = electricBillUploadState.fileMetadata.length > 0;
             if (hasFiles) {
@@ -632,6 +709,7 @@ const AppContent: React.FC = () => {
                         hasElectricFiles={electricBillUploadState.fileMetadata.length > 0}
                         hasElectric={hasElectric}
                         hasGas={hasGas}
+                        hasWater={hasWater}
                     />
                 </Box>
                 <Box component="main" sx={{ flexGrow: 1, p: 4, bgcolor: '#f5f5f5', overflowX: 'auto', scrollbarWidth: 'none' }}>
@@ -694,6 +772,7 @@ const DemoApp: React.FC = () => {
                     <FacilityAddressProvider>
                         <ElectricBillUploadProvider>
                             <NaturalGasBillUploadProvider>
+                                <WaterBillUploadProvider>
                                 <LOAProvider>
                                     <LOAStatusProvider>
                                         {/* <ThermalEnergyNeedsIProvider>
@@ -711,6 +790,7 @@ const DemoApp: React.FC = () => {
                                         </ThermalEnergyNeedsIProvider> */}
                                     </LOAStatusProvider>
                                 </LOAProvider>
+                                </WaterBillUploadProvider>
                             </NaturalGasBillUploadProvider>
                         </ElectricBillUploadProvider>
                     </FacilityAddressProvider>

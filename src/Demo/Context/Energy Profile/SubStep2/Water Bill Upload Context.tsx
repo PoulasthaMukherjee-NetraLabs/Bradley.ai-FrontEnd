@@ -9,28 +9,28 @@ interface FileMetadata {
 }
 
 // Main state interface
-interface NaturalGasBillUploadState {
+interface WaterBillUploadState {
   fileMetadata: FileMetadata[];
   files: File[]; // Add files here
 }
 
-interface NaturalGasBillUploadContextType {
-  naturalGasBillUploadState: NaturalGasBillUploadState;
+interface WaterBillUploadContextType {
+  waterBillUploadState: WaterBillUploadState;
   addFiles: (newFiles: File[]) => void;
   removeFile: (fileName: string) => void;
 }
 
-const NaturalGasBillUploadContext = createContext<NaturalGasBillUploadContextType | undefined>(undefined);
+const WaterBillUploadContext = createContext<WaterBillUploadContextType | undefined>(undefined);
 
-export const useNaturalGasBillUpload = () => {
-  const context = useContext(NaturalGasBillUploadContext);
+export const useWaterBillUpload = () => {
+  const context = useContext(WaterBillUploadContext);
   if (!context) {
-    throw new Error('useNaturalGasBillUpload must be used within an NaturalGasBillUploadProvider');
+    throw new Error('useWaterBillUpload must be used within an WaterBillUploadProvider');
   }
   return context;
 };
 
-const defaultState: NaturalGasBillUploadState = {
+const defaultState: WaterBillUploadState = {
   fileMetadata: [],
   files: [],
 };
@@ -44,21 +44,21 @@ const formatFileSize = (bytes: number): string => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
-export const NaturalGasBillUploadProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [naturalGasBillUploadState, setNaturalGasBillUploadState] = useState<NaturalGasBillUploadState>(() => {
-    const savedState = localStorage.getItem('naturalGasBillUploadState');
+export const WaterBillUploadProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [waterBillUploadState, setWaterBillUploadState] = useState<WaterBillUploadState>(() => {
+    const savedState = localStorage.getItem('waterBillUploadState');
     const initialState = savedState ? JSON.parse(savedState) : defaultState;
     initialState.files = []; // Ensure files are not persisted
     return initialState;
   });
 
   useEffect(() => {
-    const stateToSave = { ...naturalGasBillUploadState, files: undefined };
-    localStorage.setItem('naturalGasBillUploadState', JSON.stringify(stateToSave));
-  }, [naturalGasBillUploadState]);
+    const stateToSave = { ...waterBillUploadState, files: undefined };
+    localStorage.setItem('waterBillUploadState', JSON.stringify(stateToSave));
+  }, [waterBillUploadState]);
 
   const addFiles = (newFiles: File[]) => {
-    setNaturalGasBillUploadState(prevState => {
+    setWaterBillUploadState(prevState => {
       const newMetadata = newFiles.map(file => ({ 
         name: file.name, 
         size: formatFileSize(file.size),
@@ -81,7 +81,7 @@ export const NaturalGasBillUploadProvider: React.FC<{ children: ReactNode }> = (
   };
 
   const removeFile = (fileName: string) => {
-    setNaturalGasBillUploadState(prevState => ({
+    setWaterBillUploadState(prevState => ({
       ...prevState,
       fileMetadata: prevState.fileMetadata.filter(meta => meta.name !== fileName),
       files: prevState.files.filter(file => file.name !== fileName),
@@ -89,8 +89,8 @@ export const NaturalGasBillUploadProvider: React.FC<{ children: ReactNode }> = (
   };
 
   return (
-    <NaturalGasBillUploadContext.Provider value={{ naturalGasBillUploadState, addFiles, removeFile }}>
+    <WaterBillUploadContext.Provider value={{ waterBillUploadState, addFiles, removeFile }}>
       {children}
-    </NaturalGasBillUploadContext.Provider>
+    </WaterBillUploadContext.Provider>
   );
 };

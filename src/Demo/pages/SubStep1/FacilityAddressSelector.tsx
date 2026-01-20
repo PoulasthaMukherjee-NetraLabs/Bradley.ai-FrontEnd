@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Button, /* Chip, Divider, */ IconButton, ToggleButtonGroup, ToggleButton, Tooltip, Fade } from '@mui/material';
+import { Box, Typography, Paper, Button, IconButton, ToggleButtonGroup, ToggleButton, Tooltip, Fade } from '@mui/material';
 import { 
   Add as AddIcon, 
   LocationOn as LocationIcon, 
@@ -11,10 +11,7 @@ import {
   ViewList as ListViewIcon,
   Bolt as ElectricIcon,
   LocalFireDepartment as GasIcon,
-  // Home as HomeIcon,
-  // Public as PublicIcon,
-  // LocationCity as CityIcon,
-  // Terrain as TerrainIcon
+  WaterDrop as WaterIcon,
 } from '@mui/icons-material';
 import { useFacilityAddress } from '../../Context/Organizational Profile/SubStep2/Facility Address Context';
 import { useBillAddress } from '../../Context/Energy Profile/BillAddressContext';
@@ -118,6 +115,9 @@ const FacilityAddressSelector: React.FC = () => {
       >
         {addresses.map((address) => {
           const isSelected = selectedFacilityIds.includes(address.id);
+          const hasElectric = address.billType?.includes('electric');
+          const hasGas = address.billType?.includes('natural_gas');
+          const hasWater = address.billType?.includes('water');
           
           return (
             <Tooltip 
@@ -159,38 +159,60 @@ const FacilityAddressSelector: React.FC = () => {
                       alignItems: 'center',
                       gap: 0.5
                   }}>
-                      {address.billType?.includes('electric') && (
-                          <Tooltip title="Electric Bill Type">
-                              <Box sx={{
-                                  bgcolor: 'rgba(255,255,255,0.9)',
-                                  borderRadius: '50%',
-                                  p: 0.5,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  color: '#fbc02d',
-                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                              }}>
-                                  <ElectricIcon fontSize="small" />
-                              </Box>
-                          </Tooltip>
-                      )}
-                      {address.billType?.includes('natural_gas') && (
-                          <Tooltip title="Natural Gas Bill Type">
-                              <Box sx={{
-                                  bgcolor: 'rgba(255,255,255,0.9)',
-                                  borderRadius: '50%',
-                                  p: 0.5,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  color: '#e64a19',
-                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                              }}>
-                                  <GasIcon fontSize="small" />
-                              </Box>
-                          </Tooltip>
-                      )}
+                      {/* Electric Icon - Always Visible */}
+                      <Tooltip title={hasElectric ? "Electric Bill Type Selected" : "Electric Bill Type Not Selected"}>
+                          <Box sx={{
+                              bgcolor: 'rgba(255,255,255,0.9)',
+                              borderRadius: '50%',
+                              p: 0.5,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: hasElectric ? '#fbc02d' : '#bdbdbd',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                              opacity: hasElectric ? 1 : 0.5,
+                              transition: 'all 0.2s'
+                          }}>
+                              <ElectricIcon fontSize="small" />
+                          </Box>
+                      </Tooltip>
+
+                      {/* Natural Gas Icon - Always Visible */}
+                      <Tooltip title={hasGas ? "Natural Gas Bill Type Selected" : "Natural Gas Bill Type Not Selected"}>
+                          <Box sx={{
+                              bgcolor: 'rgba(255,255,255,0.9)',
+                              borderRadius: '50%',
+                              p: 0.5,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: hasGas ? '#e64a19' : '#bdbdbd',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                              opacity: hasGas ? 1 : 0.5,
+                              transition: 'all 0.2s'
+                          }}>
+                              <GasIcon fontSize="small" />
+                          </Box>
+                      </Tooltip>
+
+                      {/* Water Icon - Always Visible */}
+                      <Tooltip title={hasWater ? "Water Bill Type Selected" : "Water Bill Type Not Selected"}>
+                          <Box sx={{
+                              bgcolor: 'rgba(255,255,255,0.9)',
+                              borderRadius: '50%',
+                              p: 0.5,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: hasWater ? '#29b6f6' : '#bdbdbd',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                              opacity: hasWater ? 1 : 0.5,
+                              transition: 'all 0.2s'
+                          }}>
+                              <WaterIcon fontSize="small" />
+                          </Box>
+                      </Tooltip>
+
                     <Tooltip arrow title="Edit Location details on Map">
                       <IconButton 
                           size="small"
@@ -316,23 +338,53 @@ const FacilityAddressSelector: React.FC = () => {
 
                   {/* Bill Types */}
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>
-                    <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.65rem', color: '#95a5a6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                      Bill Type(s)
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      {address.billType.length > 0 ? (
-                        address.billType.map((type) => (
-                          <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', fontWeight: 700, color: '#2c3e50' }}>
-                            <span>{type === 'electric' ? 'Electric' : 'Natural Gas'}</span>
-                          </Typography>
-                        ))
-                      ) : (
-                        <Typography sx={{ fontFamily: 'Nunito Sans, sans-serif', fontSize: '0.8rem', color: '#7f8c8d', fontWeight: 600 }}>
-                          Not set
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
+  <Typography
+    sx={{
+      fontFamily: 'Nunito Sans, sans-serif',
+      fontSize: '0.65rem',
+      color: '#95a5a6',
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    }}
+  >
+    Bill Type(s)
+  </Typography>
+
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+    {address.billType.length > 0 ? (
+      <Typography
+        sx={{
+          fontFamily: 'Nunito Sans, sans-serif',
+          fontSize: '0.8rem',
+          fontWeight: 700,
+          color: '#2c3e50',
+        }}
+      >
+        {address.billType
+          .map((type) =>
+            type === 'electric'
+              ? 'E'
+              : type === 'natural_gas'
+              ? 'NG'
+              : 'W'
+          )
+          .join(' / ')}
+      </Typography>
+    ) : (
+      <Typography
+        sx={{
+          fontFamily: 'Nunito Sans, sans-serif',
+          fontSize: '0.8rem',
+          color: '#7f8c8d',
+          fontWeight: 600,
+        }}
+      >
+        Not set
+      </Typography>
+    )}
+  </Box>
+</Box>
 
                   {/* Area */}
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.3 }}>

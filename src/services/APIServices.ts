@@ -36,7 +36,7 @@ export interface BillMetadata {
 id: string;
 name: string;
 size: string;
-type: 'grid' | 'gas';
+type: 'grid' | 'gas' | 'water';
 dateRange: { start: string; end: string };
 addressId: string;
 }

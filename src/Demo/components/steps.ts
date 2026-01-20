@@ -26,6 +26,7 @@ export const steps: StepStructure[] = [
             { label: 'Letter Of Authorization' },
             { label: 'LOA - Status' },
             { label: 'Natural Gas Bill Upload' },
+            { label: 'Water Bill Upload' },
         ]
       },
       {
