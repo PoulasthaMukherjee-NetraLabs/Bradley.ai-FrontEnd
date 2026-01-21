@@ -71,6 +71,9 @@ const FacilityAddress = lazy(() =>
 );
 
 
+import { Provider } from "react-redux";
+import { store } from '../store/store';
+
 
 // Component to hold all providers for cleanliness
 const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -389,7 +392,10 @@ const AppContent: React.FC = () => {
 const ClientApp: React.FC = () => {
   return (
     <AppProviders>
+      <Provider store={store}>
+
       <AppContent />
+      </Provider>
     </AppProviders>
   );
 };
