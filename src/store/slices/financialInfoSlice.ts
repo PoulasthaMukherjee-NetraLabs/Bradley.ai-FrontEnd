@@ -1,8 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// --- Interfaces ---
-
-// File Metadata (Shared)
+// File Metadata
 export interface FileMetadata {
   name: string;
   size: number;
@@ -101,8 +99,6 @@ export interface AdditionalPPAPreferencesState {
   preferencesText: string;
 }
 
-// --- Combined State ---
-
 export interface FinancialInfoState {
   ownershipPreference: OwnershipPreferenceState;
   budgetGoals: BudgetGoalsState;
@@ -116,8 +112,6 @@ export interface FinancialInfoState {
   ppaPreferences: PPAPreferencesState;
   additionalPPAPreferences: AdditionalPPAPreferencesState;
 }
-
-// --- Defaults & Hydration ---
 
 const loadState = <T>(key: string, defaultVal: T): T => {
   try {

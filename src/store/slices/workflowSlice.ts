@@ -38,7 +38,6 @@ const workflowSlice = createSlice({
     setCompletedSubSteps: (state, action: PayloadAction<boolean[][]>) => {
         state.completedSubSteps = action.payload;
     },
-    // Add specific updaters to avoid passing full arrays if needed
     markStepVisited: (state, action: PayloadAction<{stepIndex: number, subStepIndex: number}>) => {
         const { stepIndex, subStepIndex } = action.payload;
         if (state.visitedSteps[stepIndex]) {

@@ -20,7 +20,6 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        // Ignore these action types
         ignoredActions: [
             'energyProfile/addElectricFiles', 
             'energyProfile/addGasFiles',
@@ -29,7 +28,6 @@ export const store = configureStore({
             'financialInfo/addContractsIIIFiles',
             'financialInfo/addContractsIVFiles',
         ],
-        // Ignore these field paths in the state
         ignoredPaths: [
             'energyProfile.electricBill.files', 
             'energyProfile.naturalGasBill.files',

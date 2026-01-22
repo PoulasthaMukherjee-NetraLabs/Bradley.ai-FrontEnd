@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// --- Interfaces ---
-
 // Electric & Gas
 export interface FileMetadata {
   name: string;
@@ -11,7 +9,7 @@ export interface FileMetadata {
 
 export interface BillUploadState {
   fileMetadata: FileMetadata[];
-  files: File[]; // Non-serializable!
+  files: File[];
 }
 
 // Bill Address (New)
@@ -95,7 +93,7 @@ export interface ThermalEnergyNeedsIVState {
   benefitFromUtilization: string;
 }
 
-// Boiler Cogeneration (New)
+// Boiler Cogeneration
 export interface BoilerCogenerationSource {
   type: string;
   capacity: string;
@@ -113,7 +111,7 @@ export interface BoilerCogenerationState {
   sources: BoilerCogenerationSource[];
 }
 
-// LOA Form (New)
+// LOA Form
 export interface LOATextFields {
   day: string;
   month: string;
@@ -142,8 +140,6 @@ export interface LOAStatusState {
   details: string;
 }
 
-// --- Combined State ---
-
 export interface EnergyProfileState {
   electricBill: BillUploadState;
   naturalGasBill: BillUploadState;
@@ -156,8 +152,6 @@ export interface EnergyProfileState {
   loaForm: LOAFormState;
   loaStatus: LOAStatusState;
 }
-
-// --- Defaults ---
 
 const defaultBillState: BillUploadState = { fileMetadata: [], files: [] };
 
@@ -242,13 +236,10 @@ const loadState = <T>(key: string, defaultVal: T): T => {
   }
 };
 
-// Custom loader for BillAddress to match prefix logic if needed, 
-// but we will stick to a standard key for Redux migration 'energyProfile_billAddress' or similar.
-// The original used dynamic `appPrefix`. We will use 'billAddressState' for simplicity.
 const loadBillAddress = (): BillAddressState => {
-    // Attempt to load bills
+    // load bills
     let bills: Bill[] = [];
-    const savedBills = localStorage.getItem('billAddress_bills'); // Standardized key
+    const savedBills = localStorage.getItem('billAddress_bills');
     if (savedBills) {
         try {
             bills = JSON.parse(savedBills).map((bill: any) => ({
@@ -297,14 +288,14 @@ const energyProfileSlice = createSlice({
             dateRange: { start: '', end: '' }
         }));
         
-        // Filter duplicates
+        // filter duplicates
         const uniqueNewMetadata = newMetadata.filter(nm => !state.electricBill.fileMetadata.some(em => em.name === nm.name));
         const uniqueNewFiles = newFiles.filter(nf => !state.electricBill.files.some(ef => ef.name === nf.name));
 
         state.electricBill.fileMetadata.push(...uniqueNewMetadata);
         state.electricBill.files.push(...uniqueNewFiles);
 
-        // Persist Metadata Only
+        // Persist Metadata
         localStorage.setItem('electricBillUploadState', JSON.stringify({ ...state.electricBill, files: undefined }));
     },
     removeElectricFile: (state, action: PayloadAction<string>) => {

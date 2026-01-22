@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// --- Interfaces ---
-
 // Prioritization I
 export interface PrioritizationIState {
   selectedRanks: { [key: number]: string };
@@ -46,16 +44,12 @@ export interface FinancialsIIState {
   preferredTerm: string;
 }
 
-// --- Combined State ---
-
 export interface GoalsState {
   prioritizationI: PrioritizationIState;
   prioritizationII: PrioritizationIIState;
   financialsI: FinancialsIState;
   financialsII: FinancialsIIState;
 }
-
-// --- Defaults & Hydration ---
 
 const loadState = <T>(key: string, defaultVal: T): T => {
   try {
@@ -115,7 +109,6 @@ const goalsSlice = createSlice({
     // Prioritization I
     updatePrioritizationIRank: (state, action: PayloadAction<{ rank: number; value: string }>) => {
         const { rank, value } = action.payload;
-        // Logic from Context
         const newRanks = { ...state.prioritizationI.selectedRanks };
         if (newRanks[rank] === value) {
             newRanks[rank] = "Select one";

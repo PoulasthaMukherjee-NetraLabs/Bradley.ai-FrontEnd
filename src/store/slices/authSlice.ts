@@ -19,12 +19,10 @@ interface AuthState {
 
 const getInitialUser = (): User | null => {
   try {
-      // Check for globally persisted user (from AppProvider)
       const savedUser = localStorage.getItem('global_user');
       if (savedUser) {
           return JSON.parse(savedUser);
       }
-      // Fallback or other keys if needed
   } catch (e) {
       console.error("Failed to load user from local storage", e);
   }
@@ -43,9 +41,7 @@ const initialState: AuthState = {
 export const checkSession = createAsyncThunk(
   'auth/checkSession',
   async (_product: ProductKey | undefined, { rejectWithValue }) => {
-    // Logic adapted from AppContext sessionCheckForProduct & useEffect
     try {
-        // Prioritize emissioncheckiq check as in the original useEffect
         const sessionUser = await emissioncheckiqSessionCheck();
         if (sessionUser) {
              const bootstrapData = await emissioncheckiqBootstrap();
@@ -58,10 +54,6 @@ export const checkSession = createAsyncThunk(
                  bootstrap: bootstrapData
              };
         }
-        
-        // For 'bradley' user, we trust the localStorage (loaded in getInitialUser) 
-        // unless we want to implement a real session check endpoint for it.
-        // For now, returning null here allows the extraReducer to handle the state logic.
         return null;
     } catch (error) {
         return rejectWithValue("Session check failed");
@@ -74,7 +66,7 @@ export const loginUser = createAsyncThunk(
     async ({ product, email, password }: { product: ProductKey, email: string, password: string }, { rejectWithValue }) => {
         try {
             if (product === "bradley") {
-                // Hardcoded credentials from AppContext
+                // Hardcoded credentials
                  if (email === 'client@gmail.com' && password === 'client@gmail.com') {
                     return {
                         user: { email, role: "client", product: "bradley" } as User,
@@ -103,7 +95,6 @@ export const logoutUser = createAsyncThunk(
         if (product === "emissioncheckiq") {
             await emissioncheckiqLogout();
         }
-        // Cleanup local storage is handled in reducers
         return product;
     }
 );
@@ -131,18 +122,13 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.authReady = true;
         if (action.payload) {
-            // Found a session (emissioncheckiq)
             state.user = action.payload.user;
             state.bootstrap = action.payload.bootstrap;
         } else {
-            // No session found via API.
-            // If we have a 'bradley' user in state (from localStorage), keep it.
-            // If we had an 'emissioncheckiq' user but session check failed/returned null, we should log out.
              if (state.user?.product === 'emissioncheckiq') {
                  state.user = null;
                  state.bootstrap = null;
              }
-             // For 'bradley', we assume localStorage validity for now since it's a mock login.
         }
       })
       .addCase(checkSession.rejected, (state) => {

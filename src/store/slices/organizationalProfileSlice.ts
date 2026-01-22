@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// --- Interfaces ---
-
 // Organization Details
 export interface OrganizationDetailsState {
   organizationName: string;
@@ -105,7 +103,6 @@ export interface FacilityOperationState {
 }
 
 // Facility Address
-// Storing as POJO for Redux
 export interface LatLngLiteral {
   lat: number;
   lng: number;
@@ -141,8 +138,6 @@ export interface AnnualEnergySpendState {
   otherLabel: string;
 }
 
-// --- Combined State ---
-
 export interface OrganizationalProfileState {
   organizationDetails: OrganizationDetailsState;
   otherDetails: OtherDetailsState;
@@ -150,8 +145,6 @@ export interface OrganizationalProfileState {
   facilityAddress: FacilityAddressState;
   annualEnergySpend: AnnualEnergySpendState;
 }
-
-// --- Defaults & Hydration ---
 
 const loadState = <T>(key: string, defaultVal: T): T => {
   try {
@@ -198,10 +191,8 @@ const defaultAddress: FacilityAddressState = {
   selectedAddressId: null,
 };
 
-// Custom hydration for addresses to ensure shape
 const loadAddressState = (): FacilityAddressState => {
     const s = loadState('bradley_facilityAddressState', defaultAddress);
-    // Ensure position matches LatLngLiteral
     if (s.addresses) {
         s.addresses = s.addresses.map((a: any) => ({
             ...a,
@@ -258,9 +249,6 @@ const organizationalProfileSlice = createSlice({
 
     // Facility Operation
     updateFacilityOperation: (state, action: PayloadAction<Partial<FacilityOperationState>>) => {
-         // Deep merge might be needed for nested objects if partial updates are deep, 
-         // but Context implementation was { ...prevState, ...newState }.
-         // If newState contains a whole 'checked' object, it replaces the old one.
          state.facilityOperation = { ...state.facilityOperation, ...action.payload };
          localStorage.setItem('facilityOperationState', JSON.stringify(state.facilityOperation));
     },

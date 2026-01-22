@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// --- Interfaces ---
-
 // Site Characteristics I
 export interface BreakerAmperageField {
   id: string;
@@ -88,7 +86,7 @@ export interface RoofMountSolarState {
   selectedAreas: SelectedArea[];
 }
 
-// Solar Assets (Inputs to Maximize)
+// Solar Assets
 export interface SolarAssetsState {
   roofSections: string[];
   roofLoadCapacity: string;
@@ -134,8 +132,6 @@ export interface EquipmentPreferencesState {
   standardOther: string;
 }
 
-// --- Combined State ---
-
 export interface SiteAssessmentState {
   siteCharacteristicsI: SiteCharacteristicsIState;
   siteCharacteristicsII: SiteCharacteristicsIIState;
@@ -150,8 +146,6 @@ export interface SiteAssessmentState {
   existingAssets: ExistingAssetsState;
   equipmentPreferences: EquipmentPreferencesState;
 }
-
-// --- Defaults & Hydration ---
 
 const loadState = <T>(key: string, defaultVal: T): T => {
   try {
@@ -288,7 +282,6 @@ const siteAssessmentSlice = createSlice({
       const numValue = parseInt(value, 10);
       if (value === '' || (numValue >= 1 && numValue <= 5)) {
         if (value === '') {
-            // keep existing logic? usually clears if empty string
         } else {
              const currentBreakers = state.siteCharacteristicsI.breakers;
              const newBreakers: Breaker[] = [];
